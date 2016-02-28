@@ -32,9 +32,13 @@
     <span ng-if="raw.demo">{{raw.storeHref}}</span>
 	</div>
   <div class="detail-field" ng-if="store.storage">
-    <label>Alternative Storage Directory:</div>
+    <label>Alternative Storage Directory:</label>
     <span>{{store.storage}}</span>
   </div>
+	<div class="detail-field" ng-if="store.fast_storage">
+		<label>Fast (Cache) Storage Directory:</label>
+	<span>{{store.storage}}</span>
+	</div>
 </div>
 
 <div class="fieldset-caption">Description</div>
