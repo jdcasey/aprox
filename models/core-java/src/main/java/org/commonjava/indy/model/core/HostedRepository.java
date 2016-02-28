@@ -35,6 +35,9 @@ public class HostedRepository
 
     private int snapshotTimeoutSeconds;
 
+    @JsonProperty( "fast_storage" )
+    private String fastStorage;
+
     HostedRepository()
     {
     }
@@ -95,6 +98,16 @@ public class HostedRepository
     protected StoreKey initKey( final String name )
     {
         return new StoreKey( StoreType.hosted, name );
+    }
+
+    public String getFastStorage()
+    {
+        return fastStorage;
+    }
+
+    public void setFastStorage( String fastStorage )
+    {
+        this.fastStorage = fastStorage;
     }
 
 }

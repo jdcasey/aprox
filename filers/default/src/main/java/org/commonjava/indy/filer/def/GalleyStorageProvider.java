@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -27,6 +28,7 @@ import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.commonjava.cdi.util.weft.ExecutorConfig;
 import org.commonjava.indy.filer.def.conf.DefaultStorageProviderConfiguration;
 import org.commonjava.maven.galley.cache.partyline.PartyLineCacheProvider;
 import org.commonjava.maven.galley.cache.partyline.PartyLineCacheProviderConfig;
@@ -56,6 +58,10 @@ public class GalleyStorageProvider
 
     @Inject
     private SpecialPathManager specialPathManager;
+
+    @Inject
+    @ExecutorConfig( named = "fast-storage-transfers", threads = 4, priority = 4 )
+    private ExecutorService fastStorageTransfers;
 
     private TransferDecorator transferDecorator;
 
@@ -94,7 +100,7 @@ public class GalleyStorageProvider
             new PartyLineCacheProviderConfig( config.getStorageRootDirectory() );
 
         this.cacheProvider =
-            new PartyLineCacheProvider( cacheProviderConfig, pathGenerator, fileEventManager, transferDecorator );
+            new PartyLineCacheProvider( cacheProviderConfig, pathGenerator, fileEventManager, transferDecorator, fastStorageTransfers );
     }
 
     @Produces
