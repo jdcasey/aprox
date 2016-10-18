@@ -27,6 +27,7 @@ import org.commonjava.indy.subsys.infinispan.CacheHandle;
 import org.commonjava.indy.subsys.infinispan.conf.InfinispanSubsystemConfig;
 import org.commonjava.indy.subsys.infinispan.inject.qualifer.IndyCache;
 import org.infinispan.Cache;
+import org.infinispan.commons.marshall.MarshallableTypeHints;
 import org.infinispan.io.GridFile;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.manager.DefaultCacheManager;
@@ -76,6 +77,14 @@ public class CacheProducer
     @PostConstruct
     public void start()
     {
+        // FIXME This is just here to trigger shutdown hook init for embedded log4j in infinispan-embedded-query.
+        // FIXES:
+        //
+        // Thread-15 ERROR Unable to register shutdown hook because JVM is shutting down.
+        // java.lang.IllegalStateException: Cannot add new shutdown hook as this is not started. Current state: STOPPED
+        //
+        new MarshallableTypeHints().getBufferSizePredictor( CacheHandle.class );
+
         File confDir = indyConfiguration.getIndyConfDir();
         File ispnConf = ispnConfig.getInfinispanXml();
         if ( ispnConf == null )
