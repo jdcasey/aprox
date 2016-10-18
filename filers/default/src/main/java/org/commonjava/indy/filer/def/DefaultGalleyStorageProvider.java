@@ -25,6 +25,7 @@ import org.commonjava.maven.galley.cache.CacheProviderFactory;
 import org.commonjava.maven.galley.cache.infinispan.FastLocalCacheProviderFactory;
 import org.commonjava.maven.galley.cache.partyline.PartyLineCacheProviderFactory;
 import org.commonjava.maven.galley.cache.routes.RoutingCacheProviderFactory;
+import org.commonjava.maven.galley.config.TransportManagerConfig;
 import org.commonjava.maven.galley.io.ChecksummingTransferDecorator;
 import org.commonjava.maven.galley.io.checksum.Md5GeneratorFactory;
 import org.commonjava.maven.galley.io.checksum.Sha1GeneratorFactory;
@@ -78,6 +79,8 @@ public class DefaultGalleyStorageProvider
     @WeftManaged
     @Inject
     private ExecutorService fastLocalExecutors;
+
+    private TransportManagerConfig transportManagerConfig;
 
     private TransferDecorator transferDecorator;
 
@@ -165,6 +168,16 @@ public class DefaultGalleyStorageProvider
                         nfsBasedir );
             }
         }
+
+        // TODO: Tie this into a config file!
+        transportManagerConfig = new TransportManagerConfig();
+    }
+
+    @Produces
+    @Default
+    public TransportManagerConfig getTransportManagerConfig()
+    {
+        return transportManagerConfig;
     }
 
     @Produces

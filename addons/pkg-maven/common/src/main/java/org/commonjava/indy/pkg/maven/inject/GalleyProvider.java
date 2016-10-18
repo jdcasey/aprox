@@ -15,7 +15,6 @@
  */
 package org.commonjava.indy.pkg.maven.inject;
 
-import org.commonjava.maven.galley.config.TransportManagerConfig;
 import org.commonjava.maven.galley.maven.internal.defaults.StandardMaven304PluginDefaults;
 import org.commonjava.maven.galley.maven.internal.defaults.StandardMavenPluginImplications;
 import org.commonjava.maven.galley.maven.parse.XMLInfrastructure;
@@ -25,6 +24,7 @@ import org.commonjava.maven.galley.spi.io.SpecialPathManager;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
@@ -39,8 +39,6 @@ public class GalleyProvider
 
     private MavenPluginImplications pluginImplications;
 
-    private TransportManagerConfig transportManagerConfig;
-
     @Inject
     private SpecialPathManager specialPathManager;
 
@@ -49,24 +47,17 @@ public class GalleyProvider
     {
         pluginDefaults = new StandardMaven304PluginDefaults();
         pluginImplications = new StandardMavenPluginImplications( xml );
-
-        // TODO: Tie this into a config file!
-        transportManagerConfig = new TransportManagerConfig();
     }
 
     @Produces
-    public TransportManagerConfig getTransportManagerConfig()
-    {
-        return transportManagerConfig;
-    }
-
-    @Produces
+    @Default
     public MavenPluginDefaults getPluginDefaults()
     {
         return pluginDefaults;
     }
 
     @Produces
+    @Default
     public MavenPluginImplications getPluginImplications()
     {
         return pluginImplications;

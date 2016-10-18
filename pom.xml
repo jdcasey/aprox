@@ -663,6 +663,7 @@
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-ftests-pkg-maven</artifactId>
         <version>1.1.0-SNAPSHOT</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
