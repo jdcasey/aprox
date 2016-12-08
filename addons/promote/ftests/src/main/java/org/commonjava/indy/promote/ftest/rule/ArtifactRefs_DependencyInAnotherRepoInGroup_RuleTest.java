@@ -85,6 +85,7 @@ public class ArtifactRefs_DependencyInAnotherRepoInGroup_RuleTest
         deployResource( valid, PREFIX + "valid-single-external-dep.pom.xml" );
 
         waitForEventPropagation();
+        waitForEventPropagation();
 
         GroupPromoteRequest request = new GroupPromoteRequest( source.getKey(), target.getName() );
         GroupPromoteResult result = module.promoteToGroup( request );

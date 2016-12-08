@@ -53,6 +53,7 @@ public class NoSnapshots_ProjectVersion_RuleTest
                         + "<artifactId>valid</artifactId><version>1.1</version></project>" );
 
         waitForEventPropagation();
+        waitForEventPropagation();
 
         GroupPromoteRequest request = new GroupPromoteRequest( source.getKey(), target.getName() );
         GroupPromoteResult result = module.promoteToGroup( request );

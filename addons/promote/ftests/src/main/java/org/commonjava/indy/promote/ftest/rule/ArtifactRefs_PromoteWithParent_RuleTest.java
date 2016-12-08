@@ -78,6 +78,9 @@ public class ArtifactRefs_PromoteWithParent_RuleTest
         logger.debug( "promote with parent in source: parent content: {}", parentRetrived );
         assertThat( parentRetrived, containsString( "<artifactId>parent</artifactId>" ) );
 
+        waitForEventPropagation();
+        waitForEventPropagation();
+
         PathsPromoteRequest request = new PathsPromoteRequest( source.getKey(), target.getKey(), child, parent );
         PathsPromoteResult result = module.promoteByPath( request );
         assertThat( result, notNullValue() );

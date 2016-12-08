@@ -30,8 +30,12 @@ class ArtifactRefAvailability implements ValidationRule {
         request.getSourcePaths().each { it ->
             if (it.endsWith(".pom")) {
                 def relationships = tools.getRelationshipsForPom(it, dc, request, verifyStoreKeys)
+                logger.debug("Relationships for: {} are: {}", it, relationships)
+
                 if (relationships != null) {
+                    logger.debug( "Processing {} relationships", relationships.size())
                     relationships.each { rel ->
+                        logger.debug( "Checking relationship: {}", rel )
                         def skip = false
                         if (rel.getType() == RelationshipType.DEPENDENCY) {
                             def dr = (DependencyRelationship) rel
@@ -48,6 +52,7 @@ class ArtifactRefAvailability implements ValidationRule {
                             def found = false
                             def foundPom = false
 
+                            logger.debug("Looking for referenced project\n   Artifact: {}\n    POM: {}", path, pomPath)
                             verifyStoreKeys.each{ verifyStoreKey ->
                                 if( !found ){
                                     def txfr = tools.getTransfer(verifyStoreKey, path)

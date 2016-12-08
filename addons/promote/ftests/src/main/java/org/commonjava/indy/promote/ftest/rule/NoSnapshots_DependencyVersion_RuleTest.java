@@ -57,6 +57,7 @@ public class NoSnapshots_DependencyVersion_RuleTest
                 + "                + \"<version>1.0</version></dependency></dependencies></project>" );
 
         waitForEventPropagation();
+        waitForEventPropagation();
 
         GroupPromoteRequest request = new GroupPromoteRequest( source.getKey(), target.getName() );
         GroupPromoteResult result = module.promoteToGroup( request );

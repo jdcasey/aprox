@@ -18,7 +18,9 @@ package org.commonjava.indy.promote.validate;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.content.ContentDigest;
 import org.commonjava.indy.content.ContentManager;
+import org.commonjava.indy.content.RelationshipSet;
 import org.commonjava.indy.content.StoreResource;
+import org.commonjava.indy.core.change.RelationshipParsingPomListener;
 import org.commonjava.indy.data.IndyDataException;
 import org.commonjava.indy.data.StoreDataManager;
 import org.commonjava.indy.model.core.ArtifactStore;
@@ -54,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -206,23 +209,14 @@ public class PromotionValidationTools
             return null;
         }
 
-        List<Location> locations = new ArrayList<>( extraLocations.length + 1 );
-        locations.add( transfer.getLocation() );
-        addLocations( locations, extraLocations );
-
-        MavenPomView pomView =
-                pomReader.read( artifactRef.asProjectVersionRef(), transfer, locations, MavenPomView.ALL_PROFILES );
-
         try
         {
-            URI source = new URI( "indy:" + key.getType().name() + ":" + key.getName() );
-
-            return modelProcessor.readRelationships( pomView, source, config ).getAllRelationships();
+            RelationshipSet relationshipSet = RelationshipParsingPomListener.readRelationshipsDerivedFrom( transfer );
+            return relationshipSet == null ? null : relationshipSet.getRelationships();
         }
-        catch ( final URISyntaxException e )
+        catch ( IOException e )
         {
-            throw new IllegalStateException(
-                    "Failed to construct URI for ArtifactStore: " + key + ". Reason: " + e.getMessage(), e );
+            throw new IndyDataException( e.getMessage(), e );
         }
     }
 

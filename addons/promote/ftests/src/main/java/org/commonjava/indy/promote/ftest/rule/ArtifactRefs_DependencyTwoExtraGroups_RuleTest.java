@@ -95,6 +95,7 @@ public class ArtifactRefs_DependencyTwoExtraGroups_RuleTest
         deployResource( valid, PREFIX + "valid-two-external-deps.pom.xml" );
 
         waitForEventPropagation();
+        waitForEventPropagation();
 
         GroupPromoteRequest request = new GroupPromoteRequest( source.getKey(), target.getName() );
         GroupPromoteResult result = module.promoteToGroup( request );

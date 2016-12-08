@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Created by jdcasey on 9/11/15.
@@ -176,7 +177,8 @@ public class PromotionValidator
 
             final RemoteRepository tempRemote = new RemoteRepository( tempName, baseUrl );
 
-            tempRemote.setPathMaskPatterns( pathsReq.getPaths() );
+            // need to allow derivative files like http metadata, relationship serialization files, etc.
+            tempRemote.setPathMaskPatterns( pathsReq.getPaths().stream().map((path)->path + ".*").collect( Collectors.toSet()) );
 
 
 
