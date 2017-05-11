@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import static org.commonjava.indy.model.core.StoreType.group;
 import static org.commonjava.indy.model.core.StoreType.hosted;
 import static org.commonjava.indy.model.core.StoreType.remote;
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 /**
  * This query interface is intended to be reusable across any {@link StoreDataManager} implementation. It contains logic
@@ -44,6 +45,7 @@ import static org.commonjava.indy.model.core.StoreType.remote;
  *
  * Created by jdcasey on 5/10/17.
  */
+// TODO: Eventually, it should probably be an error if packageType isn't set explicitly
 public class MemoryStoreDataManagerQuery<T extends ArtifactStore>
         implements org.commonjava.indy.data.StoreDataManagerQuery<T>
 {
@@ -52,7 +54,7 @@ public class MemoryStoreDataManagerQuery<T extends ArtifactStore>
 
     private StoreDataManager dataManager;
 
-    private String packageType;
+    private String packageType = MAVEN_PKG_KEY;
 
     private Set<StoreType> types;
 
