@@ -15,9 +15,15 @@
  */
 package org.commonjava.indy.model.core;
 
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
+
 import java.io.Serializable;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public final class StoreKey
     implements Serializable, Comparable<StoreKey>
@@ -26,20 +32,43 @@ public final class StoreKey
 
     // private static final Logger logger = new Logger( StoreKey.class );
 
+    private String packageType;
+
     private final StoreType type;
 
     private final String name;
 
     protected StoreKey()
     {
+        this.packageType = null;
         this.type = null;
         this.name = null;
     }
 
-    public StoreKey( final StoreType type, final String name )
+    public StoreKey( final String packageType, final StoreType type, final String name )
     {
+        if ( !PackageTypes.contains( packageType ) )
+        {
+            throw new IllegalArgumentException( "Unsupported package type: " + packageType + ". Valid values are: "
+                                                        + PackageTypes.getPackageTypes() );
+        }
+
+        this.packageType = packageType;
         this.type = type;
         this.name = name;
+    }
+
+    @Deprecated
+    public StoreKey( final StoreType type, final String name )
+    {
+        this.packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+        this.type = type;
+        this.name = name;
+    }
+
+    public String getPackageType()
+    {
+        return packageType;
     }
 
     public StoreType getType()
@@ -55,7 +84,7 @@ public final class StoreKey
     @Override
     public String toString()
     {
-        return type.name() + ":" + name;
+        return packageType + ":" + type.name() + ":" + name;
     }
 
     @Override
@@ -63,6 +92,7 @@ public final class StoreKey
     {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ( ( packageType == null ) ? 0 : packageType.hashCode() );
         result = prime * result + ( ( name == null ) ? 0 : name.hashCode() );
         result = prime * result + ( ( type == null ) ? 0 : type.hashCode() );
         return result;
@@ -84,6 +114,17 @@ public final class StoreKey
             return false;
         }
         final StoreKey other = (StoreKey) obj;
+        if ( packageType == null )
+        {
+            if ( other.packageType != null )
+            {
+                return false;
+            }
+        }
+        else if ( !packageType.equals( other.packageType ) )
+        {
+            return false;
+        }
         if ( name == null )
         {
             if ( other.name != null )
@@ -100,19 +141,28 @@ public final class StoreKey
 
     public static StoreKey fromString( final String id )
     {
-        final int idx = id.indexOf( ':' );
+        String[] parts = id.split(":");
 
+        String packageType = null;
         String name;
-        StoreType type;
-        if ( idx < 1 )
+        StoreType type = null;
+
+        // FIXME: We need to get to a point where it's safe for this to be an error and not default to maven.
+        if ( parts.length < 3 || isBlank(parts[0]) )
+        {
+            packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+        }
+
+        if ( parts.length < 2 || isBlank( parts[1] ) )
         {
             name = id;
             type = StoreType.remote;
         }
         else
         {
-            name = id.substring( idx + 1 );
-            type = StoreType.get( id.substring( 0, idx ) );
+            packageType = parts[0];
+            type = StoreType.get( parts[1] );
+            name = parts[2];
         }
 
         if ( type == null )
@@ -122,17 +172,23 @@ public final class StoreKey
 
         // logger.info( "parsed store-key with type: '{}' and name: '{}'", type, name );
 
-        return new StoreKey( type, name );
+        return new StoreKey( packageType, type, name );
     }
 
     @Override
     public int compareTo( final StoreKey o )
     {
-        int comp = type.compareTo( o.type );
+        int comp = packageType.compareTo( o.packageType );
+        if ( comp == 0 )
+        {
+            comp = type.compareTo( o.type );
+        }
+
         if ( comp == 0 )
         {
             comp = name.compareTo( o.name );
         }
+
         return comp;
     }
 
@@ -149,4 +205,5 @@ public final class StoreKey
 
         return result;
     }
+
 }

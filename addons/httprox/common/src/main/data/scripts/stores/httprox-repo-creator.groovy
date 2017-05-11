@@ -1,6 +1,7 @@
 package org.commonjava.indy.httprox;
 
 import org.commonjava.indy.httprox.handler.ProxyRepositoryCreator
+import org.commonjava.indy.model.core.GenericPackageTypeDescriptor
 import org.commonjava.indy.model.core.RemoteRepository
 import org.commonjava.indy.subsys.http.util.UserPass
 import org.commonjava.indy.util.UrlInfo
@@ -12,7 +13,7 @@ class RepoCreator implements ProxyRepositoryCreator
 {
     @Override
     RemoteRepository create(String name, String baseUrl, UrlInfo info, UserPass up, Logger logger) {
-        remote = new RemoteRepository( name, baseUrl );
+        remote = new RemoteRepository( GenericPackageTypeDescriptor.GENERIC_PKG_KEY, name, baseUrl );
         remote.setDescription( "HTTProx proxy based on: " + info.getUrl() );
 
         remote.setPathStyle( hashed );

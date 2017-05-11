@@ -63,6 +63,16 @@
     </dependency>
     
     <dependency>
+      <groupId>org.commonjava.atservice</groupId>
+      <artifactId>atservice-annotation</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.commonjava.atservice</groupId>
+      <artifactId>atservice-processor</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
     </dependency>

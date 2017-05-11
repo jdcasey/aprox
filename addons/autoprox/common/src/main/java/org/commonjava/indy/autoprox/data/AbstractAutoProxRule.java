@@ -21,6 +21,8 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.RemoteRepository;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+
 public abstract class AbstractAutoProxRule
     implements AutoProxRule
 {
@@ -31,23 +33,53 @@ public abstract class AbstractAutoProxRule
         return true;
     }
 
-    @Override
+    @Deprecated
+    public boolean matches( String named )
+    {
+        return false;
+    }
+
+    public boolean matches( String packageType, String named )
+    {
+        return matches( named );
+    }
+
+    @Deprecated
     public RemoteRepository createRemoteRepository( final String named )
-        throws AutoProxRuleException, MalformedURLException
+            throws AutoProxRuleException, MalformedURLException
     {
         return null;
     }
 
     @Override
+    public RemoteRepository createRemoteRepository( final String packageType, final String named )
+        throws AutoProxRuleException, MalformedURLException
+    {
+        return createRemoteRepository( named );
+    }
+
+    @Deprecated
     public HostedRepository createHostedRepository( final String named )
     {
         return null;
     }
 
     @Override
+    public HostedRepository createHostedRepository( final String packageType, final String named )
+    {
+        return createHostedRepository( named );
+    }
+
+    @Deprecated
     public Group createGroup( final String named )
     {
         return null;
+    }
+
+    @Override
+    public Group createGroup( final String packageType, final String named )
+    {
+        return createGroup( named );
     }
 
     @Override
@@ -56,22 +88,17 @@ public abstract class AbstractAutoProxRule
         return null;
     }
 
-    /**
-     * Use {@link AutoProxRule#createValidationRemote()} instead.
-     */
-    @Override
-    @Deprecated
-    public RemoteRepository createGroupValidationRemote( final String name )
-        throws AutoProxRuleException, MalformedURLException
+    public RemoteRepository createValidationRemote( final String name )
+            throws AutoProxRuleException, MalformedURLException
     {
         return createRemoteRepository( name );
     }
 
     @Override
-    public RemoteRepository createValidationRemote( final String name )
+    public RemoteRepository createValidationRemote( final String packageType, final String name )
         throws AutoProxRuleException, MalformedURLException
     {
-        return createRemoteRepository( name );
+        return createValidationRemote( name );
     }
 
 }

@@ -24,22 +24,16 @@ class SonatypeRule extends AbstractAutoProxRule
         named.startsWith( "ST-" )
     }
 
-    RemoteRepository createRemoteRepository( String named )
+    RemoteRepository createRemoteRepository( String packageType, String named )
         throws MalformedURLException
     {
         def match = (named =~ /ST-(.+)/)[0]
-        new RemoteRepository( name: named, url: "http://oss.sonatype.org/content/repositories/${match[1]}/" )
+        new RemoteRepository( packageType, name: named, url: "http://oss.sonatype.org/content/repositories/${match[1]}/" )
     }
 
-    HostedRepository createHostedRepository( String named )
+    Group createGroup( String packageType, String named )
     {
-/*        new HostedRepository( named )*/
-        null
-    }
-
-    Group createGroup( String named )
-    {
-        Group g = new Group( named );
+        Group g = new Group( packageType, named );
         g.addConstituent( new StoreKey( StoreType.remote, named ) )
 /*        g.addConstituent( new StoreKey( StoreType.hosted, named ) )*/
         

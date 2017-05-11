@@ -40,29 +40,29 @@ public class TestAutoProxFactory
     }
 
     @Override
-    public RemoteRepository createRemoteRepository( final String named )
+    public RemoteRepository createRemoteRepository( final String packageType, final String named )
         throws AutoProxRuleException
     {
-        return new RemoteRepository( named, http.formatUrl( "target", named ) );
+        return new RemoteRepository( packageType, named, http.formatUrl( "target", named ) );
     }
 
     @Override
-    public HostedRepository createHostedRepository( final String named )
+    public HostedRepository createHostedRepository( final String packageType, final String named )
     {
-        return new HostedRepository( named );
+        return new HostedRepository( packageType, named );
     }
 
     @Override
-    public Group createGroup( final String named )
+    public Group createGroup( final String packageType, final String named )
     {
         final List<StoreKey> constituents = new ArrayList<StoreKey>();
 
-        constituents.add( new StoreKey( StoreType.hosted, named ) );
-        constituents.add( new StoreKey( StoreType.remote, named ) );
-        constituents.add( new StoreKey( StoreType.remote, "first" ) );
-        constituents.add( new StoreKey( StoreType.remote, "second" ) );
+        constituents.add( new StoreKey( packageType, StoreType.hosted, named ) );
+        constituents.add( new StoreKey( packageType, StoreType.remote, named ) );
+        constituents.add( new StoreKey( packageType, StoreType.remote, "first" ) );
+        constituents.add( new StoreKey( packageType, StoreType.remote, "second" ) );
 
-        return new Group( named, constituents );
+        return new Group( packageType, named, constituents );
     }
 
     @Override
@@ -72,16 +72,9 @@ public class TestAutoProxFactory
     }
 
     @Override
-    public boolean matches( final String name )
+    public boolean matches( final String packageType, final String name )
     {
         return true;
-    }
-
-    @Override
-    public RemoteRepository createGroupValidationRemote( final String name )
-        throws AutoProxRuleException
-    {
-        return createRemoteRepository( name );
     }
 
     @Override
@@ -91,10 +84,10 @@ public class TestAutoProxFactory
     }
 
     @Override
-    public RemoteRepository createValidationRemote( final String name )
+    public RemoteRepository createValidationRemote( final String packageType, final String name )
         throws AutoProxRuleException, MalformedURLException
     {
-        return createRemoteRepository( name );
+        return createRemoteRepository( packageType, name );
     }
 
 }

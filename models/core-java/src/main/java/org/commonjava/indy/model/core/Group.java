@@ -16,6 +16,7 @@
 package org.commonjava.indy.model.core;
 
 import io.swagger.annotations.ApiModel;
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,15 +36,29 @@ public class Group
     {
     }
 
-    public Group( final String name, final List<StoreKey> constituents )
+    public Group( final String packageType, final String name, final List<StoreKey> constituents )
     {
-        super( name );
+        super( packageType, StoreType.group, name );
         this.constituents = new ArrayList<>( constituents );
     }
 
+    @Deprecated
+    public Group( final String name, final List<StoreKey> constituents )
+    {
+        super( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, StoreType.group, name );
+        this.constituents = new ArrayList<>( constituents );
+    }
+
+    public Group( final String packageType, final String name, final StoreKey... constituents )
+    {
+        super( packageType, StoreType.group, name );
+        this.constituents = new ArrayList<>( Arrays.asList( constituents ) );
+    }
+
+    @Deprecated
     public Group( final String name, final StoreKey... constituents )
     {
-        super( name );
+        super( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, StoreType.group, name );
         this.constituents = new ArrayList<>( Arrays.asList( constituents ) );
     }
 
@@ -126,15 +141,9 @@ public class Group
     }
 
     @Override
-    protected StoreKey initKey( final String name )
-    {
-        return new StoreKey( StoreType.group, name );
-    }
-
-    @Override
     public Group copyOf()
     {
-        Group g = new Group( getName(), new ArrayList<>( getConstituents() ) );
+        Group g = new Group( getPackageType(), getName(), new ArrayList<>( getConstituents() ) );
         copyBase( g );
 
         return g;

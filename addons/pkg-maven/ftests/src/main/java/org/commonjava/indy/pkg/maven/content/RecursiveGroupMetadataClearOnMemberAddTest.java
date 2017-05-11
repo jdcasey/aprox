@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -152,11 +153,11 @@ public class RecursiveGroupMetadataClearOnMemberAddTest
             throws IndyClientException, UnsupportedEncodingException
     {
         String change = "Setup test";
-        hostedX = client.stores().create( new HostedRepository( HOSTED_X ), change, HostedRepository.class );
-        hostedY = client.stores().create( new HostedRepository( HOSTED_Y ), change, HostedRepository.class );
-        groupA = client.stores().create( new Group( GROUP_A, hostedX.getKey() ), change, Group.class );
-        groupB = client.stores().create( new Group( GROUP_B, groupA.getKey() ), change, Group.class );
-        groupC = client.stores().create( new Group( GROUP_C, groupB.getKey() ), change, Group.class );
+        hostedX = client.stores().create( new HostedRepository( MAVEN_PKG_KEY, HOSTED_X ), change, HostedRepository.class );
+        hostedY = client.stores().create( new HostedRepository( MAVEN_PKG_KEY, HOSTED_Y ), change, HostedRepository.class );
+        groupA = client.stores().create( new Group( MAVEN_PKG_KEY, GROUP_A, hostedX.getKey() ), change, Group.class );
+        groupB = client.stores().create( new Group( MAVEN_PKG_KEY, GROUP_B, groupA.getKey() ), change, Group.class );
+        groupC = client.stores().create( new Group( MAVEN_PKG_KEY, GROUP_C, groupB.getKey() ), change, Group.class );
 
         client.content()
               .store( hostedX.getKey(), PATH, new ByteArrayInputStream( HOSTED_X_CONTENT.getBytes( "UTF-8" ) ) );

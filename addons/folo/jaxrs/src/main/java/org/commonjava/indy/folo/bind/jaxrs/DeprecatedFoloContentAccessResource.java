@@ -43,9 +43,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import java.net.URI;
+import java.nio.file.Paths;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import static org.commonjava.indy.IndyContentConstants.CHECK_CACHE_ONLY;
+import static org.commonjava.indy.bind.jaxrs.util.ResponseUtils.markDeprecated;
 import static org.commonjava.indy.folo.ctl.FoloConstants.ACCESS_CHANNEL;
 import static org.commonjava.indy.folo.ctl.FoloConstants.TRACKING_KEY;
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 /**
  * Collects a tracking ID in addition to store type and name, then hands this off to
@@ -55,8 +62,8 @@ import static org.commonjava.indy.folo.ctl.FoloConstants.TRACKING_KEY;
  */
 @Api( value = "FOLO Tracked Content Access and Storage",
       description = "Tracks retrieval and management of file/artifact content." )
-@Path( "/api/folo/track/{id}/{packageType}/{type: (hosted|group|remote)}/{name}" )
-public class FoloContentAccessResource
+@Path( "/api/folo/track/{id}/{type: (hosted|group|remote)}/{name}" )
+public class DeprecatedFoloContentAccessResource
         implements IndyResources
 {
 
@@ -67,11 +74,11 @@ public class FoloContentAccessResource
     @Inject
     private ContentAccessHandler handler;
 
-    public FoloContentAccessResource()
+    public DeprecatedFoloContentAccessResource()
     {
     }
 
-    public FoloContentAccessResource( final ContentAccessHandler handler )
+    public DeprecatedFoloContentAccessResource( final ContentAccessHandler handler )
     {
         this.handler = handler;
     }
@@ -82,8 +89,6 @@ public class FoloContentAccessResource
     @PUT
     @Path( "/{path: (.*)}" )
     public Response doCreate( @ApiParam( "User-assigned tracking session key" ) @PathParam( "id" ) final String id,
-                              @ApiParam( "Package type (eg. maven, npm)" ) @PathParam( "packageType" )
-                              final String packageType,
                               @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" )
                               final String type, @PathParam( "name" ) final String name,
                               @PathParam( "path" ) final String path, @Context final HttpServletRequest request,
@@ -93,10 +98,17 @@ public class FoloContentAccessResource
 
         EventMetadata metadata =
                 new EventMetadata().set( TRACKING_KEY, tk ).set( ACCESS_CHANNEL, AccessChannel.MAVEN_REPO );
-        return handler.doCreate( packageType, type, name, path, request, metadata, () -> uriInfo.getBaseUriBuilder()
-                                                                                   .path( getClass() )
-                                                                                   .path( path )
-                                                                                   .build( id, type, name ) );
+        final Supplier<URI> uriSupplier = () -> uriInfo.getBaseUriBuilder()
+                                                       .path( getClass() )
+                                                       .path( path )
+                                                       .build( id, type, name );
+
+        final Consumer<Response.ResponseBuilder> deprecation = builder -> {
+            String alt = Paths.get( "/api/folo/track/", id, MAVEN_PKG_KEY, type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doCreate( MAVEN_PKG_KEY, type, name, path, request, metadata, uriSupplier, deprecation );
     }
 
     @ApiOperation( "Store and track file/artifact content under the given artifact store (type/name) and path." )
@@ -105,8 +117,6 @@ public class FoloContentAccessResource
     @HEAD
     @Path( "/{path: (.*)}" )
     public Response doHead( @ApiParam( "User-assigned tracking session key" ) @PathParam( "id" ) final String id,
-                            @ApiParam( "Package type (eg. maven, npm)" ) @PathParam( "packageType" )
-                            final String packageType,
                             @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" )
                             final String type, @PathParam( "name" ) final String name,
                             @PathParam( "path" ) final String path,
@@ -119,7 +129,13 @@ public class FoloContentAccessResource
 
         EventMetadata metadata =
                 new EventMetadata().set( TRACKING_KEY, tk ).set( ACCESS_CHANNEL, AccessChannel.MAVEN_REPO );
-        return handler.doHead( packageType, type, name, path, cacheOnly, baseUri, request, metadata );
+
+        final Consumer<Response.ResponseBuilder> deprecation = builder -> {
+            String alt = Paths.get( "/api/folo/track/", id, MAVEN_PKG_KEY, type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doHead( MAVEN_PKG_KEY, type, name, path, cacheOnly, baseUri, request, metadata, deprecation );
     }
 
     @ApiOperation( "Retrieve and track file/artifact content under the given artifact store (type/name) and path." )
@@ -129,8 +145,6 @@ public class FoloContentAccessResource
     @GET
     @Path( "/{path: (.*)}" )
     public Response doGet( @ApiParam( "User-assigned tracking session key" ) @PathParam( "id" ) final String id,
-                           @ApiParam( "Package type (eg. maven, npm)" ) @PathParam( "packageType" )
-                           final String packageType,
                            @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" )
                            final String type, @PathParam( "name" ) final String name,
                            @PathParam( "path" ) final String path, @Context final HttpServletRequest request,
@@ -141,7 +155,13 @@ public class FoloContentAccessResource
 
         EventMetadata metadata =
                 new EventMetadata().set( TRACKING_KEY, tk ).set( ACCESS_CHANNEL, AccessChannel.MAVEN_REPO );
-        return handler.doGet( packageType, type, name, path, baseUri, request, metadata );
+
+        final Consumer<Response.ResponseBuilder> deprecation = builder -> {
+            String alt = Paths.get( "/api/folo/track/", id, MAVEN_PKG_KEY, type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doGet( MAVEN_PKG_KEY, type, name, path, baseUri, request, metadata, deprecation );
     }
 
 }

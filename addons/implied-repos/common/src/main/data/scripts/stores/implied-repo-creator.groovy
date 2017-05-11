@@ -1,6 +1,7 @@
 package org.commonjava.indy.implrepo;
 
 import org.commonjava.indy.implrepo.change.ImpliedRepositoryCreator
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.commonjava.maven.galley.maven.model.view.RepositoryView;
 import org.commonjava.indy.model.core.RemoteRepository;
@@ -10,7 +11,7 @@ class RepoCreator implements ImpliedRepositoryCreator
 {
     @Override
     RemoteRepository createFrom(ProjectVersionRef implyingGAV, RepositoryView repo, Logger logger) {
-        RemoteRepository rr = new RemoteRepository( formatId( repo.getId() ), repo.getUrl() );
+        RemoteRepository rr = new RemoteRepository( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, formatId( repo.getId() ), repo.getUrl() );
 
         rr.setAllowSnapshots( repo.isSnapshotsEnabled() );
         rr.setAllowReleases( repo.isReleasesEnabled() );

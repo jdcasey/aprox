@@ -22,9 +22,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.commonjava.indy.bind.jaxrs.IndyDeployment;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
 import org.commonjava.maven.galley.event.EventMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -39,26 +38,29 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static org.commonjava.indy.IndyContentConstants.CHECK_CACHE_ONLY;
+import static org.commonjava.indy.bind.jaxrs.util.ResponseUtils.markDeprecated;
 
 @Api( value = "Content Access and Storage",
       description = "Handles retrieval and management of file/artifact content. This is the main point of access for most users." )
 @Path( "/api/{type: (hosted|group|remote)}/{name}" )
-public class ContentAccessResource
+public class DeprecatedContentAccessResource
         implements IndyResources
 {
-
-    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     @Inject
     private ContentAccessHandler handler;
 
-    public ContentAccessResource()
+    public DeprecatedContentAccessResource()
     {
     }
 
-    public ContentAccessResource( final ContentAccessHandler handler )
+    public DeprecatedContentAccessResource( final ContentAccessHandler handler )
     {
         this.handler = handler;
     }
@@ -74,10 +76,18 @@ public class ContentAccessResource
             final @PathParam( "path" ) String path, final @Context UriInfo uriInfo,
             final @Context HttpServletRequest request )
     {
-        return handler.doCreate( type, name, path, request, new EventMetadata(), () -> uriInfo.getBaseUriBuilder()
-                                                                                              .path( getClass() )
-                                                                                              .path( path )
-                                                                                              .build( type, name ) );
+        String packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+        final Supplier<URI> uriSupplier = () -> uriInfo.getBaseUriBuilder()
+                                                       .path( getClass() )
+                                                       .path( path )
+                                                       .build( packageType, type, name );
+
+        final Consumer<Response.ResponseBuilder> deprecated = builder -> {
+            String alt = Paths.get( "/api/maven", type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doCreate( packageType, type, name, path, request, new EventMetadata(), uriSupplier, deprecated );
     }
 
     @ApiOperation( "Delete file/artifact content under the given artifact store (type/name) and path." )
@@ -89,7 +99,13 @@ public class ContentAccessResource
             String type, final @ApiParam( required = true ) @PathParam( "name" ) String name,
             final @PathParam( "path" ) String path )
     {
-        return handler.doDelete( type, name, path, new EventMetadata() );
+        String packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+        final Consumer<Response.ResponseBuilder> deprecated = builder -> {
+            String alt = Paths.get( "/api/maven", type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doDelete( packageType, type, name, path, new EventMetadata(), deprecated );
     }
 
     @ApiOperation( "Store file/artifact content under the given artifact store (type/name) and path." )
@@ -103,11 +119,18 @@ public class ContentAccessResource
             final @PathParam( "path" ) String path, @QueryParam( CHECK_CACHE_ONLY ) final Boolean cacheOnly,
             @Context final UriInfo uriInfo, @Context final HttpServletRequest request )
     {
+        String packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
         final String baseUri = uriInfo.getBaseUriBuilder()
                                       .path( IndyDeployment.API_PREFIX )
                                       .build()
                                       .toString();
-        return handler.doHead( type, name, path, cacheOnly, baseUri, request, new EventMetadata() );
+
+        final Consumer<Response.ResponseBuilder> deprecated = builder -> {
+            String alt = Paths.get( "/api/maven", type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doHead( packageType, type, name, path, cacheOnly, baseUri, request, new EventMetadata(), deprecated );
     }
 
     @ApiOperation( "Retrieve file/artifact content under the given artifact store (type/name) and path." )
@@ -122,12 +145,18 @@ public class ContentAccessResource
             final @PathParam( "path" ) String path, @Context final UriInfo uriInfo,
             @Context final HttpServletRequest request )
     {
+        String packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
         final String baseUri = uriInfo.getBaseUriBuilder()
                                       .path( IndyDeployment.API_PREFIX )
                                       .build()
                                       .toString();
 
-        return handler.doGet( type, name, path, baseUri, request, new EventMetadata() );
+        final Consumer<Response.ResponseBuilder> deprecated = builder -> {
+            String alt = Paths.get( "/api/maven", type, name, path ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doGet( packageType, type, name, path, baseUri, request, new EventMetadata(), deprecated );
     }
 
     @ApiOperation( "Retrieve root listing under the given artifact store (type/name)." )
@@ -141,12 +170,18 @@ public class ContentAccessResource
             String type, final @ApiParam( required = true ) @PathParam( "name" ) String name,
             @Context final UriInfo uriInfo, @Context final HttpServletRequest request )
     {
+        String packageType = MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
         final String baseUri = uriInfo.getBaseUriBuilder()
                                       .path( IndyDeployment.API_PREFIX )
                                       .build()
                                       .toString();
 
-        return handler.doGet( type, name, "", baseUri, request, new EventMetadata() );
+        final Consumer<Response.ResponseBuilder> deprecated = builder -> {
+            String alt = Paths.get( "/api/maven", type, name ).toString();
+            markDeprecated( builder, alt );
+        };
+
+        return handler.doGet( packageType, type, name, "", baseUri, request, new EventMetadata(), deprecated );
     }
 
 }

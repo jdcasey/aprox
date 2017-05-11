@@ -17,6 +17,9 @@ package org.commonjava.indy.model.core;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
+
+import static org.commonjava.indy.model.core.StoreType.hosted;
 
 @ApiModel( description = "Hosts artifact content on the local system", parent = ArtifactStore.class )
 public class HostedRepository
@@ -38,9 +41,15 @@ public class HostedRepository
         super();
     }
 
+    public HostedRepository( final String packageType, final String name )
+    {
+        super( packageType, hosted, name );
+    }
+
+    @Deprecated
     public HostedRepository( final String name )
     {
-        super( name );
+        super( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, hosted, name );
     }
 
     @Override
@@ -77,12 +86,6 @@ public class HostedRepository
     public void setReadonly( boolean readonly )
     {
         this.readonly = readonly;
-    }
-
-    @Override
-    protected StoreKey initKey( final String name )
-    {
-        return new StoreKey( StoreType.hosted, name );
     }
 
     @Override

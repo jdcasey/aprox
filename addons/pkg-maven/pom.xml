@@ -30,9 +30,9 @@
   <name>Indy :: Add-Ons :: Package-Maven :: Parent</name>
 
   <modules>
-    <module>model-java</module>
     <module>common</module>
     <module>ftests</module>
+    <module>jaxrs</module>
   </modules>
 
 

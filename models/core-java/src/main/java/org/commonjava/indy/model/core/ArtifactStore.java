@@ -69,37 +69,30 @@ public abstract class ArtifactStore
     {
     }
 
-    protected ArtifactStore( final String name )
+    protected ArtifactStore( final String packageType, final StoreType type, final String name )
     {
-        this.key = initKey( name );
+        this.key = StoreKey.dedupe( new StoreKey( packageType, type, name ) );
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commonjava.web.maven.proxy.model.ArtifactStore#getName()
-     */
     public String getName()
     {
         return key.getName();
     }
 
-    protected void setName( final String name )
+    public StoreType getType()
     {
-        this.key = initKey( name );
+        return key.getType();
     }
 
-    @Deprecated
-    public StoreType getDoctype()
+    public String getPackageType()
     {
-        return getKey().getType();
+        return key.getPackageType();
     }
 
     public synchronized StoreKey getKey()
     {
         return key;
     }
-
-    protected abstract StoreKey initKey( String name );
 
     public abstract ArtifactStore copyOf();
 

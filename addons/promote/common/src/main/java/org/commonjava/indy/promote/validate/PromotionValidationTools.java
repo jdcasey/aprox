@@ -65,6 +65,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.commonjava.indy.model.core.StoreType.group;
+import static org.commonjava.indy.model.core.StoreType.remote;
 import static org.commonjava.indy.promote.validate.util.ReadOnlyTransfer.readOnlyWrapper;
 import static org.commonjava.indy.promote.validate.util.ReadOnlyTransfer.readOnlyWrappers;
 import static org.commonjava.maven.galley.io.ChecksummingTransferDecorator.FORCE_CHECKSUM;
@@ -580,14 +582,26 @@ public class PromotionValidationTools
         return storeDataManager.getGroupsContaining( repo );
     }
 
+    @Deprecated
     public boolean hasRemoteRepository( final String name )
     {
         return storeDataManager.hasRemoteRepository( name );
     }
 
+    public boolean hasRemoteRepository( final String packageType, final String name )
+    {
+        return storeDataManager.hasArtifactStore( new StoreKey( packageType, remote, name ) );
+    }
+
+    @Deprecated
     public boolean hasGroup( final String name )
     {
-        return storeDataManager.hasGroup( name );
+        return storeDataManager.hasArtifactStore( new StoreKey( group, name ) );
+    }
+
+    public boolean hasGroup( final String packageType, final String name )
+    {
+        return storeDataManager.hasArtifactStore( new StoreKey( packageType, group, name ) );
     }
 
     public boolean hasHostedRepository( final String name )

@@ -21,10 +21,13 @@ import java.net.URL;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import static org.commonjava.indy.model.core.StoreType.remote;
 
 @ApiModel( description = "Proxy to a remote server's artifact content, with local cache storage.",
            parent = ArtifactStore.class )
@@ -90,16 +93,17 @@ public class RemoteRepository
     {
     }
 
+    @Deprecated
     public RemoteRepository( final String name, final String remoteUrl )
     {
-        super( name );
-        this.url = remoteUrl;
-        calculateFields();
+        this( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, name, remoteUrl );
     }
 
-    RemoteRepository( final String name )
+    public RemoteRepository( final String packageType, String name, String remoteUrl )
     {
-        super( name );
+        super( packageType, remote, name );
+        this.url = remoteUrl;
+        calculateFields();
     }
 
     public String getUrl()
@@ -339,12 +343,6 @@ public class RemoteRepository
     public void setProxyPassword( final String proxyPassword )
     {
         this.proxyPassword = proxyPassword;
-    }
-
-    @Override
-    protected StoreKey initKey( final String name )
-    {
-        return new StoreKey( StoreType.remote, name );
     }
 
     public int getNfcTimeoutSeconds()

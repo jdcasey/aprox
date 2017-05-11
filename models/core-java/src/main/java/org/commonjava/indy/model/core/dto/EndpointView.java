@@ -30,6 +30,8 @@ import org.commonjava.indy.model.core.StoreType;
 public final class EndpointView
     implements Comparable<EndpointView>
 {
+    private String packageType;
+
     private String name;
 
     private String type;
@@ -50,6 +52,8 @@ public final class EndpointView
         this.type = key.getType()
                        .name();
 
+        this.packageType = key.getPackageType();
+
 
         this.resourceUri = resourceUri;
     }
@@ -64,6 +68,11 @@ public final class EndpointView
         return type;
     }
 
+    public final String getPackageType()
+    {
+        return packageType;
+    }
+
     public final String getResourceUri()
     {
         return resourceUri;
@@ -76,12 +85,12 @@ public final class EndpointView
 
     public StoreKey getStoreKey()
     {
-        return new StoreKey( StoreType.get( type ), name );
+        return new StoreKey( packageType, StoreType.get( type ), name );
     }
 
     public final String getKey()
     {
-        return type + ":" + name;
+        return packageType + ":" + type + ":" + name;
     }
 
     @Override
@@ -142,5 +151,10 @@ public final class EndpointView
     public void setType( final String type )
     {
         this.type = type;
+    }
+
+    public void setPackageType( final String packageType )
+    {
+        this.packageType = packageType;
     }
 }

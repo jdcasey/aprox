@@ -28,5 +28,5 @@ import org.commonjava.indy.subsys.template.ScriptEngine;
  */
 public interface KojiRepositoryCreator
 {
-    RemoteRepository createRemoteRepository( String name, String url, Integer downloadTimeoutSeconds );
+    RemoteRepository createRemoteRepository( String packageType, String name, String url, Integer downloadTimeoutSeconds );
 }

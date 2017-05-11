@@ -1,34 +1,34 @@
 import org.commonjava.indy.model.core.*;
 import org.commonjava.indy.autoprox.data.*;
 
-class ProdFactory extends AbstractAutoProxRule
+class TestFactory extends AbstractAutoProxRule
 {
 
-    RemoteRepository createRemoteRepository( final String named )
+    RemoteRepository createRemoteRepository( final String packageType, final String named )
         throws MalformedURLException
     {
         String baseUrl = System.getProperty( "baseUrl" );
-        new RemoteRepository( named, baseUrl + "/target/" + named );
+        new RemoteRepository( packageType, named, baseUrl + "/target/" + named );
     }
 
-    HostedRepository createHostedRepository( final String named )
+    HostedRepository createHostedRepository( final String packageType, final String named )
     {
-        new HostedRepository( named );
+        new HostedRepository( packageType, named );
     }
 
-    Group createGroup( final String named )
+    Group createGroup( String packageType, final String named )
     {
         List<StoreKey> constituents = new ArrayList<StoreKey>();
         
-        constituents.add( new StoreKey( StoreType.hosted, named ) );
-        constituents.add( new StoreKey( StoreType.remote, named ) );
-        constituents.add( new StoreKey( StoreType.remote, "first" ) );
-        constituents.add( new StoreKey( StoreType.remote, "second" ) );
+        constituents.add( new StoreKey( packageType, StoreType.hosted, named ) );
+        constituents.add( new StoreKey( packageType, StoreType.remote, named ) );
+        constituents.add( new StoreKey( packageType, StoreType.remote, "first" ) );
+        constituents.add( new StoreKey( packageType, StoreType.remote, "second" ) );
         
-        new Group( named, constituents );
+        new Group( packageType, named, constituents );
     }
 
-    boolean matches( final String name )
+    boolean matches( final String packageType, final String name )
     {
         "test".equals( name );
     }

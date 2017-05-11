@@ -38,9 +38,9 @@ public abstract class AbstractRepository
     {
     }
 
-    public AbstractRepository( final String name )
+    protected AbstractRepository( final String packageType, final StoreType type, final String name )
     {
-        super( name );
+        super( packageType, type, name );
     }
 
     public boolean isAllowSnapshots()

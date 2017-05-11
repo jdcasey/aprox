@@ -6,8 +6,8 @@ import org.commonjava.indy.model.core.RemoteRepository
 class RepoCreator implements KojiRepositoryCreator
 {
     @Override
-    RemoteRepository createRemoteRepository(String name, String url, Integer downloadTimeoutSeconds) {
-        RemoteRepository remote = new RemoteRepository( name, url );
+    RemoteRepository createRemoteRepository(String packageType, String name, String url, Integer downloadTimeoutSeconds) {
+        RemoteRepository remote = new RemoteRepository( packageType, name, url );
         remote.setTimeoutSeconds( downloadTimeoutSeconds );
 
         remote

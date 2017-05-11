@@ -24,13 +24,13 @@ class ComplexGroupsRule extends AbstractAutoProxRule
         name =~ /.+\+.+/
     }
 
-    Group createGroup( String named )
+    Group createGroup( String packageType, String named )
     {
         String[] parts = named.split("\\+")
         
         Group g = null
         if ( parts.length > 1 ){
-            g = new Group( named )
+            g = new Group( packageType, named )
             parts.each{
               int idx = it.indexOf('_')
               

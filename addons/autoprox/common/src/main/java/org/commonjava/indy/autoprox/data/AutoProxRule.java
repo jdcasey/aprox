@@ -28,25 +28,14 @@ public interface AutoProxRule
 
     boolean isValidationEnabled();
 
-    boolean matches( String name );
+    boolean matches( String packageType, String name );
 
-    RemoteRepository createRemoteRepository( String named )
+    RemoteRepository createRemoteRepository( String packageType, String named )
         throws AutoProxRuleException, MalformedURLException;
 
-    HostedRepository createHostedRepository( String named );
+    HostedRepository createHostedRepository( String packageType, String named );
 
-    Group createGroup( String named );
-
-    /**
-     * MAY be null IF the group doesn't require validation vs. the remote URL of its associated auto-created remote repository.
-     * Otherwise, this repository should supply any credentials/configuration needed to validate the remote URL.
-     * 
-     * <br/>
-     * NOTE: Use {@link AutoProxRule#createValidationRemote(String)} instead.
-     */
-    @Deprecated
-    RemoteRepository createGroupValidationRemote( String name )
-        throws AutoProxRuleException, MalformedURLException;
+    Group createGroup( String packageType, String named );
 
     String getRemoteValidationPath();
 
@@ -54,7 +43,7 @@ public interface AutoProxRule
      * MAY be null IF the remotes/groups don't require validation.
      * Otherwise, this repository should supply any credentials/configuration needed to validate the remote URL.
      */
-    RemoteRepository createValidationRemote( String name )
+    RemoteRepository createValidationRemote( String packageType, String name )
         throws AutoProxRuleException, MalformedURLException;
 
 }

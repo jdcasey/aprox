@@ -78,17 +78,17 @@ public abstract class AutoProxDataManagerDecorator
     }
 
     @Override
-    public Group getGroup( final String name )
+    public Group getGroup( final String packageType, final String name )
             throws IndyDataException
     {
-        return getGroup( name, null );
+        return getGroup( packageType, name, null );
     }
 
-    private Group getGroup( final String name, final StoreKey impliedBy )
+    private Group getGroup( final String packageType, final String name, final StoreKey impliedBy )
             throws IndyDataException
     {
         logger.debug( "DECORATED (getGroup: {})", name );
-        Group g = dataManager.getGroup( name );
+        Group g = dataManager.getGroup( packageType, name );
 
         if ( !catalog.isEnabled() )
         {

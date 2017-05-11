@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import org.commonjava.indy.autoprox.data.*;
+import org.commonjava.indy.autoprox.data.*
+import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
+
 import java.net.MalformedURLException;
 import org.commonjava.indy.model.core.*;
 import org.slf4j.Logger;
@@ -22,26 +24,20 @@ import org.slf4j.LoggerFactory;
 
 class JBossOrgRule extends AbstractAutoProxRule
 {
-    boolean matches( String named ){
-        named.startsWith( "JB-" )
+    boolean matches( String packageType, String named ) {
+        MavenPackageTypeDescriptor.MAVEN_PKG_KEY.equals(packageType) && named.startsWith("JB-")
     }
 
-    RemoteRepository createRemoteRepository( String named )
+    RemoteRepository createRemoteRepository( String packageType, String named )
         throws MalformedURLException
     {
         def match = (named =~ /JB-(.+)/)[0]
-        return new RemoteRepository( name: named, url: "https://repository.jboss.org/nexus/content/repositories/${match[1]}/" )
+        return new RemoteRepository( packageType, name: named, url: "https://repository.jboss.org/nexus/content/repositories/${match[1]}/" )
     }
 
-    HostedRepository createHostedRepository( String named )
+    Group createGroup( String packageType, String named )
     {
-/*        new HostedRepository( named )*/
-        null
-    }
-
-    Group createGroup( String named )
-    {
-        Group g = new Group( named );
+        Group g = new Group( packageType, named );
         g.addConstituent( new StoreKey( StoreType.remote, named ) )
 /*        g.addConstituent( new StoreKey( StoreType.hosted, named ) )*/
         

@@ -1,33 +1,20 @@
 package org.commonjava.indy.pkg.maven.content;
 
-import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.ftest.core.AbstractContentManagementTest;
 import org.commonjava.indy.ftest.core.category.EventDependent;
-import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TestRule;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.concurrent.TimeUnit;
 
-import static org.commonjava.indy.ftest.core.fixture.ThreadDumper.timeoutRule;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * Created by jdcasey on 1/19/17.
@@ -104,10 +91,10 @@ public class RecursiveGroupMetadataFoundAfterMemberAddTest
             throws IndyClientException, UnsupportedEncodingException
     {
         String change = "Setup test";
-        hostedX = client.stores().create( new HostedRepository( HOSTED_X ), change, HostedRepository.class );
-        groupA = client.stores().create( new Group( GROUP_A ), change, Group.class );
-        groupB = client.stores().create( new Group( GROUP_B, groupA.getKey() ), change, Group.class );
-        groupC = client.stores().create( new Group( GROUP_C, groupB.getKey() ), change, Group.class );
+        hostedX = client.stores().create( new HostedRepository( MAVEN_PKG_KEY, HOSTED_X ), change, HostedRepository.class );
+        groupA = client.stores().create( new Group( MAVEN_PKG_KEY, GROUP_A ), change, Group.class );
+        groupB = client.stores().create( new Group( MAVEN_PKG_KEY, GROUP_B, groupA.getKey() ), change, Group.class );
+        groupC = client.stores().create( new Group( MAVEN_PKG_KEY, GROUP_C, groupB.getKey() ), change, Group.class );
     }
 
     @Test

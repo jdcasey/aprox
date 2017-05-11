@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2011 Red Hat, Inc. (jdcasey@commonjava.org)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,9 +21,9 @@ import org.commonjava.indy.bind.jaxrs.util.JaxRsRequestHelper;
 import org.commonjava.indy.content.ContentManager;
 import org.commonjava.indy.core.bind.jaxrs.util.TransferStreamingOutput;
 import org.commonjava.indy.core.ctl.ContentController;
+import org.commonjava.indy.model.core.PackageTypes;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
-import org.commonjava.indy.model.galley.KeyedLocation;
 import org.commonjava.indy.model.util.HttpUtils;
 import org.commonjava.indy.util.AcceptInfo;
 import org.commonjava.indy.util.ApplicationContent;
@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.commonjava.indy.bind.jaxrs.util.ResponseUtils.formatOkResponseWithEntity;
@@ -82,11 +83,19 @@ public class ContentAccessHandler
         this.jaxRsRequestHelper = jaxRsRequestHelper;
     }
 
-    public Response doCreate( final String type, final String name, final String path, final HttpServletRequest request,
-                              EventMetadata eventMetadata, final Supplier<URI> uriBuilder )
+    public Response doCreate( final String packageType, final String type, final String name, final String path,
+                              final HttpServletRequest request, EventMetadata eventMetadata,
+                              final Supplier<URI> uriBuilder )
+    {
+        return doCreate( packageType, type, name, path, request, eventMetadata, uriBuilder, null );
+    }
+
+    public Response doCreate( final String packageType, final String type, final String name, final String path,
+                              final HttpServletRequest request, EventMetadata eventMetadata,
+                              final Supplier<URI> uriBuilder, final Consumer<ResponseBuilder> builderModifier )
     {
         final StoreType st = StoreType.get( type );
-        StoreKey sk = new StoreKey( st, name );
+        StoreKey sk = new StoreKey( packageType, st, name );
 
         eventMetadata = eventMetadata.set( ContentManager.ENTRY_POINT_STORE, sk );
 
@@ -102,22 +111,44 @@ public class ContentAccessHandler
 
             final URI uri = uriBuilder.get();
 
-            response = Response.created( uri ).build();
+            ResponseBuilder builder = Response.created( uri );
+            if ( builderModifier != null )
+            {
+                builderModifier.accept( builder );
+            }
+            response = builder.build();
         }
         catch ( final IndyWorkflowException | IOException e )
         {
             logger.error( String.format( "Failed to upload: %s to: %s. Reason: %s", path, name, e.getMessage() ), e );
 
-            response = formatResponse( e );
+            response = formatResponse( e, builderModifier );
         }
 
         return response;
     }
 
-    public Response doDelete( final String type, final String name, final String path, EventMetadata eventMetadata )
+    public Response doDelete( final String packageType, final String type, final String name, final String path,
+                              EventMetadata eventMetadata )
     {
+        return doDelete( packageType, type, name, path, eventMetadata, null );
+    }
+
+    public Response doDelete( final String packageType, final String type, final String name, final String path,
+                              EventMetadata eventMetadata, final Consumer<ResponseBuilder> builderModifier )
+    {
+        if ( !PackageTypes.contains( packageType ) )
+        {
+            ResponseBuilder builder = Response.status( 400 );
+            if ( builderModifier != null )
+            {
+                builderModifier.accept( builder );
+            }
+            return builder.build();
+        }
+
         final StoreType st = StoreType.get( type );
-        StoreKey sk = new StoreKey( st, name );
+        StoreKey sk = new StoreKey( packageType, st, name );
 
         eventMetadata = eventMetadata.set( ContentManager.ENTRY_POINT_STORE, sk );
 
@@ -125,23 +156,45 @@ public class ContentAccessHandler
         try
         {
             final ApplicationStatus result = contentController.delete( st, name, path, eventMetadata );
-            response = Response.status( result.code() ).build();
+            ResponseBuilder builder = Response.status( result.code() );
+            if ( builderModifier != null )
+            {
+                builderModifier.accept( builder );
+            }
+            response = builder.build();
         }
         catch ( final IndyWorkflowException e )
         {
-            logger.error(
-                    String.format( "Failed to tryDelete artifact: %s from: %s. Reason: %s", path, name, e.getMessage() ),
-                    e );
-            response = formatResponse( e );
+            logger.error( String.format( "Failed to tryDelete artifact: %s from: %s. Reason: %s", path, name,
+                                         e.getMessage() ), e );
+            response = formatResponse( e, builderModifier );
         }
         return response;
     }
 
-    public Response doHead( final String type, final String name, final String path, final Boolean cacheOnly, final String baseUri,
-                            final HttpServletRequest request, EventMetadata eventMetadata )
+    public Response doHead( final String packageType, final String type, final String name, final String path,
+                            final Boolean cacheOnly, final String baseUri, final HttpServletRequest request,
+                            EventMetadata eventMetadata )
     {
+        return doHead( packageType, type, name, path, cacheOnly, baseUri, request, eventMetadata, null );
+    }
+
+    public Response doHead( final String packageType, final String type, final String name, final String path,
+                            final Boolean cacheOnly, final String baseUri, final HttpServletRequest request,
+                            EventMetadata eventMetadata, final Consumer<ResponseBuilder> builderModifier )
+    {
+        if ( !PackageTypes.contains( packageType ) )
+        {
+            ResponseBuilder builder = Response.status( 400 );
+            if ( builderModifier != null )
+            {
+                builderModifier.accept( builder );
+            }
+            return builder.build();
+        }
+
         final StoreType st = StoreType.get( type );
-        final StoreKey sk = new StoreKey( st, name );
+        final StoreKey sk = new StoreKey( packageType, st, name );
 
         eventMetadata = eventMetadata.set( ContentManager.ENTRY_POINT_STORE, sk );
 
@@ -157,19 +210,23 @@ public class ContentAccessHandler
                 final String content =
                         contentController.renderListing( acceptInfo.getBaseAccept(), sk, path, baseUri, uriFormatter );
 
-                response = Response.ok()
+                ResponseBuilder builder = Response.ok()
                                    .header( ApplicationHeader.content_type.key(), acceptInfo.getRawAccept() )
                                    .header( ApplicationHeader.content_length.key(), Long.toString( content.length() ) )
                                    .header( ApplicationHeader.last_modified.key(),
-                                            HttpUtils.formatDateHeader( new Date() ) )
-                                   .build();
+                                            HttpUtils.formatDateHeader( new Date() ) );
+                if ( builderModifier != null )
+                {
+                    builderModifier.accept( builder );
+                }
+                response = builder.build();
             }
             catch ( final IndyWorkflowException e )
             {
                 logger.error(
                         String.format( "Failed to list content: %s from: %s. Reason: %s", path, name, e.getMessage() ),
                         e );
-                response = formatResponse( e );
+                response = formatResponse( e, builderModifier );
             }
         }
         else
@@ -180,18 +237,21 @@ public class ContentAccessHandler
                 logger.info( "Checking existence of: {}:{} (cache only? {})", sk, path, cacheOnly );
 
                 boolean exists = false;
-                if (Boolean.TRUE.equals(cacheOnly)) {
+                if ( Boolean.TRUE.equals( cacheOnly ) )
+                {
                     logger.debug( "Calling getTransfer()" );
                     item = contentController.getTransfer( sk, path, TransferOperation.DOWNLOAD );
                     exists = item != null && item.exists();
                     logger.debug( "Got transfer reference: {}", item );
-                } else {
+                }
+                else
+                {
                     // Use exists for remote repo to avoid downloading file. Use getTransfer for everything else (hosted, cache-only).
                     // Response will be composed of metadata by getHttpMetadata which get metadata from .http-metadata.json (because HTTP transport always writes a .http-metadata.json
                     // file when it makes a request). This file stores the HTTP response status code and headers regardless exist returning true or false.
                     logger.debug( "Calling exists()" );
-                    exists = contentController.exists(sk, path);
-                    logger.debug("Got exists: {}", exists);
+                    exists = contentController.exists( sk, path );
+                    logger.debug( "Got exists: {}", exists );
                 }
 
                 if ( exists )
@@ -213,7 +273,10 @@ public class ContentAccessHandler
                     final ResponseBuilder builder = Response.ok();
                     setInfoHeaders( builder, item, sk, path, true, contentController.getContentType( path ),
                                     httpMetadata );
-
+                    if ( builderModifier != null )
+                    {
+                        builderModifier.accept( builder );
+                    }
                     response = builder.build();
                 }
                 else
@@ -232,7 +295,12 @@ public class ContentAccessHandler
                     if ( response == null )
                     {
                         logger.debug( "No HTTP metadata; building generic 404 response." );
-                        response = Response.status( Status.NOT_FOUND ).build();
+                        ResponseBuilder builder = Response.status( Status.NOT_FOUND );
+                        if ( builderModifier != null )
+                        {
+                            builderModifier.accept( builder );
+                        }
+                        response = builder.build();
                     }
                 }
             }
@@ -240,17 +308,34 @@ public class ContentAccessHandler
             {
                 logger.error( String.format( "Failed to download artifact: %s from: %s. Reason: %s", path, name,
                                              e.getMessage() ), e );
-                response = formatResponse( e );
+                response = formatResponse( e, builderModifier );
             }
         }
         return response;
     }
 
-    public Response doGet( final String type, final String name, final String path, final String baseUri, final HttpServletRequest request,
-                           EventMetadata eventMetadata )
+    public Response doGet( final String packageType, final String type, final String name, final String path,
+                           final String baseUri, final HttpServletRequest request, EventMetadata eventMetadata )
     {
+        return doGet( packageType, type, name, path, baseUri, request, eventMetadata, null );
+    }
+
+    public Response doGet( final String packageType, final String type, final String name, final String path,
+                           final String baseUri, final HttpServletRequest request, EventMetadata eventMetadata,
+                           final Consumer<ResponseBuilder> builderModifier )
+    {
+        if ( !PackageTypes.contains( packageType ) )
+        {
+            ResponseBuilder builder = Response.status( 400 );
+            if ( builderModifier != null )
+            {
+                builderModifier.accept( builder );
+            }
+            return builder.build();
+        }
+
         final StoreType st = StoreType.get( type );
-        final StoreKey sk = new StoreKey( st, name );
+        final StoreKey sk = new StoreKey( packageType, st, name );
 
         eventMetadata = eventMetadata.set( ContentManager.ENTRY_POINT_STORE, sk );
 
@@ -272,13 +357,13 @@ public class ContentAccessHandler
                 final String content =
                         contentController.renderListing( standardAccept, st, name, path, baseUri, uriFormatter );
 
-                response = formatOkResponseWithEntity( content, acceptInfo.getRawAccept() );
+                response = formatOkResponseWithEntity( content, acceptInfo.getRawAccept(), builderModifier );
             }
             catch ( final IndyWorkflowException e )
             {
                 logger.error( String.format( "Failed to render content listing: %s from: %s. Reason: %s", path, name,
                                              e.getMessage() ), e );
-                response = formatResponse( e );
+                response = formatResponse( e, builderModifier );
             }
         }
         else
@@ -291,7 +376,7 @@ public class ContentAccessHandler
                 logger.info( "HANDLE: retrieval of content: {}:{}", sk, path );
                 if ( item == null )
                 {
-                    return handleMissingContentQuery( sk, path );
+                    return handleMissingContentQuery( sk, path, builderModifier );
                 }
 
                 boolean handleLocking = false;
@@ -305,7 +390,7 @@ public class ContentAccessHandler
                 {
                     if ( !item.exists() )
                     {
-                        return handleMissingContentQuery( sk, path );
+                        return handleMissingContentQuery( sk, path, builderModifier );
                     }
                     else if ( item.isDirectory() || ( path.endsWith( "index.html" ) ) )
                     {
@@ -318,14 +403,14 @@ public class ContentAccessHandler
                                     contentController.renderListing( standardAccept, st, name, path + "/", baseUri,
                                                                      uriFormatter );
 
-                            response = formatOkResponseWithEntity( content, acceptInfo.getRawAccept() );
+                            response = formatOkResponseWithEntity( content, acceptInfo.getRawAccept(), builderModifier );
                         }
                         catch ( final IndyWorkflowException | IOException e )
                         {
                             logger.error(
                                     String.format( "Failed to render content listing: %s from: %s. Reason: %s", path,
                                                    name, e.getMessage() ), e );
-                            response = formatResponse( e );
+                            response = formatResponse( e, builderModifier );
                         }
                     }
                     else
@@ -336,7 +421,10 @@ public class ContentAccessHandler
                         final ResponseBuilder builder = Response.ok( new TransferStreamingOutput( in ) );
                         setInfoHeaders( builder, item, sk, path, true, contentController.getContentType( path ),
                                         contentController.getHttpMetadata( item ) );
-
+                        if ( builderModifier != null )
+                        {
+                            builderModifier.accept( builder );
+                        }
                         response = builder.build();
                     }
                 }
@@ -352,7 +440,7 @@ public class ContentAccessHandler
             {
                 logger.error( String.format( "Failed to download artifact: %s from: %s. Reason: %s", path, name,
                                              e.getMessage() ), e );
-                response = formatResponse( e );
+                response = formatResponse( e, builderModifier );
             }
         }
 
@@ -360,7 +448,8 @@ public class ContentAccessHandler
         return response;
     }
 
-    private Response handleMissingContentQuery( final StoreKey sk, final String path )
+    private Response handleMissingContentQuery( final StoreKey sk, final String path,
+                                                final Consumer<ResponseBuilder> builderModifier )
     {
         Response response = null;
 
@@ -374,7 +463,7 @@ public class ContentAccessHandler
                 if ( metadata != null )
                 {
                     logger.trace( "Using HTTP metadata to formulate response status for: {}/{}", sk, path );
-                    response = formatResponseFromMetadata( metadata );
+                    response = formatResponseFromMetadata( metadata, builderModifier );
                 }
                 else
                 {
@@ -385,14 +474,14 @@ public class ContentAccessHandler
             {
                 logger.error( String.format( "Error retrieving status metadata for: %s from: %s. Reason: %s", path,
                                              sk.getName(), e.getMessage() ), e );
-                response = formatResponse( e );
+                response = formatResponse( e, builderModifier );
             }
         }
 
         if ( response == null )
         {
             response = formatResponse( ApplicationStatus.NOT_FOUND, null,
-                                       "Path " + path + " is not available in store " + sk + "." );
+                                       "Path " + path + " is not available in store " + sk + ".", builderModifier );
         }
 
         return response;

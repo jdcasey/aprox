@@ -15,16 +15,12 @@
  */
 package org.commonjava.indy.pkg.maven.content;
 
-import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.ftest.core.AbstractContentManagementTest;
 import org.commonjava.indy.ftest.core.category.BytemanTest;
 import org.commonjava.indy.ftest.core.category.EventDependent;
-import org.commonjava.indy.ftest.core.category.TimingDependent;
-import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitConfig;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -32,17 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 /**
  * This test assures that when a new metadata file is uploaded to a group's membership stores, any groups containing
@@ -118,9 +108,9 @@ public class RecursiveGroupMetadataClearOnUploadTest
             throws IndyClientException, UnsupportedEncodingException
     {
         String change = "Setup test";
-        hostedRepo = client.stores().create( new HostedRepository( hostedName ), change, HostedRepository.class );
-        groupA = client.stores().create( new Group( groupAName, hostedRepo.getKey() ), change, Group.class );
-        groupB = client.stores().create( new Group( groupBName, groupA.getKey() ), change, Group.class );
+        hostedRepo = client.stores().create( new HostedRepository( MAVEN_PKG_KEY, hostedName ), change, HostedRepository.class );
+        groupA = client.stores().create( new Group( MAVEN_PKG_KEY, groupAName, hostedRepo.getKey() ), change, Group.class );
+        groupB = client.stores().create( new Group( MAVEN_PKG_KEY, groupBName, groupA.getKey() ), change, Group.class );
 
         client.content()
               .store( hostedRepo.getKey(), path, new ByteArrayInputStream( firstPassContent.getBytes( "UTF-8" ) ) );
