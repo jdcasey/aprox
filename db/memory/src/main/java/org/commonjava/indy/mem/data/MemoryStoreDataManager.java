@@ -22,6 +22,7 @@ import org.commonjava.indy.conf.IndyConfiguration;
 import org.commonjava.indy.data.IndyDataException;
 import org.commonjava.indy.data.NoOpStoreEventDispatcher;
 import org.commonjava.indy.data.StoreDataManager;
+import org.commonjava.indy.data.StoreDataManagerQuery;
 import org.commonjava.indy.data.StoreEventDispatcher;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.commonjava.indy.model.core.StoreType.remote;
 import static org.commonjava.indy.model.core.StoreType.hosted;
@@ -93,10 +96,9 @@ public class MemoryStoreDataManager
     }
 
     @Override
-    public HostedRepository getHostedRepository( final String name )
-            throws IndyDataException
+    public StoreDataManagerQuery<ArtifactStore> query()
     {
-        return (HostedRepository) stores.get( new StoreKey( StoreType.hosted, name ) );
+        return new StoreDataManagerQuery<>( this );
     }
 
     @Override
@@ -104,107 +106,6 @@ public class MemoryStoreDataManager
             throws IndyDataException
     {
         return stores.get( key );
-    }
-
-    @Override
-    public RemoteRepository getRemoteRepository( final String name )
-            throws IndyDataException
-    {
-        final StoreKey key = new StoreKey( remote, name );
-
-        RemoteRepository repo = (RemoteRepository) stores.get( key );
-        if ( repo == null )
-        {
-            return null;
-        }
-
-        if ( repo.getTimeoutSeconds() < 1 )
-        {
-            repo.setTimeoutSeconds( config.getRequestTimeoutSeconds() );
-        }
-
-        return repo;
-    }
-
-    @Override
-    public Group getGroup( final String name )
-            throws IndyDataException
-    {
-        return (Group) stores.get( new StoreKey( StoreType.group, name ) );
-    }
-
-    @Override
-    public List<Group> getAllGroups()
-            throws IndyDataException
-    {
-        return getAll( StoreType.group, Group.class );
-    }
-
-    @Override
-    public List<RemoteRepository> getAllRemoteRepositories()
-            throws IndyDataException
-    {
-        return getAll( remote, RemoteRepository.class );
-    }
-
-    @Override
-    public List<HostedRepository> getAllHostedRepositories()
-            throws IndyDataException
-    {
-        return getAll( StoreType.hosted, HostedRepository.class );
-    }
-
-    @Override
-    public List<ArtifactStore> getOrderedConcreteStoresInGroup( final String groupName, final boolean enabledOnly )
-            throws IndyDataException
-    {
-        return getGroupOrdering( groupName, false, true, enabledOnly );
-    }
-
-    @Override
-    public List<ArtifactStore> getOrderedStoresInGroup( final String groupName, final boolean enabledOnly )
-            throws IndyDataException
-    {
-        return getGroupOrdering( groupName, true, false, enabledOnly );
-    }
-
-    @Override
-    public boolean storeArtifactStore( final ArtifactStore store, final ChangeSummary summary )
-            throws IndyDataException
-    {
-        return storeArtifactStore( store, summary, new EventMetadata() );
-    }
-
-    @Override
-    public boolean storeArtifactStore( final ArtifactStore store, final ChangeSummary summary,
-                                       final EventMetadata eventMetadata )
-            throws IndyDataException
-    {
-        return storeArtifactStore( store, summary, false, true, new EventMetadata() );
-    }
-
-    @Override
-    public boolean storeArtifactStore( final ArtifactStore store, final ChangeSummary summary,
-                                       final boolean skipIfExists )
-            throws IndyDataException
-    {
-        return storeArtifactStore( store, summary, skipIfExists, new EventMetadata() );
-    }
-
-    @Override
-    public boolean storeArtifactStore( final ArtifactStore store, final ChangeSummary summary,
-                                       final boolean skipIfExists, final EventMetadata eventMetadata )
-            throws IndyDataException
-    {
-        return storeArtifactStore( store, summary, skipIfExists, true, new EventMetadata() );
-    }
-
-    @Override
-    public boolean storeArtifactStore( final ArtifactStore store, final ChangeSummary summary,
-                                       final boolean skipIfExists, final boolean fireEvents )
-            throws IndyDataException
-    {
-        return storeArtifactStore( store, summary, skipIfExists, fireEvents, new EventMetadata() );
     }
 
     @Override
@@ -285,13 +186,6 @@ public class MemoryStoreDataManager
     }
 
     @Override
-    public void deleteArtifactStore( final StoreKey key, final ChangeSummary summary )
-            throws IndyDataException
-    {
-        deleteArtifactStore( key, summary, new EventMetadata() );
-    }
-
-    @Override
     public void deleteArtifactStore( final StoreKey key, final ChangeSummary summary,
                                      final EventMetadata eventMetadata )
             throws IndyDataException
@@ -368,143 +262,23 @@ public class MemoryStoreDataManager
     }
 
     @Override
-    public Set<Group> getGroupsContaining( final StoreKey repo )
+    public Set<ArtifactStore> getAllArtifactStores()
             throws IndyDataException
     {
-        Logger logger = LoggerFactory.getLogger( getClass() );
-        logger.debug( "Getting groups containing: {}", repo );
-
-        Set<ArtifactStore> all = new HashSet<>( stores.values() );
-
-        Set<Group> result = all.parallelStream()
-                               .filter( ( store ) -> ( ( store instanceof Group ) && ( (Group) store ).getConstituents()
-                                                                                                      .contains(
-                                                                                                              repo ) ) )
-                               .map( ( store ) -> (Group) store )
-                               .collect( Collectors.toSet() );
-
-        return result;
+        return new HashSet<>( stores.values() );
     }
 
     @Override
-    public RemoteRepository findRemoteRepository( final String url )
-    {
-
-        List<Map.Entry<StoreKey, ArtifactStore>> copy = new ArrayList<>( stores.entrySet() );
-
-        /*
-           This filter do these things:
-             * First compare ip, if ip same, and the path(without last slash) same too, the repo is found
-             * If ip not same, then compare the url without scheme and last slash (if has) to find the repo
-         */
-        UrlInfo temp = null;
-        try
-        {
-            temp = new UrlInfo( url );
-        }
-        catch ( IllegalArgumentException error )
-        {
-            logger.error( "Failed to find repository for: '{}'. Reason: {}", error, url, error.getMessage() );
-        }
-        final UrlInfo urlInfo = temp;
-        Predicate<Map.Entry<StoreKey, ArtifactStore>> findingRepoFilter = e -> {
-            if ( ( remote == e.getValue().getKey().getType() ) && urlInfo != null )
-            {
-                final String targetUrl = ( (RemoteRepository) e.getValue() ).getUrl();
-                UrlInfo targetUrlInfo = null;
-                try
-                {
-                    targetUrlInfo = new UrlInfo( targetUrl );
-                }
-                catch ( IllegalArgumentException error )
-                {
-                    logger.error( "Failed to find repository for: '{}'. Reason: {}", error, targetUrl, error.getMessage() );
-                }
-
-                if (  targetUrlInfo != null )
-                {
-                    String ipForUrl = null;
-                    String ipForTargetUrl = null;
-                    try
-                    {
-                        ipForUrl = urlInfo.getIpForUrl();
-                        ipForTargetUrl = targetUrlInfo.getIpForUrl();
-                        if ( ipForUrl != null && ipForUrl.equals( ipForTargetUrl ) )
-                        {
-                            if ( urlInfo.getFileWithNoLastSlash().equals( targetUrlInfo.getFileWithNoLastSlash() ) )
-                            {
-                                logger.debug( "Repository found because of same ip, url is {}, store key is {}", url,
-                                              e.getValue().getKey() );
-                                return true;
-                            }
-                            else
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    catch ( UnknownHostException ue )
-                    {
-                        logger.warn( "Failed to filter remote: ip fetch error.", ue );
-                    }
-
-                    logger.debug( "ip not same: ip for url:{}-{}; ip for searching repo: {}-{}", url, ipForUrl,
-                                  e.getValue().getKey(), ipForTargetUrl );
-
-                    if ( urlInfo.getUrlWithNoSchemeAndLastSlash()
-                                .equals( targetUrlInfo.getUrlWithNoSchemeAndLastSlash() ) )
-                    {
-                        logger.debug( "Repository found because of same host, url is {}, store key is {}", url,
-                                      e.getValue().getKey() );
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        };
-
-        Optional<RemoteRepository> found =
-                copy.stream().filter( findingRepoFilter ).map( ( e ) -> (RemoteRepository) e.getValue() ).findFirst();
-        return found.isPresent() ? found.get() : null;
-    }
-
-    @Override
-    public List<ArtifactStore> getAllArtifactStores()
+    public Stream<ArtifactStore> streamArtifactStores()
             throws IndyDataException
     {
-        return new ArrayList<>( stores.values() );
+        return getAllArtifactStores().stream();
     }
 
     @Override
-    public List<ArtifactStore> getAllConcreteArtifactStores()
+    public Map<StoreKey, ArtifactStore> getArtifactStoresByKey()
     {
-        return getAll( StoreType.hosted, remote );
-    }
-
-    @Override
-    public List<? extends ArtifactStore> getAllArtifactStores( final StoreType type )
-            throws IndyDataException
-    {
-        return getAll( type, type.getStoreClass() );
-    }
-
-    @Override
-    public boolean hasRemoteRepository( final String name )
-    {
-        return hasArtifactStore( new StoreKey( remote, name ) );
-    }
-
-    @Override
-    public boolean hasGroup( final String name )
-    {
-        return hasArtifactStore( new StoreKey( StoreType.group, name ) );
-    }
-
-    @Override
-    public boolean hasHostedRepository( final String name )
-    {
-        return hasArtifactStore( new StoreKey( StoreType.hosted, name ) );
+        return new HashMap<>( stores );
     }
 
     @Override
@@ -523,59 +297,6 @@ public class MemoryStoreDataManager
     public boolean isStarted()
     {
         return true;
-    }
-
-    @Override
-    public Set<Group> getGroupsAffectedBy( StoreKey... keys )
-    {
-        return getGroupsAffectedBy( Arrays.asList( keys ) );
-    }
-
-    @Override
-    public Set<Group> getGroupsAffectedBy( Collection<StoreKey> keys )
-    {
-        Logger logger = LoggerFactory.getLogger( getClass() );
-        logger.debug( "Getting groups affected by: {}", keys );
-
-        Set<ArtifactStore> all = new HashSet<>( stores.values() );
-
-        List<StoreKey> toProcess = new ArrayList<>();
-        toProcess.addAll( keys.parallelStream().collect( Collectors.toSet() ) );
-
-        Set<StoreKey> processed = new HashSet<>();
-
-        Set<Group> groups = new HashSet<>();
-
-        while ( !toProcess.isEmpty() )
-        {
-            // as long as we have another key to process, pop it off the list (remove it) and process it.
-            StoreKey next = toProcess.remove( 0 );
-            if ( processed.contains( next ) )
-            {
-                // if we've already handled this group (via another branch in the group membership tree, etc. then don't bother.
-                continue;
-            }
-
-            // use this to avoid reprocessing groups we've already encountered.
-            processed.add( next );
-
-            for ( ArtifactStore store : all )
-            {
-                if ( !processed.contains( store.getKey() ) && ( store instanceof Group ) )
-                {
-                    Group g = (Group) store;
-                    if ( g.getConstituents() != null && g.getConstituents().contains( next ) )
-                    {
-                        groups.add( g );
-
-                        // add this group as another one to process for groups that contain it...and recurse upwards
-                        toProcess.add( g.getKey() );
-                    }
-                }
-            }
-        }
-
-        return groups;
     }
 
     private boolean store( final ArtifactStore store, final ChangeSummary summary, final boolean skipIfExists,
@@ -625,88 +346,10 @@ public class MemoryStoreDataManager
         ReentrantLock opLock;
         synchronized ( opLocks )
         {
-            opLock = opLocks.get( key );
-            if ( opLock == null )
-            {
-                opLock = new ReentrantLock();
-                opLocks.put( key, opLock );
-            }
+            opLock = opLocks.computeIfAbsent( key, k -> new ReentrantLock() );
         }
 
         return opLock;
-    }
-
-    private List<ArtifactStore> getGroupOrdering( final String groupName, final boolean includeGroups,
-                                                  final boolean recurseGroups, final boolean enabledOnly )
-            throws IndyDataException
-    {
-        final Group master = (Group) stores.get( new StoreKey( StoreType.group, groupName ) );
-        if ( master == null )
-        {
-            return Collections.emptyList();
-        }
-
-        final List<ArtifactStore> result = new ArrayList<>();
-        recurseGroup( master, result, new HashSet<>(), includeGroups, recurseGroups, enabledOnly );
-
-        return result;
-    }
-
-    private void recurseGroup( final Group master, final List<ArtifactStore> result, final Set<StoreKey> seen,
-                               final boolean includeGroups, final boolean recurseGroups, final boolean enabledOnly )
-    {
-        if ( master == null || master.isDisabled() && enabledOnly )
-        {
-            return;
-        }
-
-        List<StoreKey> members = new ArrayList<>( master.getConstituents() );
-        if ( includeGroups )
-        {
-            result.add( master );
-        }
-
-        members.forEach( ( key ) -> {
-            if ( !seen.contains( key ) )
-            {
-                seen.add( key );
-                final StoreType type = key.getType();
-                if ( recurseGroups && type == StoreType.group )
-                {
-                    // if we're here, we're definitely recursing groups...
-                    recurseGroup( (Group) stores.get( key ), result, seen, includeGroups, true, enabledOnly );
-                }
-                else
-                {
-                    final ArtifactStore store = stores.get( key );
-                    if ( store != null && !( store.isDisabled() && enabledOnly ) )
-                    {
-                        result.add( store );
-                    }
-                }
-            }
-        } );
-    }
-
-    private <T extends ArtifactStore> List<T> getAll( final StoreType storeType, final Class<T> type )
-    {
-        List<Map.Entry<StoreKey, ArtifactStore>> copy = new ArrayList<>( stores.entrySet() );
-
-        return copy.stream()
-                   .filter( ( entry ) -> storeType == entry.getKey().getType() && type.isAssignableFrom(
-                           entry.getValue().getClass() ) )
-                   .map( ( entry ) -> type.cast( entry.getValue() ) )
-                   .collect( Collectors.toList() );
-    }
-
-    private List<ArtifactStore> getAll( final StoreType... storeTypes )
-    {
-        List<Map.Entry<StoreKey, ArtifactStore>> copy = new ArrayList<>( stores.entrySet() );
-
-        return copy.stream()
-                   .filter( ( entry ) -> Arrays.binarySearch( storeTypes, entry.getKey().getType() ) > -1 )
-                   .map( Map.Entry::getValue )
-                   .collect( Collectors.toList() );
     }
 
 }
