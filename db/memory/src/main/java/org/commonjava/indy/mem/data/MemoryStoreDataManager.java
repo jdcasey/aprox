@@ -25,12 +25,8 @@ import org.commonjava.indy.data.StoreDataManager;
 import org.commonjava.indy.data.StoreDataManagerQuery;
 import org.commonjava.indy.data.StoreEventDispatcher;
 import org.commonjava.indy.model.core.ArtifactStore;
-import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
-import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
-import org.commonjava.indy.model.core.StoreType;
-import org.commonjava.indy.util.UrlInfo;
 import org.commonjava.indy.util.ApplicationStatus;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
@@ -39,25 +35,16 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.commonjava.indy.model.core.StoreType.remote;
 import static org.commonjava.indy.model.core.StoreType.hosted;
 
 @ApplicationScoped
@@ -98,7 +85,7 @@ public class MemoryStoreDataManager
     @Override
     public StoreDataManagerQuery<ArtifactStore> query()
     {
-        return new StoreDataManagerQuery<>( this );
+        return new MemoryStoreDataManagerQuery<>( this );
     }
 
     @Override

@@ -17,15 +17,11 @@ package org.commonjava.indy.data;
 
 import org.commonjava.indy.audit.ChangeSummary;
 import org.commonjava.indy.model.core.ArtifactStore;
-import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
-import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.maven.galley.event.EventMetadata;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
