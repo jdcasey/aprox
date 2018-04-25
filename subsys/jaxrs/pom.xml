@@ -29,6 +29,15 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.commonjava.propulsor</groupId>
+      <artifactId>propulsor-undertow</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.propulsor</groupId>
+      <artifactId>propulsor-resteasy</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
       <scope>compile</scope>

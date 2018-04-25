@@ -30,10 +30,9 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.commonjava.indy.boot.BootOptions;
+import org.commonjava.indy.boot.IndyBootOptions;
 import org.commonjava.indy.conf.DefaultIndyConfiguration;
 import org.commonjava.indy.content.ContentDigester;
-import org.commonjava.indy.content.ContentGenerator;
 import org.commonjava.indy.content.ContentManager;
 import org.commonjava.indy.content.DirectContentAccess;
 import org.commonjava.indy.content.DownloadManager;
@@ -47,7 +46,6 @@ import org.commonjava.indy.httprox.conf.HttproxConfig;
 import org.commonjava.indy.httprox.handler.ProxyAcceptHandler;
 import org.commonjava.indy.httprox.keycloak.KeycloakProxyAuthenticator;
 import org.commonjava.indy.mem.data.MemoryStoreDataManager;
-import org.commonjava.indy.model.core.GenericPackageTypeDescriptor;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -158,7 +156,7 @@ public class HttpProxyTest
 
         proxyPort = config.getPort();
 
-        final BootOptions bootOpts = new BootOptions();
+        final IndyBootOptions bootOpts = new IndyBootOptions();
         bootOpts.setBind( HOST );
 
         storeManager = new MemoryStoreDataManager( true );

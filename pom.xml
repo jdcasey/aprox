@@ -63,7 +63,7 @@
 
     <!-- commonjava/redhat projects -->
     <atlasVersion>0.17.2</atlasVersion>
-    <galleyVersion>0.16.3-SNAPSHOT</galleyVersion>
+    <galleyVersion>0.16.4-SNAPSHOT</galleyVersion>
     <bomVersion>21</bomVersion>
     <webdavVersion>3.2.1</webdavVersion>
     <partylineVersion>1.13</partylineVersion>
@@ -72,6 +72,7 @@
     <jhttpcVersion>1.7</jhttpcVersion>
     <weftVersion>1.6</weftVersion>
     <httpTestserverVersion>1.3</httpTestserverVersion>
+    <propulsorVersion>1.3-SNAPSHOT</propulsorVersion>
     
     <!-- <enforceBestPractices>false</enforceBestPractices> -->
     <enforceStandards>false</enforceStandards>
@@ -764,6 +765,43 @@
         <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
+
+      <dependency>
+        <groupId>org.commonjava.propulsor</groupId>
+        <artifactId>propulsor-core</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor</groupId>
+        <artifactId>propulsor-undertow</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor</groupId>
+        <artifactId>propulsor-resteasy</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-core</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-reporter-zabbix</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-reporter-graphite</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-reporter-elasticsearch</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>

@@ -31,6 +31,15 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.commonjava.propulsor</groupId>
+      <artifactId>propulsor-undertow</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.propulsor</groupId>
+      <artifactId>propulsor-resteasy</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.commonjava.indy.boot</groupId>
       <artifactId>indy-booter-api</artifactId>
     </dependency>

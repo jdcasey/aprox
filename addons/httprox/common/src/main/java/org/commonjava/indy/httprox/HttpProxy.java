@@ -18,7 +18,7 @@ package org.commonjava.indy.httprox;
 import org.commonjava.indy.action.IndyLifecycleException;
 import org.commonjava.indy.action.ShutdownAction;
 import org.commonjava.indy.action.StartupAction;
-import org.commonjava.indy.boot.BootOptions;
+import org.commonjava.indy.boot.IndyBootOptions;
 import org.commonjava.indy.boot.PortFinder;
 import org.commonjava.indy.httprox.conf.HttproxConfig;
 import org.commonjava.indy.httprox.handler.ProxyAcceptHandler;
@@ -46,7 +46,7 @@ public class HttpProxy
     private HttproxConfig config;
 
     @Inject
-    private BootOptions bootOptions;
+    private IndyBootOptions bootOptions;
 
     @Inject
     private ProxyAcceptHandler acceptHandler;
@@ -57,7 +57,7 @@ public class HttpProxy
     {
     }
 
-    public HttpProxy( final HttproxConfig config, final BootOptions bootOptions, ProxyAcceptHandler acceptHandler )
+    public HttpProxy( final HttproxConfig config, final IndyBootOptions bootOptions, ProxyAcceptHandler acceptHandler )
     {
         this.config = config;
         this.bootOptions = bootOptions;

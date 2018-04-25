@@ -40,7 +40,7 @@ public class BootOptionsTest
         final File bootProps = temp.newFile( "boot.properties" );
         FileUtils.writeStringToFile( bootProps, "" );
 
-        final BootOptions opts = new BootOptions( bootProps, "/path/to/indy" );
+        final IndyBootOptions opts = new IndyBootOptions( bootProps, "/path/to/indy" );
 
         final String val = opts.resolve( "${indy.home}/etc/indy/main.conf" );
 
@@ -54,7 +54,7 @@ public class BootOptionsTest
         final File bootProps = temp.newFile( "boot.properties" );
         FileUtils.writeStringToFile( bootProps, "myDir = ${indy.home}/custom" );
 
-        final BootOptions opts = new BootOptions( bootProps, "/path/to/indy" );
+        final IndyBootOptions opts = new IndyBootOptions( bootProps, "/path/to/indy" );
 
         final String val = opts.resolve( "${myDir}/etc/indy/main.conf" );
 

@@ -26,7 +26,7 @@ import org.codehaus.plexus.interpolation.InterpolationException;
 import org.commonjava.indy.boot.IndyBootException;
 import org.commonjava.indy.boot.BootFinder;
 import org.commonjava.indy.boot.BootInterface;
-import org.commonjava.indy.boot.BootOptions;
+import org.commonjava.indy.boot.IndyBootOptions;
 import org.commonjava.indy.boot.BootStatus;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class CoreServerFixture
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private final BootOptions options;
+    private final IndyBootOptions options;
 
     private final BootInterface booter;
 
@@ -55,7 +55,7 @@ public class CoreServerFixture
         this.temp = temp;
     }
 
-    public CoreServerFixture( final BootInterface booter, final BootOptions options )
+    public CoreServerFixture( final BootInterface booter, final IndyBootOptions options )
     {
         this.booter = booter;
         this.options = editBootOptions( options, null );
@@ -77,7 +77,7 @@ public class CoreServerFixture
     }
 
     public CoreServerFixture( final BootInterface booter, final File indyHome,
-                                   final BootOptions bootOptions )
+                                   final IndyBootOptions bootOptions )
     {
         this( booter, editBootOptions( bootOptions, indyHome.getAbsolutePath() ) );
     }
@@ -97,7 +97,7 @@ public class CoreServerFixture
         return status;
     }
 
-    public BootOptions getBootOptions()
+    public IndyBootOptions getBootOptions()
     {
         return options;
     }
@@ -163,7 +163,7 @@ public class CoreServerFixture
         return folder;
     }
 
-    private static BootOptions newBootOptions( final File bootDefaults, final String indyHome )
+    private static IndyBootOptions newBootOptions( final File bootDefaults, final String indyHome )
     {
         final Properties properties = System.getProperties();
         properties.setProperty( "indy.home", indyHome );
@@ -171,7 +171,7 @@ public class CoreServerFixture
 
         try
         {
-            final BootOptions options = new BootOptions( bootDefaults, indyHome );
+            final IndyBootOptions options = new IndyBootOptions( bootDefaults, indyHome );
             options.setPort( findOpenPort( MAX_PORTGEN_TRIES ) );
 
             return options;
@@ -183,7 +183,7 @@ public class CoreServerFixture
         }
     }
 
-    private static BootOptions editBootOptions( final BootOptions options, final String indyHome )
+    private static IndyBootOptions editBootOptions( final IndyBootOptions options, final String indyHome )
     {
         if ( indyHome != null )
         {
