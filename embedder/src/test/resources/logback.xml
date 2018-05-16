@@ -43,7 +43,6 @@
     </appender>
 
   <logger name="org.commonjava.indy" level="TRACE"/>
-  <logger name="org.apache.http.wire" level="TRACE"/>
 
   <root level="DEBUG">
     <appender-ref ref="STDOUT" />

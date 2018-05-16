@@ -1,11 +1,8 @@
 package org.commonjava.indy.promote.rules
 
-import org.commonjava.indy.model.core.StoreKey
 import org.commonjava.indy.promote.validate.model.ValidationRequest
 import org.commonjava.indy.promote.validate.model.ValidationRule
 import org.commonjava.maven.galley.maven.rel.ModelProcessorConfig
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class NoVersionRanges implements ValidationRule {
 

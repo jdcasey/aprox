@@ -19,9 +19,9 @@ import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.content.ContentDigester;
 import org.commonjava.indy.content.ContentManager;
 import org.commonjava.indy.content.StoreResource;
+import org.commonjava.indy.data.ArtifactStoreQuery;
 import org.commonjava.indy.data.IndyDataException;
 import org.commonjava.indy.data.StoreDataManager;
-import org.commonjava.indy.data.ArtifactStoreQuery;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.promote.validate.model.ValidationRequest;
@@ -56,12 +56,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.commonjava.indy.promote.validate.util.ReadOnlyTransfer.readOnlyWrapper;
 import static org.commonjava.indy.promote.validate.util.ReadOnlyTransfer.readOnlyWrappers;
 import static org.commonjava.maven.galley.io.ChecksummingTransferDecorator.FORCE_CHECKSUM;
@@ -72,6 +74,8 @@ import static org.commonjava.maven.galley.io.ChecksummingTransferDecorator.FORCE
 public class PromotionValidationTools
 {
     public static final String AVAILABLE_IN_STORES = "availableInStores";
+
+    public static SourcePathTransformation<String> SPX_NO_OP = (req,path) -> path;
 
     @Deprecated
     public static final String AVAILABLE_IN_STORE_KEY = "availableInStoreKey";
@@ -117,6 +121,58 @@ public class PromotionValidationTools
         this.typeMapper = typeMapper;
         this.transferManager = transferManager;
         this.contentDigester = contentDigester;
+    }
+
+    public <T> String verifySourcePathsInStoreKeys( ValidationRequest request, boolean includeSource,
+                                                    boolean includeTarget, SourcePathTransformation<T> transform,
+                                                    SourcePathStoreKeyIterationAction<T> action )
+            throws PromotionValidationException
+    {
+        // TODO: Do we need a Weft-controlled thread pool for this??
+        Set<T> sourcePaths = request.getSourcePaths()
+                                    .parallelStream()
+                                    .map( path -> transform.apply( request, path ) )
+                                    .filter( result -> result != null )
+                                    .collect( Collectors.toSet() );
+
+        StringBuilder sb = new StringBuilder();
+
+        // TODO: Do we need a Weft-controlled thread pool for this??
+        Stream.of( getValidationStoreKeys( request, includeSource, includeTarget ) ).forEach( key -> {
+            sourcePaths.parallelStream().forEach( path -> {
+                String result = action.apply( request, key, path );
+                if ( isNotBlank( result ) )
+                {
+                    if ( sb.length() > 0 )
+                    {
+                        sb.append( '\n' );
+                    }
+                    sb.append( key ).append( " / " ).append( path ).append( " => " ).append( result );
+                }
+            } );
+        } );
+
+        return sb.length() < 1 ? null : sb.toString();
+    }
+
+    public <T> String iterate( Collection<T> items, ValidationRequest request, ValidatorIterationAction<T> action )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        // TODO: Do we need a Weft-controlled thread pool for this??
+        items.parallelStream().forEach( t-> {
+            String result = action.apply(request, t);
+            if ( isNotBlank( result ))
+            {
+                if ( sb.length() > 0 )
+                {
+                    sb.append( '\n' );
+                }
+                sb.append(t).append( " ==> " ).append( result );
+            }
+        } );
+
+        return sb.length() < 1 ? null : sb.toString();
     }
 
     public StoreKey[] getValidationStoreKeys( final ValidationRequest request, final boolean includeSource )

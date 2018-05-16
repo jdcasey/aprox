@@ -1,0 +1,7 @@
+{
+  "name": "Iteration Test Rule-Set",
+  "storeKeyPattern": "group:test",
+  "ruleNames": [
+    "test.groovy"
+  ]
+}

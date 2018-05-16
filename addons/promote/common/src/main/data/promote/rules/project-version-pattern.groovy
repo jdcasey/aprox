@@ -6,29 +6,37 @@ import org.slf4j.LoggerFactory
 
 class ProjectVersionPattern implements ValidationRule {
 
-    String validate(ValidationRequest request) throws Exception {
-        def versionPattern = request.getValidationParameter("versionPattern")
-        def builder = new StringBuilder()
+    class VersionPatternAction implements ValidatorIterationAction<String>
+    {
+        String versionPattern;
 
-        if (versionPattern != null) {
-            def tools = request.getTools()
-            request.getSourcePaths().each { it ->
-                def ref = tools.getArtifact(it)
-                if (ref != null) {
-                    def vs = ref.getVersionString()
-                    if (!vs.matches(versionPattern)) {
-                        if (builder.length() > 0) {
-                            builder.append("\n")
-                        }
-                        builder.append(it).append(" does not match version pattern: '").append(versionPattern).append("' (version was: '").append(vs).append("')")
+        String apply( ValidationRequest req, String path )
+        {
+            def ref = req.getTools().getArtifact(it)
+            if (ref != null) {
+                def vs = ref.getVersionString()
+                if (!vs.matches(versionPattern)) {
+                    if (builder.length() > 0) {
+                        builder.append("\n")
                     }
+                    return "${it} does not match version pattern: '${versionPattern}' (version was: '${vs}')";
                 }
             }
-        } else {
-            def logger = LoggerFactory.getLogger(getClass())
-            logger.warn("No 'versionPattern' parameter specified in rule-set: {}. Cannot execute ProjectVersionPattern rule!", request.getRuleSet().getName())
+
+            return null;
+        }
+    }
+
+    String validate(ValidationRequest request) throws Exception {
+        def versionPattern = request.getValidationParameter("versionPattern")
+        if (versionPattern != null)
+        {
+            return request.getTools().iterate(request.getSourcePaths(), request, new VersionPatternAction({versionPattern: versionPattern}));
         }
 
-        builder.length() > 0 ? builder.toString() : builder
+        def logger = LoggerFactory.getLogger(getClass())
+        logger.warn("No 'versionPattern' parameter specified in rule-set: {}. Cannot execute ProjectVersionPattern rule!", request.getRuleSet().getName())
+
+        return null;
     }
 }
