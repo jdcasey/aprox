@@ -215,7 +215,7 @@ public class HttpProxyTest
     public void teardown()
     {
         xnio.shutdownNow();
-        
+
 //        if ( proxy != null )
 //        {
 //            proxy.stop();
