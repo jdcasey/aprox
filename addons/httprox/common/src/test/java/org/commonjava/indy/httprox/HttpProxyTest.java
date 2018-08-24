@@ -88,6 +88,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnio.OptionMap;
+import org.xnio.Xnio;
+import org.xnio.XnioWorker;
 
 import java.io.File;
 import java.io.InputStream;
@@ -130,6 +133,8 @@ public class HttpProxyTest
     private static DefaultCacheManager cacheManager;
 
     private static Cache<String, TransferMetadata> contentMetadata;
+
+    private XnioWorker xnio;
 
     @BeforeClass
     public static void setupClass()
@@ -197,20 +202,24 @@ public class HttpProxyTest
 
         ScriptEngine scriptEngine = new ScriptEngine( dfm );
 
-        proxy = new HttpProxy( config, bootOpts,
+        proxy = new HttpProxy( config,
                                new ProxyAcceptHandler( config, storeManager, contentController, auth, core.getCache(),
                                                        scriptEngine, new MDCManager(), null, null,
                                                        new CacheProducer( null, cacheManager ) ) );
-        proxy.start();
+
+        xnio = Xnio.getInstance().createWorker( OptionMap.EMPTY );
+        proxy.start( xnio, bootOpts );
     }
 
     @After
     public void teardown()
     {
-        if ( proxy != null )
-        {
-            proxy.stop();
-        }
+        xnio.shutdownNow();
+        
+//        if ( proxy != null )
+//        {
+//            proxy.stop();
+//        }
     }
 
     @Test
