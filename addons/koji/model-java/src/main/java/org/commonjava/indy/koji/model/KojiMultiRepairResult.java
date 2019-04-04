@@ -24,6 +24,13 @@ public class KojiMultiRepairResult
     @ApiModelProperty( "Results for all stores where repair was attempted, including failures" )
     private List<KojiRepairResult> results;
 
+    public KojiMultiRepairResult(){}
+
+    public KojiMultiRepairResult( final List<KojiRepairResult> results )
+    {
+        this.results = results;
+    }
+
     public List<KojiRepairResult> getResults()
     {
         return results;

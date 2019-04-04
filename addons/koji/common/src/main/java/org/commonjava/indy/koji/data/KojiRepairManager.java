@@ -33,6 +33,8 @@ import org.commonjava.indy.data.IndyDataException;
 import org.commonjava.indy.data.StoreDataManager;
 import org.commonjava.indy.koji.conf.IndyKojiConfig;
 import org.commonjava.indy.koji.content.IndyKojiContentProvider;
+import org.commonjava.indy.koji.content.KojiBuildInfoWithRemote;
+import org.commonjava.indy.koji.content.KojiContentConsolidator;
 import org.commonjava.indy.koji.content.KojiPathPatternFormatter;
 import org.commonjava.indy.koji.model.KojiMultiRepairResult;
 import org.commonjava.indy.koji.model.KojiRepairRequest;
@@ -40,6 +42,7 @@ import org.commonjava.indy.koji.model.KojiRepairResult;
 import org.commonjava.indy.koji.util.KojiUtils;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -51,7 +54,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -93,9 +98,12 @@ public class KojiRepairManager
     private KojiUtils kojiUtils;
 
     @Inject
+    private KojiContentConsolidator consolidator;
+
+    @Inject
     @WeftManaged
-    @ExecutorConfig( named="koji-repairs", threads=50, priority = 3, loadSensitive = ExecutorConfig.BooleanLiteral.TRUE, maxLoadFactor = 100)
-    private WeftExecutorService repairExecutor;
+    @ExecutorConfig( named="koji-background-operations", threads=50, priority = 3, loadSensitive = ExecutorConfig.BooleanLiteral.TRUE, maxLoadFactor = 100)
+    private WeftExecutorService backgroundOperationExecutor;
 
     private ReentrantLock opLock = new ReentrantLock(); // operations are synchronized
 
@@ -109,7 +117,118 @@ public class KojiRepairManager
         this.storeManager = storeManager;
         this.config = config;
         this.kojiCachedClient = new IndyKojiContentProvider( kojiClient, null );
-        this.repairExecutor = new SingleThreadedExecutorService( "koji-repairs" );
+        this.backgroundOperationExecutor = new SingleThreadedExecutorService( "koji-repairs" );
+    }
+
+    public KojiMultiRepairResult consolidateAllRemoteRepos( final StoreKey targetGroupKey, final String user )
+            throws KojiRepairException, IndyWorkflowException
+    {
+        Group group;
+        try
+        {
+            group = (Group) storeManager.getArtifactStore( targetGroupKey );
+        }
+        catch ( IndyDataException e )
+        {
+            throw new IndyWorkflowException( "Cannot retrieve group: %s", e, targetGroupKey );
+        }
+
+        HostedRepository consolidationTarget =
+                consolidator.getOrCreateConsolidationTarget( group, targetGroupKey.getName(), user, true );
+
+        if ( opLock.tryLock() )
+        {
+            try
+            {
+                Map<StoreKey, RemoteRepository> repoMap = new HashMap<>();
+                try
+                {
+                    getAllKojiRemotes().stream()
+                                                     .filter( r -> group.getConstituents().contains( r.getKey() ) )
+                                                     .forEach( r->repoMap.put(r.getKey(), r) );
+                }
+                catch ( IndyDataException e )
+                {
+                    throw new IndyWorkflowException( "Cannot retrieve all Koji remote repositories.", e );
+                }
+
+                DrainingExecutorCompletionService<KojiRepairResult> repairService =
+                        new DrainingExecutorCompletionService<>( backgroundOperationExecutor );
+
+                List<RemoteRepository> kojiRemotes = group.getConstituents()
+                                                          .stream()
+                                                          .filter( k -> repoMap.containsKey( k ) )
+                                                          .map( k -> repoMap.get( k ) )
+                                                          .collect( Collectors.toList() );
+
+                detectOverloadVoid( () -> kojiRemotes.forEach( store -> repairService.submit( () -> {
+
+                    KojiRepairRequest req = new KojiRepairRequest( store.getKey(), false );
+                    KojiRepairResult ret = new KojiRepairResult( req );
+                    StoreKey remoteKey = store.getKey();
+
+                    if ( Boolean.FALSE.toString()
+                                      .equals(
+                                              store.getMetadata( KojiContentConsolidator.KOJI_CONSOLIDATION_RESULT ) ) )
+                    {
+                        return ret.withError( String.format( "Consolidation has already failed for: %s", remoteKey ) );
+                    }
+
+                    final String nvr = kojiUtils.getBuildNvr( remoteKey );
+                    if ( nvr == null )
+                    {
+                        String error = String.format( "Not a koji store: %s", remoteKey );
+                        return ret.withError( error );
+                    }
+
+                    try
+                    {
+                        KojiSessionInfo session = null;
+                        KojiBuildInfo build = kojiCachedClient.getBuildInfo( nvr, session );
+
+                        List<KojiArchiveInfo> archives = kojiCachedClient.listArchivesForBuild( build.getId(), session );
+
+                        final KojiBuildInfoWithRemote buildRemote = new KojiBuildInfoWithRemote( build, archives, store );
+                        consolidator.startConsolidation( consolidationTarget, group, buildRemote, user );
+
+                        if ( storeManager.hasArtifactStore( remoteKey ) )
+                        {
+                            return ret.withError( String.format( "Consolidation has failed for: %s", remoteKey ) );
+                        }
+
+                        KojiRepairResult.RepairResult repairResult = new KojiRepairResult.RepairResult( remoteKey );
+                        repairResult.withPropertyChange( "content_consolidation", false, true );
+
+                        return ret.withResult( repairResult );
+                    }
+                    catch ( KojiClientException e )
+                    {
+                        String error = String.format( "Cannot getBuildInfo: %s, error: %s", remoteKey, e );
+                        logger.debug( error, e );
+                        return ret.withError( error, e );
+                    }
+                } ) ) );
+
+                List<KojiRepairResult> results = new ArrayList<>();
+                try
+                {
+                    repairService.drain( repair->{
+                        results.add( repair );
+                    } );
+
+                    return new KojiMultiRepairResult( results );
+                }
+                catch ( InterruptedException | ExecutionException e )
+                {
+                    logger.error( "Failed to consolidate Koji remote repository content in: " + targetGroupKey, e );
+                }
+            }
+            finally{
+                opLock.unlock();
+            }
+        }
+
+        return new KojiMultiRepairResult();
     }
 
     public KojiMultiRepairResult repairAllPathMasks( final String user )
@@ -124,7 +243,7 @@ public class KojiRepairManager
                 List<RemoteRepository> kojiRemotes = getAllKojiRemotes();
 
                 DrainingExecutorCompletionService<KojiRepairResult> repairService =
-                        new DrainingExecutorCompletionService<>( repairExecutor );
+                        new DrainingExecutorCompletionService<>( backgroundOperationExecutor );
 
                 detectOverloadVoid( () -> kojiRemotes.forEach( r -> repairService.submit( () -> {
                     logger.info( "Attempting to repair path masks in Koji remote: {}", r.getKey() );
@@ -503,7 +622,7 @@ public class KojiRepairManager
                 List<RemoteRepository> kojiRemotes = getAllKojiRemotes();
 
                 DrainingExecutorCompletionService<KojiRepairResult> repairService =
-                        new DrainingExecutorCompletionService<>( repairExecutor );
+                        new DrainingExecutorCompletionService<>( backgroundOperationExecutor );
 
                 detectOverloadVoid( () -> kojiRemotes.forEach( r -> repairService.submit( () -> {
                     logger.info( "Attempting to repair path masks in Koji remote: {}", r.getKey() );

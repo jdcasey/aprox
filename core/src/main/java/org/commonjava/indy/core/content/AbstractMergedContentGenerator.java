@@ -88,7 +88,7 @@ public abstract class AbstractMergedContentGenerator
     }
 
     @Override
-    public final void handleContentDeletion( final ArtifactStore store, final String path,
+    public void handleContentDeletion( final ArtifactStore store, final String path,
                                              final EventMetadata eventMetadata )
         throws IndyWorkflowException
     {

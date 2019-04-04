@@ -27,6 +27,7 @@ import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.commonjava.atlas.maven.ident.ref.InvalidRefException;
 import org.commonjava.atlas.maven.ident.ref.ProjectRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleProjectRef;
+import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
 import org.commonjava.atlas.maven.ident.util.VersionUtils;
 import org.commonjava.atlas.maven.ident.version.InvalidVersionSpecificationException;
 import org.commonjava.atlas.maven.ident.version.SingleVersion;
@@ -121,52 +122,30 @@ public class KojiMavenMetadataProvider
     }
 
     @Override
-    @Measure( timers = @MetricNamed( DEFAULT ) )
+    public void clearMetadata( final StoreKey key, final String path )
+    {
+        if ( !isEnabledFor( key ) )
+        {
+            return;
+        }
+
+        ProjectRef ref = toProjectRef( path );
+        versionMetadata.remove( ref );
+    }
+
+    @Override
+    @Measure
     public Metadata getMetadata( StoreKey targetKey, String path )
             throws IndyWorkflowException
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
 
-        if ( group != targetKey.getType() )
+        if ( !isEnabledFor( targetKey ) )
         {
-            logger.debug( "Not a group. Cannot supplement with metadata from Koji builds" );
             return null;
         }
 
-        if ( !kojiConfig.isEnabled() )
-        {
-            logger.debug( "Koji add-on is disabled." );
-            return null;
-        }
-
-        if ( !kojiConfig.isEnabledFor( targetKey.getName() ) )
-        {
-            logger.debug( "Koji integration is not enabled for group: {}", targetKey );
-            return null;
-        }
-
-        File mdFile = new File( path );
-        File artifactDir = mdFile.getParentFile();
-        File groupDir = artifactDir == null ? null : artifactDir.getParentFile();
-
-        if ( artifactDir == null || groupDir == null )
-        {
-            logger.debug( "Invalid groupId / artifactId directory structure: '{}' / '{}'", groupDir, artifactDir );
-            return null;
-        }
-
-        String groupId = groupDir.getPath().replace( File.separatorChar, '.' );
-        String artifactId = artifactDir.getName();
-
-        ProjectRef ref = null;
-        try
-        {
-            ref = new SimpleProjectRef( groupId, artifactId );
-        }
-        catch ( InvalidRefException e )
-        {
-            logger.warn( "Not a valid Maven GA: {}:{}. Skipping Koji metadata retrieval.", groupId, artifactId );
-        }
+        ProjectRef ref = toProjectRef( path );
 
         if ( ref == null )
         {
@@ -225,6 +204,61 @@ public class KojiMavenMetadataProvider
                           kojiConfig.getLockTimeoutSeconds() );
             return false;
         } );
+    }
+
+    private ProjectRef toProjectRef( final String path )
+    {
+        Logger logger = LoggerFactory.getLogger( getClass() );
+
+        File mdFile = new File( path );
+        File artifactDir = mdFile.getParentFile();
+        File groupDir = artifactDir == null ? null : artifactDir.getParentFile();
+
+        if ( artifactDir == null || groupDir == null )
+        {
+            logger.debug( "Invalid groupId / artifactId directory structure: '{}' / '{}'", groupDir, artifactDir );
+            return null;
+        }
+
+        String groupId = groupDir.getPath().replace( File.separatorChar, '.' );
+        String artifactId = artifactDir.getName();
+
+        ProjectRef ref = null;
+        try
+        {
+            ref = new SimpleProjectRef( groupId, artifactId );
+        }
+        catch ( InvalidRefException e )
+        {
+            logger.warn( "Not a valid Maven GA: {}:{}. Skipping Koji metadata retrieval.", groupId, artifactId );
+        }
+
+        return ref;
+    }
+
+    private boolean isEnabledFor( final StoreKey targetKey )
+    {
+        Logger logger = LoggerFactory.getLogger( getClass() );
+
+        if ( group != targetKey.getType() )
+        {
+            logger.debug( "Not a group. Cannot supplement with metadata from Koji builds" );
+            return false;
+        }
+
+        if ( !kojiConfig.isEnabled() )
+        {
+            logger.debug( "Koji add-on is disabled." );
+            return false;
+        }
+
+        if ( !kojiConfig.isEnabledFor( targetKey.getName() ) )
+        {
+            logger.debug( "Koji integration is not isEnabledFor for group: {}", targetKey );
+            return false;
+        }
+
+        return true;
     }
 
     @Measure

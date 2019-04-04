@@ -32,6 +32,8 @@ public class IndyKojiConstants
 
     public static final String REPAIR_KOJI_VOL = REPAIR_KOJI + "/" + VOL;
 
+    public static final String CONSOLIDATE = "consolidate";
+
     public static final String MASK = "mask";
 
     public static final String ALL_MASKS = "mask/all";

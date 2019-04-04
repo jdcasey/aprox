@@ -75,6 +75,8 @@ public class IndyKojiConfig
 
     private static final Boolean DEFAULT_QUERY_CACHE_ENABLED = true;
 
+    private static final Boolean DEFAULT_CONSOLIDATION_ENABLED = false;
+
     private static final int DEFAULT_QUERY_CACHE_EXPIRATION_HOURS = 3; // 3 hours for volatile caches
 
     private Boolean enabled;
@@ -132,6 +134,8 @@ public class IndyKojiConfig
     private Integer connectionPoolTimeoutSeconds;
 
     private String versionFilter;
+
+    private Boolean consolidationEnabled;
 
     @Override
     public SiteConfig getKojiSiteConfig()
@@ -397,6 +401,21 @@ public class IndyKojiConfig
         return getEnabled();
     }
 
+    public Boolean getConsolidationEnabled()
+    {
+        return consolidationEnabled == null ? DEFAULT_CONSOLIDATION_ENABLED : consolidationEnabled;
+    }
+
+    public void setConsolidationEnabled( Boolean enabled )
+    {
+        this.consolidationEnabled = enabled;
+    }
+
+    public boolean isConsolidationEnabled()
+    {
+        return getConsolidationEnabled();
+    }
+
     public Boolean isQueryCacheEnabled()
     {
         return queryCacheEnabled == null ? DEFAULT_QUERY_CACHE_ENABLED : queryCacheEnabled;
@@ -482,6 +501,9 @@ public class IndyKojiConfig
                 this.enabled = Boolean.valueOf( value.trim() );
                 break;
             }
+            case "consolidation.enabled":
+                this.consolidationEnabled = Boolean.valueOf( value.trim() );
+                break;
             case "tag.patterns.enabled":
             {
                 this.tagPatternsEnabled = Boolean.valueOf( value.trim() );

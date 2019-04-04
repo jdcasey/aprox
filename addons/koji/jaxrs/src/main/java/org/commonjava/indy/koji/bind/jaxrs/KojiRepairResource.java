@@ -31,6 +31,8 @@ import org.commonjava.indy.koji.model.KojiRepairRequest;
 import org.commonjava.indy.koji.model.KojiRepairResult;
 import org.commonjava.indy.model.core.PackageTypeDescriptor;
 import org.commonjava.indy.model.core.PackageTypes;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.util.ApplicationContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -49,6 +52,7 @@ import javax.ws.rs.core.UriInfo;
 import static org.commonjava.indy.bind.jaxrs.util.JaxRsUriFormatter.getBaseUrlByStoreKey;
 import static org.commonjava.indy.bind.jaxrs.util.ResponseUtils.throwError;
 import static org.commonjava.indy.koji.model.IndyKojiConstants.ALL_MASKS;
+import static org.commonjava.indy.koji.model.IndyKojiConstants.CONSOLIDATE;
 import static org.commonjava.indy.koji.model.IndyKojiConstants.MASK;
 import static org.commonjava.indy.koji.model.IndyKojiConstants.META_TIMEOUT;
 import static org.commonjava.indy.koji.model.IndyKojiConstants.META_TIMEOUT_ALL;
@@ -139,6 +143,34 @@ public class KojiRepairResource
         {
             String user = securityManager.getUser( securityContext, servletRequest );
             return repairManager.repairAllPathMasks( user );
+        }
+        catch ( KojiRepairException | IndyWorkflowException e )
+        {
+            logger.error( e.getMessage(), e );
+            throwError( e );
+        }
+
+        return null;
+    }
+
+    @ApiOperation( "Consolidate all content available from existing Koji remote repositories in the target group "
+                           + "(by membership order, with no overwrites) into a hosted repository." )
+    @ApiResponse( code = 200, message = "Operation finished (consult response content for success/failure).",
+                  response = KojiMultiRepairResult.class )
+    @POST
+    @Path( "/" + CONSOLIDATE + "/{packageType}/{name}" )
+    @Consumes( ApplicationContent.application_json )
+    public KojiMultiRepairResult consolidateRemoteRepos( final @PathParam( "packageType" ) String packageType,
+                                                         final @PathParam( "name" ) String name,
+                                                         final @Context HttpServletRequest servletRequest,
+                                                         final @Context SecurityContext securityContext,
+                                                         final @Context UriInfo uriInfo )
+    {
+        try
+        {
+            StoreKey targetKey = new StoreKey( packageType, StoreType.group, name );
+            String user = securityManager.getUser( securityContext, servletRequest );
+            return repairManager.consolidateAllRemoteRepos( targetKey, user );
         }
         catch ( KojiRepairException | IndyWorkflowException e )
         {

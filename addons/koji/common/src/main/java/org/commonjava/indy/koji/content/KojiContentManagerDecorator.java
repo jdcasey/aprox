@@ -22,6 +22,7 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 import com.redhat.red.build.koji.model.xmlrpc.KojiSessionInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiTagInfo;
 import org.commonjava.cdi.util.weft.Locker;
+import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.audit.ChangeSummary;
 import org.commonjava.indy.content.ContentManager;
@@ -32,9 +33,9 @@ import org.commonjava.indy.data.StoreDataManager;
 import org.commonjava.indy.koji.conf.IndyKojiConfig;
 import org.commonjava.indy.koji.util.KojiUtils;
 import org.commonjava.indy.measure.annotation.Measure;
-import org.commonjava.indy.measure.annotation.MetricNamed;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -61,9 +62,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.commonjava.indy.audit.ChangeSummary.SYSTEM_USER;
 import static org.commonjava.indy.koji.model.IndyKojiConstants.KOJI_ORIGIN;
 import static org.commonjava.indy.koji.model.IndyKojiConstants.KOJI_ORIGIN_BINARY;
-import static org.commonjava.indy.measure.annotation.MetricNamed.DEFAULT;
 import static org.commonjava.indy.model.core.StoreType.group;
 import static org.commonjava.maven.galley.maven.util.ArtifactPathUtils.formatMetadataPath;
 
@@ -97,6 +98,8 @@ import static org.commonjava.maven.galley.maven.util.ArtifactPathUtils.formatMet
 public abstract class KojiContentManagerDecorator
         implements ContentManager
 {
+    public static final String SKIP_KOJI_CONTENT_LAYER = "skipKojiLayer";
+
     private Logger logger = LoggerFactory.getLogger( getClass() );
 
     public static final String CREATION_TRIGGER_GAV = "creation-trigger-GAV";
@@ -135,11 +138,20 @@ public abstract class KojiContentManagerDecorator
     @Inject
     private KojiPathPatternFormatter pathFormatter;
 
+    @Inject
+    private KojiContentConsolidator consolidator;
+
     @Override
-    @Measure( timers = @MetricNamed( DEFAULT ) )
+    @Measure
     public boolean exists( ArtifactStore store, String path )
             throws IndyWorkflowException
     {
+        ThreadContext ctx = ThreadContext.getContext( false );
+        if ( ctx != null && Boolean.TRUE == ctx.get( SKIP_KOJI_CONTENT_LAYER ) )
+        {
+            return delegate.exists( store, path );
+        }
+
         Logger logger = LoggerFactory.getLogger( getClass() );
         logger.debug( "KOJI: Delegating initial existence check for: {}/{}", store.getKey(), path );
         boolean result = delegate.exists( store, path );
@@ -148,11 +160,13 @@ public abstract class KojiContentManagerDecorator
             Group group = (Group) store;
 
             logger.info( "KOJI: Checking whether Koji contains a build matching: {}", path );
-            RemoteRepository kojiProxy = findKojiBuildAnd( store, path, new EventMetadata(), null, this::createRemoteRepository );
+            KojiBuildInfoWithRemote kojiProxy = findKojiBuildAnd( store, path, new EventMetadata(), null, this::createRemoteRepository );
             if ( kojiProxy != null )
             {
                 adjustTargetGroup( kojiProxy, group );
-                result = delegate.exists( kojiProxy, path );
+
+                // if we don't pursue this via the group now, we may have a race condition with the consolidation logic.
+                result = delegate.exists( group, path );
             }
 
             if ( result )
@@ -172,10 +186,16 @@ public abstract class KojiContentManagerDecorator
     }
 
     @Override
-    @Measure( timers = @MetricNamed( DEFAULT ) )
+    @Measure
     public Transfer retrieve( final ArtifactStore store, final String path, final EventMetadata eventMetadata )
             throws IndyWorkflowException
     {
+        ThreadContext ctx = ThreadContext.getContext( false );
+        if ( ctx != null && Boolean.TRUE == ctx.get( SKIP_KOJI_CONTENT_LAYER ) )
+        {
+            return delegate.retrieve( store, path, eventMetadata );
+        }
+
         Logger logger = LoggerFactory.getLogger( getClass() );
         logger.debug( "KOJI: Delegating initial retrieval attempt for: {}/{}", store.getKey(), path );
         Transfer result = delegate.retrieve( store, path, eventMetadata );
@@ -184,11 +204,13 @@ public abstract class KojiContentManagerDecorator
             logger.info( "KOJI: Checking for Koji build matching: {}", path );
             Group group = (Group) store;
 
-            RemoteRepository kojiProxy = findKojiBuildAnd( store, path, eventMetadata, null, this::createRemoteRepository );
+            KojiBuildInfoWithRemote kojiProxy = findKojiBuildAnd( store, path, eventMetadata, null, this::createRemoteRepository );
             if ( kojiProxy != null )
             {
                 adjustTargetGroup( kojiProxy, group );
-                result = delegate.retrieve( kojiProxy, path, eventMetadata );
+
+                // if we don't pursue this via the group now, we may have a race condition with the consolidation logic.
+                result = delegate.retrieve( group, path, eventMetadata );
             }
 
             if ( result != null )
@@ -205,6 +227,12 @@ public abstract class KojiContentManagerDecorator
     public Transfer getTransfer( StoreKey storeKey, String path, TransferOperation op )
             throws IndyWorkflowException
     {
+        ThreadContext ctx = ThreadContext.getContext( false );
+        if ( ctx != null && Boolean.TRUE == ctx.get( SKIP_KOJI_CONTENT_LAYER ) )
+        {
+            return delegate.getTransfer( storeKey, path, op );
+        }
+
         ArtifactStore store;
         try
         {
@@ -230,6 +258,12 @@ public abstract class KojiContentManagerDecorator
     public Transfer getTransfer( final ArtifactStore store, final String path, final TransferOperation operation )
             throws IndyWorkflowException
     {
+        ThreadContext ctx = ThreadContext.getContext( false );
+        if ( ctx != null && Boolean.TRUE == ctx.get( SKIP_KOJI_CONTENT_LAYER ) )
+        {
+            return delegate.getTransfer( store, path, operation );
+        }
+
         Logger logger = LoggerFactory.getLogger( getClass() );
         logger.debug( "KOJI: Delegating initial getTransfer() attempt for: {}/{}", store.getKey(), path );
         Transfer result = delegate.getTransfer( store, path, operation );
@@ -238,14 +272,16 @@ public abstract class KojiContentManagerDecorator
             logger.info( "KOJI: Checking for Koji build matching: {}", path );
             Group group = (Group) store;
 
-            RemoteRepository kojiProxy = findKojiBuildAnd( store, path, new EventMetadata(), null, this::createRemoteRepository );
+            KojiBuildInfoWithRemote kojiProxy = findKojiBuildAnd( store, path, new EventMetadata(), null, this::createRemoteRepository );
             if ( kojiProxy != null )
             {
                 adjustTargetGroup( kojiProxy, group );
 
                 EventMetadata eventMetadata =
                         new EventMetadata().set( ContentManager.ENTRY_POINT_STORE, store.getKey() );
-                result = delegate.retrieve( kojiProxy, path, eventMetadata );
+
+                // if we don't pursue this via the group now, we may have a race condition with the consolidation logic.
+                result = delegate.retrieve( group, path, eventMetadata );
             }
 
             if ( result != null && result.exists() )
@@ -258,7 +294,7 @@ public abstract class KojiContentManagerDecorator
         return result;
     }
 
-    @Measure( timers = @MetricNamed( DEFAULT ), exceptions = @MetricNamed( DEFAULT ) )
+    @Measure
     private <T> T findKojiBuildAnd( ArtifactStore store, String path, EventMetadata eventMetadata, T defValue, KojiBuildAction<T> action )
             throws IndyWorkflowException
     {
@@ -419,8 +455,8 @@ public abstract class KojiContentManagerDecorator
         return Collections.EMPTY_MAP;
     }
 
-    private RemoteRepository createRemoteRepository( StoreKey inStore, ArtifactRef artifactRef, final KojiBuildInfo build,
-                                                     final KojiSessionInfo session )
+    private KojiBuildInfoWithRemote createRemoteRepository( StoreKey inStore, ArtifactRef artifactRef, final KojiBuildInfo build,
+                                                            final KojiSessionInfo session )
             throws KojiClientException
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
@@ -470,7 +506,7 @@ public abstract class KojiContentManagerDecorator
                 remote.setMetadata( CREATION_TRIGGER_GAV, artifactRef.toString() );
                 remote.setMetadata( NVR, build.getNvr() );
 
-                final ChangeSummary changeSummary = new ChangeSummary( ChangeSummary.SYSTEM_USER,
+                final ChangeSummary changeSummary = new ChangeSummary( SYSTEM_USER,
                                                                        "Creating remote repository for Koji build: " + build
                                                                                .getNvr() );
 
@@ -495,7 +531,7 @@ public abstract class KojiContentManagerDecorator
                 }
             }
 
-            return remote;
+            return new KojiBuildInfoWithRemote( build, archives, remote );
         }
         catch ( MalformedURLException e )
         {
@@ -515,7 +551,7 @@ public abstract class KojiContentManagerDecorator
         }
     }
 
-    private Group adjustTargetGroup( final RemoteRepository buildRepo, final Group srcGroup )
+    private Group adjustTargetGroup( final KojiBuildInfoWithRemote buildRemote, final Group srcGroup )
             throws IndyWorkflowException
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
@@ -523,7 +559,7 @@ public abstract class KojiContentManagerDecorator
         // try to lookup the group -> targetGroup mapping in config, using the
         // entry-point group as the lookup key. If that returns null, the targetGroup is
         // the entry-point group.
-        boolean isBinaryBuild = KOJI_ORIGIN_BINARY.equals( buildRepo.getMetadata( ArtifactStore.METADATA_ORIGIN) );
+        boolean isBinaryBuild = kojiUtils.isBinaryBuild( buildRemote.getBuild() );
 
         String targetName = isBinaryBuild ? config.getTargetBinaryGroup( srcGroup.getName() )
                 : config.getTargetGroup( srcGroup.getName() );
@@ -553,32 +589,51 @@ public abstract class KojiContentManagerDecorator
                 return null;
             }
 
+            RemoteRepository buildRepo = buildRemote.getRemoteRepository();
+
             logger.info( "Adding Koji build proxy: {} to group: {}", buildRepo.getKey(), targetGroup.getKey() );
 
             // Append the new remote repo as a member of the targetGroup.
             targetGroup.addConstituent( buildRepo );
+
+            boolean consolidationEnabled = config.isConsolidationEnabled();
+
+            // NOTE: Provide a target for Koji remote content pre-fetch / consolidation, which will thread off from this
+            // execution.
+            HostedRepository consolidationTargetRepo = !consolidationEnabled ?
+                    null :
+                    consolidator.getOrCreateConsolidationTarget( targetGroup, targetName, ChangeSummary.SYSTEM_USER,
+                                                                 false );
+
             try
             {
-                final ChangeSummary changeSummary = new ChangeSummary( ChangeSummary.SYSTEM_USER,
+                final ChangeSummary changeSummary = new ChangeSummary( SYSTEM_USER,
                                                                        "Adding remote repository for Koji build: "
-                                                                               + buildRepo.getMetadata( NVR ) );
+                                                                               + buildRemote.getBuild().getNvr() );
 
                 storeDataManager.storeArtifactStore( targetGroup, changeSummary, false, true, new EventMetadata() );
             }
             catch ( IndyDataException e )
             {
                 wfEx.set( new IndyWorkflowException( "Cannot store target-group: %s changes for: %s. Error: %s", e,
-                                                        targetGroup.getName(), buildRepo.getMetadata( NVR ),
+                                                        targetGroup.getName(), buildRemote.getBuild().getNvr(),
                                                         e.getMessage() ) );
                 return null;
             }
 
-            logger.info( "Retrieving GAV: {} from: {}", buildRepo.getMetadata( CREATION_TRIGGER_GAV ), buildRepo );
+            // We use the remote repository member we just added to the target group as a backstop while we run the
+            // consolidation. If the consolidation succeeds, the group will be modified again to remove this remote
+            // repository.
+            if ( consolidationEnabled )
+            {
+                consolidator.startConsolidation( consolidationTargetRepo, targetGroup, buildRemote,
+                                                 ChangeSummary.SYSTEM_USER );
+            }
+
+            logger.info( "Retrieving GAV: {} from: {}", buildRemote.getRemoteRepository().getMetadata( CREATION_TRIGGER_GAV ), buildRepo );
 
             return targetGroup;
-        }, (k, lock)->{
-            return false;
-        } );
+        }, (k, lock)->false );
 
         IndyWorkflowException ex = wfEx.get();
         if ( ex != null )

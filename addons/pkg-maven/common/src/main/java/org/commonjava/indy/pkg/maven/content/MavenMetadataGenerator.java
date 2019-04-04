@@ -611,6 +611,32 @@ public class MavenMetadataGenerator
         return null;
     }
 
+    @Override
+    public void handleContentDeletion( final ArtifactStore store, final String path, final EventMetadata eventMetadata )
+            throws IndyWorkflowException
+    {
+        super.handleContentDeletion( store, path, eventMetadata );
+
+        if ( path.endsWith( getMergedMetadataName() ) )
+        {
+            synchronized ( versionMetadataCache )
+            {
+                Map<String, MetadataInfo> cacheMap = versionMetadataCache.get( store.getKey() );
+                if ( cacheMap != null )
+                {
+                    cacheMap.remove( path );
+                }
+            }
+
+            if ( metadataProviders != null )
+            {
+                metadataProviders.forEach( mp->{
+                    mp.clearMetadata( store.getKey(), path );
+                } );
+            }
+        }
+    }
+
     @Measure
     private void putToMetadataCache( StoreKey key, String toMergePath, MetadataInfo meta )
     {

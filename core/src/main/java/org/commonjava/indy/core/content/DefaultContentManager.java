@@ -494,7 +494,7 @@ public class DefaultContentManager
     }
 
     @Override
-    @Measure( timers = @MetricNamed( DEFAULT ), exceptions = @MetricNamed( DEFAULT ) )
+    @Measure
     public boolean delete( final ArtifactStore store, final String path, final EventMetadata eventMetadata )
             throws IndyWorkflowException
     {

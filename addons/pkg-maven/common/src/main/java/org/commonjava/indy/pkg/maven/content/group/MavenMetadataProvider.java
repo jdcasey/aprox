@@ -37,4 +37,6 @@ public interface MavenMetadataProvider
      */
     Metadata getMetadata( StoreKey targetStore, String path )
             throws IndyWorkflowException;
+
+    void clearMetadata( StoreKey key, String path );
 }
