@@ -137,7 +137,7 @@
   </logger>
   -->
 
-  <logger name="org.jboss" level="ERROR"/>
+  <logger name="org.jboss" level="DEBUG"/>
   <!-- <logger name="org.jboss.resteasy" level="DEBUG"/> -->
 
   <!--

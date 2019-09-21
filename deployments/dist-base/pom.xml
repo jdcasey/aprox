@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
     Copyright (C) 2011-2019 Red Hat, Inc. (https://github.com/Commonjava/indy)
@@ -17,22 +18,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.commonjava.indy</groupId>
-    <artifactId>indy-parent</artifactId>
+    <artifactId>indy-deployments</artifactId>
     <version>1.9.5-SNAPSHOT</version>
   </parent>
-  
-  <groupId>org.commonjava.indy.embed</groupId>
-  <artifactId>indy-embedder</artifactId>
 
-  <name>Indy :: Embedder</name>
+  <artifactId>indy-dist-base</artifactId>
+  <name>Indy :: Distribution Base</name>
 
-  <dependencies>
-  </dependencies>
-  
-  <build>
-  </build>
-  
 </project>

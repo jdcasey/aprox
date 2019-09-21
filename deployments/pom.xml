@@ -30,9 +30,10 @@
   <name>Indy :: Deployments :: Parent</name>
   
   <modules>
+    <module>dist-base</module>
     <module>launcher</module>
-    <module>cache-migrator</module>
-    <module>record-extractor</module>
+<!--     <module>cache-migrator</module>
+    <module>record-extractor</module> -->
   </modules>
 
   <profiles>

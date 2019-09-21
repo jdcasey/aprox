@@ -34,11 +34,6 @@
 
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.indy.embed</groupId>
-        <artifactId>indy-embedder</artifactId>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-subsys-jaxrs</artifactId>
         <scope>provided</scope>

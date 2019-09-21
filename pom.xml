@@ -142,7 +142,6 @@
     <module>filers</module>
     <module>test</module>
     <module>tools</module>
-    <module>embedder</module>
     <module>ftests</module>
     <module>rest</module>
     <module>clients</module>
@@ -548,8 +547,8 @@
         <version>1.9.5-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.indy.embed</groupId>
-        <artifactId>indy-embedder</artifactId>
+        <groupId>org.commonjava.indy</groupId>
+        <artifactId>indy-dist-base</artifactId>
         <version>1.9.5-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -747,16 +746,13 @@
       <dependency>
         <groupId>org.commonjava.indy.rest</groupId>
         <artifactId>indy-rest-api</artifactId>
-        <type>yaml</type>
         <version>1.9.5-SNAPSHOT</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.commonjava.indy.rest</groupId>
-        <artifactId>indy-rest-api</artifactId>
-        <type>json</type>
+        <artifactId>indy-rest-generator</artifactId>
         <version>1.9.5-SNAPSHOT</version>
-        <scope>provided</scope>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
