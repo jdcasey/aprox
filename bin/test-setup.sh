@@ -30,12 +30,12 @@ fi
 
 pushd $DIR
 
-pushd $DIR/deployments/launcher/target/
+pushd $DIR/deployments/monolith/target/
 if [ "$1" == "-e" ]; then
-  echo "Use existing $DIR/deployments/launcher/target/indy"
+  echo "Use existing $DIR/deployments/monolith/target/indy"
 else
   rm -rf indy
-  tar -zxvf indy-launcher-*-complete.tar.gz
+  tar -zxvf indy-monolith-*-complete.tar.gz
 fi
 
 if [ "x${TEST_REPOS}" != "x" ]; then
@@ -93,4 +93,4 @@ fi
 
 popd
 
-exec $DIR/deployments/launcher/target/indy/bin/indy.sh
+exec $DIR/deployments/monolith/target/indy/bin/indy.sh

@@ -148,6 +148,7 @@
     
     <!-- TODO: put in profile, figure out why release version-adjustment isn't working in profile -->
     <!-- <module>embedder-tests</module> -->
+    <module>dist-base</module>
     <module>deployments</module>
   </modules>
   

@@ -1,6 +1,4 @@
-<?xml version="1.0"?>
-<!--
-
+====
     Copyright (C) 2011-2019 Red Hat, Inc. (https://github.com/Commonjava/indy)
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +12,8 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+====
 
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.commonjava.indy</groupId>
-    <artifactId>indy-deployments</artifactId>
-    <version>1.9.5-SNAPSHOT</version>
-  </parent>
+You can place individual *.conf files here and have them picked up in the Indy configuration, since the /etc/main.conf file uses:
 
-  <artifactId>indy-dist-base</artifactId>
-  <name>Indy :: Distribution Base</name>
-
-</project>
+Include conf.d/*.conf
