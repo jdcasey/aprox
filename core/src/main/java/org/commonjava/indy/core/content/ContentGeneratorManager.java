@@ -18,7 +18,7 @@ package org.commonjava.indy.core.content;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.content.ContentGenerator;
 import org.commonjava.indy.content.StoreResource;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.util.LocationUtils;

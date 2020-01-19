@@ -43,7 +43,7 @@ import org.commonjava.indy.data.StoreDataManager;
 import org.commonjava.indy.koji.conf.IndyKojiConfig;
 import org.commonjava.indy.koji.inject.KojiMavenVersionMetadataCache;
 import org.commonjava.indy.koji.inject.KojiMavenVersionMetadataLocks;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.pkg.maven.content.MetadataCacheManager;

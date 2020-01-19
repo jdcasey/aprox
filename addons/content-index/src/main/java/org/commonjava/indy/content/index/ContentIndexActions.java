@@ -18,7 +18,7 @@ package org.commonjava.indy.content.index;
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.indy.content.MergedContentAction;
 import org.commonjava.indy.content.StoreContentAction;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;

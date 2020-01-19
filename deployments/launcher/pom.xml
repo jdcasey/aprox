@@ -113,12 +113,6 @@
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-subsys-metrics-reporter</artifactId>
-      <type>tar.gz</type>
-      <classifier>confset</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-hosted-by-archive-common</artifactId>
       <type>tar.gz</type>
       <classifier>confset</classifier>

@@ -107,8 +107,12 @@
       <artifactId>indy-subsys-http</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-subsys-metrics-reporter</artifactId>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-dw-servlet</artifactId>
     </dependency>
   </dependencies>
 </project>

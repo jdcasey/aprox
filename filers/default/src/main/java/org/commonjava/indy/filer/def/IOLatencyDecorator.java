@@ -23,6 +23,8 @@ import org.commonjava.maven.galley.event.EventMetadata;
 import org.commonjava.maven.galley.io.AbstractTransferDecorator;
 import org.commonjava.maven.galley.model.Transfer;
 import org.commonjava.maven.galley.model.TransferOperation;
+import org.commonjava.propulsor.metrics.MeteringContext;
+import org.commonjava.propulsor.metrics.spi.TimingContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,14 +35,14 @@ import java.util.function.Function;
 public class IOLatencyDecorator
         extends AbstractTransferDecorator
 {
-    private Function<String, Timer.Context> timerProvider;
+    private Function<String, TimingContext> timerProvider;
 
-    private Function<String, Meter> meterProvider;
+    private Function<String, MeteringContext> meterProvider;
 
     private BiConsumer<String, Double> cumulativeTimer;
 
-    public IOLatencyDecorator( final Function<String, Timer.Context> timerProvider,
-                               final Function<String, Meter> meterProvider,
+    public IOLatencyDecorator( final Function<String, TimingContext> timerProvider,
+                               final Function<String, MeteringContext> meterProvider,
                                final BiConsumer<String, Double> cumulativeTimer )
     {
         this.timerProvider = timerProvider;

@@ -17,7 +17,7 @@ package org.commonjava.indy.pkg.maven.content;
 
 import org.commonjava.indy.content.DirectContentAccess;
 import org.commonjava.indy.content.MergedContentAction;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.slf4j.Logger;

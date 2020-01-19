@@ -133,11 +133,6 @@ public class IndyMetricsManager
         } );
 
         metricSetProviderInstances.forEach( ( provider ) -> provider.registerMetricSet( metricRegistry ) );
-
-        if ( config.isMeasureTransport() )
-        {
-            setUpTransportMetricConfig();
-        }
     }
 
     public void startReporter() throws Exception
@@ -148,71 +143,6 @@ public class IndyMetricsManager
         }
         logger.info( "Start metrics reporters" );
         reporter.initReporter( metricRegistry );
-    }
-
-    private void setUpTransportMetricConfig()
-    {
-        logger.info( "Adding transport metrics to registry: {}", metricRegistry );
-        final String measureRepos = config.getMeasureTransportRepos();
-        final List<String> list = new ArrayList<>();
-        if ( isNotBlank( measureRepos ) )
-        {
-            String[] toks = measureRepos.split( "," );
-            for ( String s : toks )
-            {
-                s = s.trim();
-                if ( isNotBlank( s ) )
-                {
-                    if ( s.indexOf( ":" ) < 0 )
-                    {
-                        s = MAVEN_PKG_KEY + ":" + remote.singularEndpointName() + ":" + s; // use default
-                    }
-                    list.add( s );
-                }
-            }
-        }
-        transportMetricConfig = new TransportMetricConfig()
-        {
-            @Override
-            public boolean isEnabled()
-            {
-                return true;
-            }
-
-            @Override
-            public String getNodePrefix()
-            {
-                return config.getNodePrefix();
-            }
-
-            @Override
-            public String getMetricUniqueName( Location location )
-            {
-                String locationName = location.getName();
-                for ( String s : list )
-                {
-                    if ( s.equals( locationName ) )
-                    {
-                        return normalizeName( s );
-                    }
-
-                    if ( s.endsWith( "*" ) ) // handle wildcard
-                    {
-                        String prefix = s.substring( 0, s.length() - 1 );
-                        if ( locationName.startsWith( prefix ) )
-                        {
-                            return normalizeName( prefix );
-                        }
-                    }
-                }
-                return null;
-            }
-        };
-    }
-
-    private String normalizeName( String name )
-    {
-        return name.replaceAll( ":", "." );
     }
 
     public boolean isMetered( Supplier<Boolean> meteringOverride )

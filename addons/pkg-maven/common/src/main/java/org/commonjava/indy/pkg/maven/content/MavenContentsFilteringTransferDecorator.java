@@ -15,34 +15,31 @@
  */
 package org.commonjava.indy.pkg.maven.content;
 
-import java.io.FilterOutputStream;
+import org.apache.commons.lang.StringUtils;
+import org.commonjava.atlas.maven.ident.util.SnapshotUtils;
+import org.commonjava.atlas.maven.ident.version.part.SnapshotPart;
+import org.commonjava.maven.galley.event.EventMetadata;
+import org.commonjava.maven.galley.io.AbstractTransferDecorator;
+import org.commonjava.maven.galley.io.OverriddenBooleanValue;
+import org.commonjava.maven.galley.model.Location;
+import org.commonjava.maven.galley.model.Transfer;
+import org.commonjava.maven.galley.model.TransferOperation;
+import org.commonjava.maven.galley.transport.htcli.model.HttpLocation;
+import org.commonjava.maven.galley.util.IdempotentCloseOutputStream;
+import org.commonjava.maven.galley.util.TransferUtils;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.spi.TimingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import org.apache.commons.lang.StringUtils;
-import org.commonjava.atlas.maven.ident.util.SnapshotUtils;
-import org.commonjava.atlas.maven.ident.version.part.SnapshotPart;
-import org.commonjava.indy.metrics.IndyMetricsManager;
-import org.commonjava.maven.galley.event.EventMetadata;
-import org.commonjava.maven.galley.io.AbstractTransferDecorator;
-import org.commonjava.maven.galley.model.Location;
-import org.commonjava.maven.galley.model.Transfer;
-import org.commonjava.maven.galley.model.TransferOperation;
-import org.commonjava.maven.galley.io.OverriddenBooleanValue;
-import org.commonjava.maven.galley.transport.htcli.model.HttpLocation;
-import org.commonjava.maven.galley.util.IdempotentCloseOutputStream;
-import org.commonjava.maven.galley.util.TransferUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents a decorator responsible for filtering out location contents based on location settings. Effectively it is
@@ -58,7 +55,7 @@ public class MavenContentsFilteringTransferDecorator
     private final Logger logger = LoggerFactory.getLogger( this.getClass() );
 
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
 
     @Override
     public OverriddenBooleanValue decorateExists( final Transfer transfer, final EventMetadata metadata )
@@ -194,11 +191,11 @@ public class MavenContentsFilteringTransferDecorator
 
         private Transfer transfer;
 
-        private IndyMetricsManager metricsManager;
+        private MetricsManager metricsManager;
 
         private MetadataFilteringOutputStream( final OutputStream stream, final boolean allowsSnapshots,
                                                final boolean allowsReleases, Transfer transfer,
-                                               final IndyMetricsManager metricsManager )
+                                               final MetricsManager metricsManager )
         {
             super( stream );
             this.allowsSnapshots = allowsSnapshots;
@@ -215,7 +212,12 @@ public class MavenContentsFilteringTransferDecorator
                 return "";
             }
 
-            Timer.Context timer = metricsManager == null ? null : metricsManager.getTimer( TIMER ).time();
+            TimingContext timer = metricsManager == null ? null : metricsManager.time( TIMER );
+            if ( timer != null )
+            {
+                timer.start();
+            }
+
             try
             {
                 // filter versions from GA metadata

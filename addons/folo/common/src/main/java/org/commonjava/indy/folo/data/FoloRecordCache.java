@@ -22,7 +22,7 @@ import org.commonjava.indy.folo.model.StoreEffect;
 import org.commonjava.indy.folo.model.TrackedContent;
 import org.commonjava.indy.folo.model.TrackedContentEntry;
 import org.commonjava.indy.folo.model.TrackingKey;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.measure.annotation.MetricNamed;
 import org.commonjava.indy.subsys.infinispan.CacheHandle;
 import org.infinispan.Cache;

@@ -17,8 +17,8 @@ package org.commonjava.indy.db.metered;
 
 import org.commonjava.indy.data.ArtifactStoreQuery;
 import org.commonjava.indy.data.StoreDataManager;
-import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.model.core.ArtifactStore;
+import org.commonjava.propulsor.metrics.MetricsManager;
 
 import javax.decorator.Decorator;
 import javax.decorator.Delegate;
@@ -33,7 +33,7 @@ public abstract class MeasuringArtifactStoreQueryInterceptor
     private StoreDataManager dataManager;
 
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
 
     @Override
     public ArtifactStoreQuery<ArtifactStore> query()

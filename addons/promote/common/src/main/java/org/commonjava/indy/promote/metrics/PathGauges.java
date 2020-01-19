@@ -15,9 +15,9 @@
  */
 package org.commonjava.indy.promote.metrics;
 
-import com.codahale.metrics.Gauge;
-import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.conf.MetricsConfig;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -25,12 +25,18 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+
+import static org.commonjava.propulsor.metrics.MetricsUtils.getDefaultName;
 
 @ApplicationScoped
 public class PathGauges
 {
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
+
+    @Inject
+    private MetricsConfig metricsConfig;
 
     private AtomicInteger total = new AtomicInteger();
 
@@ -48,13 +54,15 @@ public class PathGauges
         registerPathPromotionGauges( metricsManager );
     }
 
-    private void registerPathPromotionGauges( IndyMetricsManager metricsManager )
+    private void registerPathPromotionGauges( MetricsManager metricsManager )
     {
-        Map<String, Gauge<Integer>> gauges = new HashMap<>();
+        String defaultName = getDefaultName( getClass(), "last");
+
+        Map<String, Supplier<Integer>> gauges = new HashMap<>();
         gauges.put( "total", () -> getTotal() );
         gauges.put( "completed", () -> getCompleted() );
         gauges.put( "skipped", () -> getSkipped() );
-        metricsManager.addGauges( this.getClass(), "last", gauges );
+        metricsManager.registerGauges( defaultName, gauges );
     }
 
     public int getTotal()

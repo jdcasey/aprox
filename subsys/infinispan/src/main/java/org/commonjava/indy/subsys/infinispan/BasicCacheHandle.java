@@ -15,7 +15,7 @@
  */
 package org.commonjava.indy.subsys.infinispan;
 
-import org.commonjava.indy.metrics.IndyMetricsManager;
+import org.commonjava.propulsor.metrics.MetricsManager;
 import org.infinispan.commons.api.BasicCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class BasicCacheHandle<K,V>
 
     protected BasicCache<K,V> cache;
 
-    protected IndyMetricsManager metricsManager;
+    protected MetricsManager metricsManager;
 
     private String metricPrefix;
 
@@ -52,7 +52,7 @@ public class BasicCacheHandle<K,V>
     {
     }
 
-    protected BasicCacheHandle( String named, BasicCache<K, V> cache, IndyMetricsManager metricsManager, String metricPrefix )
+    protected BasicCacheHandle( String named, BasicCache<K, V> cache, MetricsManager metricsManager, String metricPrefix )
     {
         this.name = named;
         this.cache = cache;

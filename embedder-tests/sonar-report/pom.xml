@@ -62,12 +62,24 @@
       <artifactId>indy-subsys-keycloak</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-subsys-metrics-core</artifactId>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-subsys-metrics-reporter</artifactId>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-dropwizard</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-dw-graphite</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-dw-servlet</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-dw-prometheus</artifactId>
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>
@@ -274,10 +286,6 @@
       <artifactId>indy-ftests-pkg-npm</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-ftests-metrics</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.commonjava.indy</groupId>
@@ -392,7 +400,6 @@
                 indy-ftests-promote,
                 indy-ftests-diagnostics,
                 indy-ftests-pkg-maven,
-                indy-ftests-metrics,
                 indy-ftests-pkg-npm,
                 indy-ftests-hosted-by-archive,
                 indy-ftests-koji,
@@ -429,7 +436,6 @@
                 indy-ftests-promote,
                 indy-ftests-diagnostics,
                 indy-ftests-pkg-maven,
-                indy-ftests-metrics,
                 indy-ftests-pkg-npm,
                 indy-ftests-hosted-by-archive,
                 indy-ftests-koji,
@@ -497,7 +503,6 @@
                 indy-ftests-promote,
                 indy-ftests-diagnostics,
                 indy-ftests-pkg-maven,
-                indy-ftests-metrics,
                 indy-ftests-pkg-npm,
                 indy-ftests-hosted-by-archive,
                 indy-ftests-koji,
@@ -528,7 +533,6 @@
                 indy-ftests-promote,
                 indy-ftests-diagnostics,
                 indy-ftests-pkg-maven,
-                indy-ftests-metrics,
                 indy-ftests-pkg-npm,
                 indy-ftests-hosted-by-archive,
                 indy-ftests-koji,

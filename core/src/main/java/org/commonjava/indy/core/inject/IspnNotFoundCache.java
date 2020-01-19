@@ -16,7 +16,7 @@
 package org.commonjava.indy.core.inject;
 
 import org.commonjava.indy.conf.IndyConfiguration;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.galley.KeyedLocation;
 import org.commonjava.indy.model.galley.RepositoryLocation;

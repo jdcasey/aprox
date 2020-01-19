@@ -23,10 +23,10 @@ import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.commonjava.indy.action.IndyLifecycleException;
 import org.commonjava.indy.action.ShutdownAction;
 import org.commonjava.indy.conf.IndyConfiguration;
-import org.commonjava.indy.metrics.IndyMetricsManager;
-import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
 import org.commonjava.indy.subsys.infinispan.config.ISPNClusterConfiguration;
 import org.commonjava.indy.subsys.infinispan.config.ISPNRemoteConfiguration;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.conf.MetricsConfig;
 import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -55,10 +55,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
-import static org.commonjava.indy.metrics.IndyMetricsConstants.getSupername;
 import static org.commonjava.indy.subsys.infinispan.metrics.IspnCheckRegistrySet.INDY_METRIC_ISPN;
+import static org.commonjava.propulsor.metrics.MetricsUtils.getSupername;
 
 /**
  * Created by jdcasey on 3/8/16.
@@ -81,10 +80,10 @@ public class CacheProducer
     private IndyConfiguration indyConfiguration;
 
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
 
     @Inject
-    private IndyMetricsConfig metricsConfig;
+    private MetricsConfig metricsConfig;
 
     @Inject
     private ISPNClusterConfiguration clusterConfiguration;
@@ -294,7 +293,7 @@ public class CacheProducer
 
     private String getCacheMetricPrefix( String named )
     {
-        return metricsManager == null ? null : getSupername( metricsConfig.getNodePrefix(), INDY_METRIC_ISPN, named );
+        return metricsManager == null ? null : getSupername( metricsConfig.getInstancePrefix(), INDY_METRIC_ISPN, named );
     }
 
     public synchronized Configuration getCacheConfiguration( String name )

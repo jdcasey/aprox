@@ -19,18 +19,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.content.ContentDigester;
-import org.commonjava.indy.metrics.IndyMetricsManager;
-import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.util.HttpUtils;
 import org.commonjava.indy.util.ApplicationContent;
 import org.commonjava.indy.util.ApplicationHeader;
 import org.commonjava.indy.util.ApplicationStatus;
 import org.commonjava.indy.util.LocationUtils;
-import org.commonjava.maven.galley.event.EventMetadata;
-import org.commonjava.maven.galley.io.checksum.ContentDigest;
 import org.commonjava.maven.galley.model.Transfer;
 import org.commonjava.maven.galley.transport.htcli.model.HttpExchangeMetadata;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.conf.MetricsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +59,10 @@ public class ResponseHelper
     private ObjectMapper mapper;
 
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
 
     @Inject
-    private IndyMetricsConfig metricsConfig;
+    private MetricsConfig metricsConfig;
     
     @Inject
     ContentDigester contentDigester;

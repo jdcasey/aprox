@@ -38,12 +38,12 @@
       <artifactId>indy-subsys-flatfile</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-subsys-metrics-core</artifactId>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.indy</groupId>
-      <artifactId>indy-subsys-metrics-reporter</artifactId>
+      <groupId>org.commonjava.propulsor.metrics</groupId>
+      <artifactId>propulsor-metrics-dropwizard</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>

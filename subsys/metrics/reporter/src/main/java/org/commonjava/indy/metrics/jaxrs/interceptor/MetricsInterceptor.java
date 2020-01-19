@@ -16,7 +16,7 @@
 package org.commonjava.indy.metrics.jaxrs.interceptor;
 
 import com.codahale.metrics.Timer;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.measure.annotation.MetricNamed;
 import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.metrics.conf.IndyMetricsConfig;

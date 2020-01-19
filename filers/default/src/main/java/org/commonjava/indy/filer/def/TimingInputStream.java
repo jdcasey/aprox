@@ -20,6 +20,8 @@ import com.codahale.metrics.Timer;
 import org.apache.commons.io.input.CountingInputStream;
 import org.commonjava.indy.metrics.RequestContextHelper;
 import org.commonjava.maven.galley.util.IdempotentCloseInputStream;
+import org.commonjava.propulsor.metrics.MeteringContext;
+import org.commonjava.propulsor.metrics.spi.TimingContext;
 
 import java.io.IOException;
 import java.util.function.BiConsumer;
@@ -38,18 +40,18 @@ public class TimingInputStream
 
     private Long nanos;
 
-    private Function<String, Timer.Context> timerProvider;
+    private Function<String, TimingContext> timerProvider;
 
-    private final Function<String, Meter> meterProvider;
+    private final Function<String, MeteringContext> meterProvider;
 
     private BiConsumer<String, Double> cumulativeTimer;
 
-    private Timer.Context timer;
+    private TimingContext timer;
 
-    private Meter meter;
+    private MeteringContext meter;
 
-    public TimingInputStream( final CountingInputStream stream, final Function<String, Timer.Context> timerProvider,
-                              final Function<String, Meter> meterProvider,
+    public TimingInputStream( final CountingInputStream stream, final Function<String, TimingContext> timerProvider,
+                              final Function<String, MeteringContext> meterProvider,
                               final BiConsumer<String, Double> cumulativeTimer )
     {
         super( stream );

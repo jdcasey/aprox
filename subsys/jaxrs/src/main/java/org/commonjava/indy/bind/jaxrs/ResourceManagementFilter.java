@@ -16,12 +16,12 @@
 package org.commonjava.indy.bind.jaxrs;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.indy.measure.annotation.Measure;
-import org.commonjava.indy.metrics.IndyMetricsConstants;
-import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.maven.galley.model.SpecialPathInfo;
 import org.commonjava.maven.galley.spi.cache.CacheProvider;
 import org.commonjava.maven.galley.spi.io.SpecialPathManager;
+import org.commonjava.propulsor.metrics.MetricsConstants;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -36,7 +36,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -86,7 +85,7 @@ public class ResourceManagementFilter
     private SpecialPathManager specialPathManager;
 
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -232,7 +231,7 @@ public class ResourceManagementFilter
         return ()->{
             if ( !pathInfo.contains( "content" ))
             {
-                return IndyMetricsConstants.SKIP_METRIC;
+                return MetricsConstants.SKIP_METRIC;
             }
             SpecialPathInfo spi = specialPathManager.getSpecialPathInfo( pathInfo );
             if ( spi == null )

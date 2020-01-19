@@ -42,7 +42,7 @@ import org.commonjava.indy.content.StoreResource;
 import org.commonjava.indy.core.content.AbstractMergedContentGenerator;
 import org.commonjava.indy.core.content.group.GroupMergeHelper;
 import org.commonjava.indy.data.StoreDataManager;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;

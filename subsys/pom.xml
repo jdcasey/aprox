@@ -37,7 +37,7 @@
     <module>keycloak</module>
     <module>jaxrs</module>
     <module>infinispan</module>
-    <module>metrics</module>
+    <!-- <module>metrics</module> -->
     <module>prefetch</module>
     <module>kafka</module>
     <module>cpool</module>

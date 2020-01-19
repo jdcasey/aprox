@@ -19,6 +19,9 @@ import com.codahale.metrics.MetricRegistry;
 import org.commonjava.indy.metrics.MetricSetProvider;
 import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
 import org.commonjava.indy.subsys.infinispan.CacheProducer;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.conf.MetricsConfig;
+import org.commonjava.propulsor.metrics.dropwizard.spi.MetricSetProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +40,10 @@ public class IspnRegistrySetProvider
         implements MetricSetProvider
 {
     @Inject
-    private IndyMetricsConfig metricsConfig;
+    private MetricsConfig metricsConfig;
+
+    @Inject
+    private MetricsManager metricsManager;
 
     @Inject
     private CacheProducer cacheProducer;
@@ -72,7 +78,9 @@ public class IspnRegistrySetProvider
             }
         }
 
-        registry.register( name( metricsConfig.getNodePrefix(), INDY_METRIC_ISPN ),
+
+        metricsManager.registerGauges(  );
+        registry.register( name( metricsConfig.getInstancePrefix(), INDY_METRIC_ISPN ),
                                  new IspnCheckRegistrySet( cacheProducer.getCacheManager(), list ) );
     }
 }

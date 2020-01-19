@@ -26,12 +26,15 @@ import org.commonjava.indy.core.bind.jaxrs.util.RequestUtils;
 import org.commonjava.indy.core.bind.jaxrs.util.TransferCountingInputStream;
 import org.commonjava.indy.core.bind.jaxrs.util.TransferStreamingOutput;
 import org.commonjava.indy.core.ctl.ContentController;
-import org.commonjava.indy.metrics.IndyMetricsManager;
-import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
 import org.commonjava.indy.model.core.PackageTypes;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
-import org.commonjava.indy.util.*;
+import org.commonjava.indy.util.AcceptInfo;
+import org.commonjava.indy.util.ApplicationContent;
+import org.commonjava.indy.util.ApplicationHeader;
+import org.commonjava.indy.util.ApplicationStatus;
+import org.commonjava.indy.util.LocationUtils;
+import org.commonjava.indy.util.UriFormatter;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.commonjava.maven.galley.io.checksum.ContentDigest;
 import org.commonjava.maven.galley.model.SpecialPathInfo;
@@ -39,6 +42,8 @@ import org.commonjava.maven.galley.model.Transfer;
 import org.commonjava.maven.galley.model.TransferOperation;
 import org.commonjava.maven.galley.spi.io.SpecialPathManager;
 import org.commonjava.maven.galley.transport.htcli.model.HttpExchangeMetadata;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.conf.MetricsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -56,13 +61,13 @@ import java.net.URI;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static org.commonjava.indy.core.ctl.ContentController.LISTING_HTML_FILE;
 import static org.commonjava.indy.metrics.RequestContextHelper.CONTENT_ENTRY_POINT;
 import static org.commonjava.indy.metrics.RequestContextHelper.HTTP_STATUS;
 import static org.commonjava.indy.metrics.RequestContextHelper.METADATA_CONTENT;
 import static org.commonjava.indy.metrics.RequestContextHelper.PACKAGE_TYPE;
 import static org.commonjava.indy.metrics.RequestContextHelper.PATH;
 import static org.commonjava.indy.metrics.RequestContextHelper.setContext;
-import static org.commonjava.indy.core.ctl.ContentController.LISTING_HTML_FILE;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 
 @ApplicationScoped
@@ -83,10 +88,10 @@ public class ContentAccessHandler
     protected JaxRsRequestHelper jaxRsRequestHelper;
 
     @Inject
-    protected IndyMetricsManager metricsManager;
+    protected MetricsManager metricsManager;
 
     @Inject
-    protected IndyMetricsConfig metricsConfig;
+    protected MetricsConfig metricsConfig;
 
     @Inject
     protected SpecialPathManager specialPathManager;

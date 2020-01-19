@@ -21,7 +21,7 @@ import org.commonjava.indy.data.NoOpStoreEventDispatcher;
 import org.commonjava.indy.data.StoreEventDispatcher;
 import org.commonjava.indy.db.common.AbstractStoreDataManager;
 import org.commonjava.indy.db.common.StoreUpdateAction;
-import org.commonjava.indy.measure.annotation.Measure;
+import org.commonjava.propulsor.metrics.annotation.Measure;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;

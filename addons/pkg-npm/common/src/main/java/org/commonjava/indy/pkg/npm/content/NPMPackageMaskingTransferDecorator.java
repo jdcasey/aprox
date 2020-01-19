@@ -15,9 +15,6 @@
  */
 package org.commonjava.indy.pkg.npm.content;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.galley.KeyedLocation;
 import org.commonjava.maven.galley.event.EventMetadata;
@@ -26,13 +23,14 @@ import org.commonjava.maven.galley.model.Location;
 import org.commonjava.maven.galley.model.Transfer;
 import org.commonjava.maven.galley.util.IdempotentCloseInputStream;
 import org.commonjava.maven.galley.util.UrlUtils;
+import org.commonjava.propulsor.metrics.MetricsManager;
+import org.commonjava.propulsor.metrics.spi.TimingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -49,7 +47,7 @@ public class NPMPackageMaskingTransferDecorator
     private final Logger logger = LoggerFactory.getLogger( this.getClass() );
 
     @Inject
-    private IndyMetricsManager metricsManager;
+    private MetricsManager metricsManager;
 
     public NPMPackageMaskingTransferDecorator()
     {
@@ -102,14 +100,14 @@ public class NPMPackageMaskingTransferDecorator
 
         private String contextURL;
 
-        private IndyMetricsManager metricsManager;
+        private MetricsManager metricsManager;
 
         private byte[] bytes;
 
         boolean masked;
 
         private PackageMaskingInputStream( final InputStream stream, final String contextURL,
-                                           final IndyMetricsManager metricsManager )
+                                           final MetricsManager metricsManager )
         {
             super( stream );
             this.contextURL = contextURL;
@@ -159,7 +157,12 @@ public class NPMPackageMaskingTransferDecorator
 
         private void mask( String contextURL ) throws IOException
         {
-            Timer.Context timer = metricsManager == null ? null : metricsManager.getTimer( TIMER ).time();
+            TimingContext timer = metricsManager == null ? null : metricsManager.time( TIMER );
+            if ( timer != null )
+            {
+                timer.start();
+            }
+
             try
             {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();

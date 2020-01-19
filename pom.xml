@@ -80,7 +80,7 @@
 
     <!-- commonjava/redhat projects -->
     <atlasVersion>1.1.0</atlasVersion>
-    <galleyVersion>1.0</galleyVersion>
+    <galleyVersion>1.1-SNAPSHOT</galleyVersion>
     <bomVersion>25</bomVersion>
     <webdavVersion>3.2.1</webdavVersion>
     <partylineVersion>1.16</partylineVersion>
@@ -89,7 +89,7 @@
     <jhttpcVersion>1.11</jhttpcVersion>
     <weftVersion>1.15</weftVersion>
     <httpTestserverVersion>1.4</httpTestserverVersion>
-    <propulsorVersion>1.4</propulsorVersion>
+    <propulsorVersion>1.5-SNAPSHOT</propulsorVersion>
     <auditQueryVersion>0.13.1</auditQueryVersion>
     
     <!-- <enforceBestPractices>false</enforceBestPractices> -->
@@ -715,37 +715,6 @@
         <version>1.9.9-SNAPSHOT</version>
         <classifier>confset</classifier>
         <type>tar.gz</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-subsys-metrics-core</artifactId>
-        <version>1.9.9-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-subsys-metrics-reporter</artifactId>
-        <version>1.9.9-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-subsys-metrics-prometheus</artifactId>
-        <version>1.9.9-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-subsys-metrics-reporter</artifactId>
-        <version>1.9.9-SNAPSHOT</version>
-        <classifier>confset</classifier>
-        <type>tar.gz</type>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-ftests-metrics</artifactId>
-        <version>1.9.9-SNAPSHOT</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -1512,6 +1481,37 @@
         <artifactId>propulsor-undertow</artifactId>
         <version>${propulsorVersion}</version>
       </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-core</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-servlet</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-dropwizard</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-dw-graphite</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-dw-servlet</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.propulsor.metrics</groupId>
+        <artifactId>propulsor-metrics-dw-prometheus</artifactId>
+        <version>${propulsorVersion}</version>
+      </dependency>
+
       <dependency>
         <groupId>io.github.java-diff-utils</groupId>
         <artifactId>java-diff-utils</artifactId>
