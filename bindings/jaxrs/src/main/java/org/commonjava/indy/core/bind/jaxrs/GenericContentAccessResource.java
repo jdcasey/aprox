@@ -16,12 +16,14 @@
 package org.commonjava.indy.core.bind.jaxrs;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.commonjava.indy.bind.jaxrs.IndyDeployment;
 import org.commonjava.indy.bind.jaxrs.util.REST;
+import org.commonjava.indy.util.ApplicationContent;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -154,6 +157,22 @@ public class GenericContentAccessResource
         final String baseUri = uriInfo.getBaseUriBuilder().path( GENERIC_CONTENT_REST_BASE_PATH ).build().toString();
 
         return handler.doGet( GENERIC_PKG_KEY, type, name, "", baseUri, request, new EventMetadata() );
+    }
+
+    @Override
+    @ApiOperation( "Batch delete files under the given package store (type/name) and paths." )
+    @ApiResponse( code=200, message = "Batch delete operation finished." )
+    @ApiImplicitParam( name = "body", paramType = "body",
+                    value = "JSON array of paths list",
+                    required = true, dataType = "java.util.Set" )
+    @Path( "/clear" )
+    @DELETE
+    @Consumes( ApplicationContent.application_json )
+    public Response doDelete(
+            final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
+            final @ApiParam( required = true ) @PathParam( "name" ) String name, @Context final HttpServletRequest request)
+    {
+        return handler.doDelete( GENERIC_PKG_KEY, type, name, request, new EventMetadata() );
     }
 
 }

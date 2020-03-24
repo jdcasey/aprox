@@ -16,6 +16,7 @@
 package org.commonjava.indy.pkg.maven.jaxrs;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -161,6 +162,21 @@ public class MavenContentAccessResource
         final String baseUri = uriInfo.getBaseUriBuilder().path( MAVEN_CONTENT_REST_BASE_PATH ).build().toString();
 
         return handler.doGet( MAVEN_PKG_KEY, type, name, "", baseUri, request, new EventMetadata() );
+    }
+
+    @Override
+    @ApiOperation( "Batch delete Maven artifact content under the given artifact store (type/name) and paths." )
+    @ApiResponse( code=200, message = "Batch delete operation finished." )
+    @ApiImplicitParam( name = "body", paramType = "body",
+                    value = "JSON array of paths list",
+                    required = true, dataType = "java.util.Set" )
+    @DELETE
+    @Path( "/clear" )
+    public Response doDelete(
+            final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
+            final @ApiParam( required = true ) @PathParam( "name" ) String name, @Context final HttpServletRequest request )
+    {
+        return handler.doDelete( MAVEN_PKG_KEY, type, name, request, new EventMetadata() );
     }
 
 }

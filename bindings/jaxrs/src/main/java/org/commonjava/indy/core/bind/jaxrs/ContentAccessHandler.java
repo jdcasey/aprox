@@ -15,6 +15,8 @@
  */
 package org.commonjava.indy.core.bind.jaxrs;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
 import org.commonjava.indy.bind.jaxrs.util.JaxRsRequestHelper;
@@ -58,6 +60,9 @@ import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -99,6 +104,9 @@ public class ContentAccessHandler
 
     @Inject
     private ResponseHelper responseHelper;
+
+    @Inject
+    private ObjectMapper mapper;
     
     @Inject
     ContentDigester contentDigester;
@@ -171,6 +179,57 @@ public class ContentAccessHandler
                               EventMetadata eventMetadata )
     {
         return doDelete( packageType, type, name, path, eventMetadata, null );
+    }
+
+    public Response doDelete( final String packageType, final String type, final String name,
+                              final HttpServletRequest request, EventMetadata eventMetadata )
+    {
+        setContext( PACKAGE_TYPE, packageType );
+
+        if ( !PackageTypes.contains( packageType ) )
+        {
+            ResponseBuilder builder = Response.status( 400 );
+            return builder.build();
+        }
+
+        Set<String> paths;
+        try
+        {
+            paths = mapper.readValue( request.getInputStream(), new TypeReference<Set<String>>() {} );
+        }
+        catch ( IOException e )
+        {
+            logger.error( "Bad request.", e );
+            return responseHelper.formatResponse( e );
+        }
+
+        final StoreType st = StoreType.get( type );
+        StoreKey sk = new StoreKey( packageType, st, name );
+
+        eventMetadata = eventMetadata.set( ContentManager.ENTRY_POINT_STORE, sk );
+        setContext( CONTENT_ENTRY_POINT, sk.toString() );
+
+        Response response;
+        Map<String, String> results = new HashMap<>();
+        for ( final String path : paths )
+        {
+            try
+            {
+                final ApplicationStatus result = contentController.delete( sk, path, eventMetadata );
+                results.put( path, String.valueOf( result.code() ) );
+            }
+            catch ( final IndyWorkflowException e )
+            {
+                logger.error( String.format( "Failed to tryDelete artifact: %s from: %s. Reason: %s", path, name,
+                                             e.getMessage() ), e );
+                results.put( path, e.getMessage() );
+            }
+        }
+        ResponseBuilder builder = Response.status( 200 );
+        response = builder.entity( results ).build();
+
+        return response;
+
     }
 
     public Response doDelete( final String packageType, final String type, final String name, final String path,
