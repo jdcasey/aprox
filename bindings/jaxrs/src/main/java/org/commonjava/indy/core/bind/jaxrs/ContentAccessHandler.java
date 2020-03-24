@@ -213,6 +213,7 @@ public class ContentAccessHandler
         Map<String, String> results = new HashMap<>();
         for ( final String path : paths )
         {
+            setContext( PATH, path );
             try
             {
                 final ApplicationStatus result = contentController.delete( sk, path, eventMetadata );
