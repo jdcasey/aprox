@@ -16,7 +16,6 @@ public class DemoteRequest
 
     private static final int DEMOTE_REQUEST_VERSION = 1;
 
-
     private StoreKey storeKey;
 
     private Set<String> paths;

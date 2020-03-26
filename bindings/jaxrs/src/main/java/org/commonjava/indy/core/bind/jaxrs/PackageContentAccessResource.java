@@ -30,6 +30,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -107,7 +108,7 @@ public interface PackageContentAccessResource
                     value = "JSON object, specifying paths, with other configuration options",
                     required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
     @Path( "/demote" )
-    @DELETE
+    @POST
     @Consumes( ApplicationContent.application_json )
     Response doDelete(
             @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,

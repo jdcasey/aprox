@@ -104,9 +104,6 @@ public class ContentAccessHandler
 
     @Inject
     private ResponseHelper responseHelper;
-
-    @Inject
-    private ObjectMapper mapper;
     
     @Inject
     ContentDigester contentDigester;

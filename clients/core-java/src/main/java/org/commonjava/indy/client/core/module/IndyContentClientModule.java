@@ -22,6 +22,7 @@ import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.helper.HttpResources;
 import org.commonjava.indy.client.core.helper.PathInfo;
 import org.commonjava.indy.client.core.util.UrlUtils;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.model.core.PackageTypes;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -107,13 +108,19 @@ public class IndyContentClientModule
         http.delete( contentPath( key, path ) );
     }
 
+    public void demote( final StoreKey key, final DemoteRequest request )
+            throws IndyClientException
+    {
+        http.postRaw( contentPath( key, "demote" ), request );
+    }
+
     @Deprecated
     public void delete( final StoreType type, final String name, final String path )
             throws IndyClientException
     {
         delete( new StoreKey( MAVEN_PKG_KEY, type, name ), path );
     }
-    
+
     public boolean exists( final StoreKey key, final String path )
             throws IndyClientException
     {
