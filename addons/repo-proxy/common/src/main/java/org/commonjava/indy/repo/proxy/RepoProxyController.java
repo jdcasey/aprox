@@ -15,11 +15,11 @@
  */
 package org.commonjava.indy.repo.proxy;
 
+import org.commonjava.indy.core.bind.jaxrs.util.RequestUtils;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.repo.proxy.conf.RepoProxyConfig;
 import org.commonjava.indy.repo.proxy.create.ProxyRepoCreateManager;
-import org.commonjava.maven.galley.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +36,18 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
+import static org.commonjava.indy.repo.proxy.RepoProxyUtils.extractPath;
+import static org.commonjava.indy.repo.proxy.RepoProxyUtils.getRequestAbsolutePath;
 import static org.commonjava.indy.repo.proxy.RepoProxyUtils.getOriginalStoreKeyFromPath;
 import static org.commonjava.indy.repo.proxy.RepoProxyUtils.getProxyTo;
+import static org.commonjava.indy.repo.proxy.RepoProxyUtils.isNPMMetaPath;
+import static org.commonjava.indy.repo.proxy.RepoProxyUtils.keyToPath;
 
 @ApplicationScoped
-public class RepoProxyContoller
+public class RepoProxyController
 {
     private final Logger logger = LoggerFactory.getLogger( this.getClass() );
 
@@ -56,12 +62,12 @@ public class RepoProxyContoller
 
     private Iterable<RepoProxyResponseDecorator> responseDecorators;
 
-    protected RepoProxyContoller()
+    protected RepoProxyController()
     {
     }
 
-    public RepoProxyContoller( final RepoProxyConfig config,
-                               final Iterable<RepoProxyResponseDecorator> responseDecorators )
+    public RepoProxyController( final RepoProxyConfig config,
+                                final Iterable<RepoProxyResponseDecorator> responseDecorators )
     {
         this.config = config;
         this.responseDecorators = responseDecorators;
@@ -93,16 +99,22 @@ public class RepoProxyContoller
             return false;
         }
 
-        final String absoluteOriginalPath = getAbsolutePath( httpRequest );
+        final String absoluteOriginalPath = getRequestAbsolutePath( httpRequest );
         final Optional<String> proxyToPath = getProxyTo( absoluteOriginalPath, proxyToRemoteKey.get() );
         if ( !proxyToPath.isPresent() )
         {
             return false;
         }
 
+        if ( !handleContentBrowseRewrite( absoluteOriginalPath, httpRequest ) )
+        {
+            return false;
+        }
+
         trace( "proxied to path info {}", proxyToPath );
 
-        HttpServletResponse decoratedResponse = decoratingResponse( httpRequest, (HttpServletResponse) response, proxyToRemoteKey.get() );
+        HttpServletResponse decoratedResponse =
+                decoratingResponse( httpRequest, (HttpServletResponse) response, proxyToRemoteKey.get() );
 
         // Here we do not use redirect but forward.
         // doRedirect( (HttpServletResponse)response, proxyTo );
@@ -134,7 +146,7 @@ public class RepoProxyContoller
 
     private Optional<StoreKey> getProxyToRemoteKey( HttpServletRequest request )
     {
-        final String absoluteOriginalPath = getAbsolutePath( request );
+        final String absoluteOriginalPath = getRequestAbsolutePath( request );
 
         final Optional<String> originKeyStr = getOriginalStoreKeyFromPath( absoluteOriginalPath );
         if ( !originKeyStr.isPresent() )
@@ -158,7 +170,7 @@ public class RepoProxyContoller
                 else
                 {
                     trace( "absolute path {}", absoluteOriginalPath );
-                    return Optional.of( proxyToRemote.get().getKey() );
+                    return of( proxyToRemote.get().getKey() );
                 }
             }
             catch ( RepoProxyException e )
@@ -168,12 +180,6 @@ public class RepoProxyContoller
             }
         }
 
-    }
-
-    private String getAbsolutePath(HttpServletRequest request){
-        final String pathInfo = request.getPathInfo();
-
-        return PathUtils.normalize( request.getServletPath(), request.getContextPath(), request.getPathInfo() );
     }
 
     private HttpServletResponse decoratingResponse( final HttpServletRequest request,
@@ -188,6 +194,48 @@ public class RepoProxyContoller
         }
 
         return decorated;
+    }
+
+    private boolean handleContentBrowseRewrite( final String absoluteOriginalPath, final HttpServletRequest request )
+    {
+        if ( !config.isContentBrowseRewriteEnabled() && absoluteOriginalPath.startsWith( "/api/browse/" ) )
+        {
+            trace( "Content browse rewriting not enabled, will not do proxy for this request {}",
+                   absoluteOriginalPath );
+            return false;
+        }
+
+        // Here we need to do some tweak: for /api/content/xxxxx/ or /api/folo/track/xxxxx/ or /api/{group|hosted}/ type content browse accessing,
+        // it will not be forwarded here because there is a following redirect in ContentAccessHandler to /browse/xxxxx/
+        // (for browsers) or /api/browse/xxxxx/ (for non-browsers), so we will not intercept them here, but do interception
+        // later for the /api/browse/xxxxx/ request from redirected resource accessing
+        final boolean isContentPath =
+                absoluteOriginalPath.startsWith( "/api/content/" ) || absoluteOriginalPath.startsWith(
+                        "/api/folo/track/" ) || absoluteOriginalPath.startsWith( "/api/group/" ) || absoluteOriginalPath
+                        .startsWith( "/api/hosted/" );
+        if ( isContentPath && RequestUtils.isDirectoryPathForRequest( request ) )
+        {
+            final Optional<String> storeKeyStrOpt = getOriginalStoreKeyFromPath( absoluteOriginalPath );
+            if ( storeKeyStrOpt.isPresent() )
+            {
+                final String storeKeyStr = storeKeyStrOpt.get();
+                if ( NPM_PKG_KEY.equals( storeKeyStr.split( ":" )[0] ) )
+                {
+                    // For npm metadata request with trailing /, it's still a normal content request even
+                    // if it's a content browse liked request, so we still need to do proxy
+                    final String path = extractPath( absoluteOriginalPath, keyToPath( storeKeyStr ) );
+                    if ( isNPMMetaPath( path ) )
+                    {
+                        trace( "This is a npm metadata request with trailing / {}, will do proxy", absoluteOriginalPath );
+                        return true;
+                    }
+                }
+            }
+            trace( "This is a original content browse request for path {}, will not do proxy", absoluteOriginalPath );
+            return false;
+        }
+
+        return true;
     }
 
     //TODO: not used but just leave here for reference

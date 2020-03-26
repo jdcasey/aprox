@@ -60,7 +60,7 @@ public class RepoProxyCreatorNotMatchTest
         extends AbstractContentManagementTest
 
 {
-    private static final String REPO_NAME_1 = "pnc-builds";
+    private static final String REPO_NAME_1 = "test";
 
     private static final String REPO_NAME_2 = "not-matched";
 
@@ -138,7 +138,7 @@ public class RepoProxyCreatorNotMatchTest
             "class DefaultRule extends AbstractProxyRepoCreateRule {\n" +
             "    @Override\n" +
             "    boolean matches(StoreKey storeKey) {\n" +
-            "        return \"maven\".equals(storeKey.getPackageType()) && \"pnc-builds\".equals(storeKey.getName())\n" +
+            "        return \"maven\".equals(storeKey.getPackageType()) && \"" + REPO_NAME_1 + "\".equals(storeKey.getName())\n" +
             "    }\n" +
             "    @Override\n" +
             "    Optional<RemoteRepository> createRemote(StoreKey key) {\n" +

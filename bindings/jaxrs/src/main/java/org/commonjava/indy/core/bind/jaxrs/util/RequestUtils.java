@@ -94,7 +94,19 @@ public final class RequestUtils
      */
     public static boolean isDirectoryPath( final String path, final HttpServletRequest request )
     {
-        return path == null || path.equals( "" ) || request.getPathInfo().endsWith( "/" ) || path.endsWith(
+        return path == null || path.equals( "" ) || isDirectoryPathForRequest( request ) || path.endsWith(
                 LISTING_HTML_FILE );
+    }
+
+    /**
+     * Check if http request is accessing directory listing
+     *
+     * @param request
+     * @return
+     */
+    public static boolean isDirectoryPathForRequest( final HttpServletRequest request )
+    {
+        final String pathInfo = request.getPathInfo().trim();
+        return pathInfo.endsWith( "/" ) || pathInfo.endsWith( LISTING_HTML_FILE );
     }
 }

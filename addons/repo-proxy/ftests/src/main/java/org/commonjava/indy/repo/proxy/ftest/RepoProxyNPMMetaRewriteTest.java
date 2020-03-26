@@ -35,7 +35,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Check if the NPM metadata rewritting features can work well for this proxy addon
+ * Check if the NPM metadata rewriting features can work well for this proxy addon
  * <br/>
  * GIVEN:
  * <ul>

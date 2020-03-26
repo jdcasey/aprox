@@ -28,7 +28,10 @@ class DefaultRule extends AbstractProxyRepoCreateRule {
         def pkgType = key.getPackageType()
         def type = key.getType().singularEndpointName()
         def name = key.getName()
-        return Optional.of(new RemoteRepository(pkgType, String.format("%s-%s", type, name), String.format("http://some.indy/api/content/%s/%s/%s", pkgType, type, name)))
+        def remoteRepository = new RemoteRepository(pkgType, String.format("%s-%s", type, name), String.format("http://some.indy/api/content/%s/%s/%s", pkgType, type, name))
+        remoteRepository.setMetadataTimeoutSeconds(12*3600)
+        remoteRepository.setCacheTimeoutSeconds(7*24*3600)
+        return Optional.of(remoteRepository)
     }
 
 

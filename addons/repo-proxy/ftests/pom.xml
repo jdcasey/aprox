@@ -66,5 +66,10 @@
       <artifactId>hamcrest-core</artifactId>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-content-browse-client-java</artifactId>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>

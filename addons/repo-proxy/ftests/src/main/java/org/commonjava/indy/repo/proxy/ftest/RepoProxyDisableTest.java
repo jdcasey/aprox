@@ -59,7 +59,7 @@ import static org.junit.Assert.assertThat;
 public class RepoProxyDisableTest
         extends AbstractContentManagementTest
 {
-    private static final String REPO_NAME = "pnc-builds";
+    private static final String REPO_NAME = "test";
 
     private HostedRepository hosted;
 

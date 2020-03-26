@@ -35,7 +35,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Check if the NPM metadata rewritting features can be disabled when addon can work itself
+ * Check if the NPM metadata rewriting features can be disabled when addon can work itself
  * <br/>
  * GIVEN:
  * <ul>

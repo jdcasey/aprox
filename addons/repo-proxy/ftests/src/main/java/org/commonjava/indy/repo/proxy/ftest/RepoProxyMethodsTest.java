@@ -58,7 +58,7 @@ import static org.junit.Assert.fail;
 public class RepoProxyMethodsTest
         extends AbstractContentManagementTest
 {
-    private static final String REPO_NAME = "pnc-builds";
+    private static final String REPO_NAME = "test";
 
     private HostedRepository hosted;
 

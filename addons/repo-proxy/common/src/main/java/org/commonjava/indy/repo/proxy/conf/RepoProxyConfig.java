@@ -52,15 +52,19 @@ public class RepoProxyConfig
 
     private static final String NPM_META_REWRITE_ENABLE_PARAM = "npm.meta.rewrite.enabled";
 
+    private static final String CONTENT_BROWSE_REWRITE_ENABLE_PARAM = "content-browse.rewrite.enabled";
+
     private static final Boolean DEFAULT_ENABLED = Boolean.FALSE;
 
-    private static final String DEFAULT_API_PATTERNS = "/api/content/*, /api/folo/track/*";
+    private static final String DEFAULT_API_PATTERNS = "/api/content/*, /api/folo/track/*, /api/browse/*, /api/group/*, /api/hosted/*";
 
     private static final String DEFAULT_API_METHODS = "GET,HEAD";
 
     private static final Boolean DEFAULT_NPM_META_REWRITE_ENABLE = Boolean.TRUE;
 
     private static final String DEFAULT_REPO_CREATE_RULE_BASEDIR = "repo-proxy";
+
+    private static final Boolean DEFAULT_CONTENT_BROWSE_REWRITE_ENABLE = Boolean.TRUE;
 
     private String repoCreatorRuleBaseDir;
 
@@ -71,6 +75,8 @@ public class RepoProxyConfig
     private Boolean enabled;
 
     private Boolean npmMetaRewriteEnabled;
+
+    private Boolean contentBrowseRewriteEnabled;
 
     public RepoProxyConfig()
     {
@@ -88,14 +94,16 @@ public class RepoProxyConfig
                 repoCreatorRuleBaseDir;
     }
 
-    public Boolean getNpmMetaRewriteEnabled()
+    public Boolean isNpmMetaRewriteEnabled()
     {
         return this.npmMetaRewriteEnabled == null ? DEFAULT_NPM_META_REWRITE_ENABLE : this.npmMetaRewriteEnabled;
     }
 
-    public Boolean isNpmMetaRewriteEnabled()
+    public Boolean isContentBrowseRewriteEnabled()
     {
-        return getNpmMetaRewriteEnabled();
+        return this.contentBrowseRewriteEnabled == null ?
+                DEFAULT_CONTENT_BROWSE_REWRITE_ENABLE :
+                this.contentBrowseRewriteEnabled;
     }
 
     public Set<String> getApiPatterns()
@@ -150,6 +158,9 @@ public class RepoProxyConfig
                 break;
             case NPM_META_REWRITE_ENABLE_PARAM:
                 this.npmMetaRewriteEnabled = Boolean.valueOf( value.trim() );
+                break;
+            case CONTENT_BROWSE_REWRITE_ENABLE_PARAM:
+                this.contentBrowseRewriteEnabled = Boolean.valueOf( value.trim() );
                 break;
             default:
                 break;

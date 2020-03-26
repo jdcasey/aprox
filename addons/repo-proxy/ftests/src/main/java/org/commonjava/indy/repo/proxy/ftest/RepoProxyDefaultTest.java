@@ -56,7 +56,7 @@ import static org.junit.Assert.assertThat;
 public class RepoProxyDefaultTest
         extends AbstractContentManagementTest
 {
-    private static final String REPO_NAME = "pnc-builds";
+    private static final String REPO_NAME = "test";
 
     private HostedRepository hosted = new HostedRepository( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, REPO_NAME );
 

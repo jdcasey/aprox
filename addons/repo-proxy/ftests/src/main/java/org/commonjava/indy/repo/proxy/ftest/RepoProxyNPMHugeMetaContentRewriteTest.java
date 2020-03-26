@@ -36,7 +36,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Check if the NPM metadata rewritting feature can work well with some huge NPM metadata content
+ * Check if the NPM metadata rewriting feature can work well with some huge NPM metadata content
  * <br/>
  * GIVEN:
  * <ul>

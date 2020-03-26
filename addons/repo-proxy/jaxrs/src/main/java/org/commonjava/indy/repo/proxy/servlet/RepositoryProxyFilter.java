@@ -15,9 +15,7 @@
  */
 package org.commonjava.indy.repo.proxy.servlet;
 
-import jnr.ffi.annotations.In;
-import org.commonjava.indy.repo.proxy.RepoProxyContoller;
-import org.commonjava.indy.repo.proxy.conf.RepoProxyConfig;
+import org.commonjava.indy.repo.proxy.RepoProxyController;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,7 +25,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @ApplicationScoped
@@ -37,7 +34,7 @@ public class RepositoryProxyFilter
     public static final String FILTER_NAME = "RepositoryProxyFilter";
 
     @Inject
-    private RepoProxyContoller contoller;
+    private RepoProxyController contoller;
 
     @Override
     public void init( FilterConfig filterConfig )
