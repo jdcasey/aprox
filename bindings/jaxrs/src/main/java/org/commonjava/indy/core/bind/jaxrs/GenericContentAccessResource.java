@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.commonjava.indy.bind.jaxrs.IndyDeployment;
 import org.commonjava.indy.bind.jaxrs.util.REST;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.util.ApplicationContent;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
@@ -163,14 +164,14 @@ public class GenericContentAccessResource
     @ApiOperation( "Batch delete files under the given package store (type/name) and paths." )
     @ApiResponse( code=200, message = "Batch delete operation finished." )
     @ApiImplicitParam( name = "body", paramType = "body",
-                    value = "JSON array of paths list",
-                    required = true, dataType = "java.util.Set" )
-    @Path( "/clear" )
+                    value = "JSON object, specifying paths, with other configuration options",
+                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
+    @Path( "/demote" )
     @DELETE
     @Consumes( ApplicationContent.application_json )
     public Response doDelete(
             final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
-            final @ApiParam( required = true ) @PathParam( "name" ) String name, @Context final HttpServletRequest request)
+            final @ApiParam( required = true ) @PathParam( "name" ) String name, DemoteRequest request)
     {
         return handler.doDelete( GENERIC_PKG_KEY, type, name, request, new EventMetadata() );
     }

@@ -25,6 +25,7 @@ import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
 import org.commonjava.indy.core.bind.jaxrs.PackageContentAccessResource;
 import org.commonjava.indy.core.bind.jaxrs.util.RequestUtils;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.util.PathUtils;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
@@ -168,13 +169,13 @@ public class MavenContentAccessResource
     @ApiOperation( "Batch delete Maven artifact content under the given artifact store (type/name) and paths." )
     @ApiResponse( code=200, message = "Batch delete operation finished." )
     @ApiImplicitParam( name = "body", paramType = "body",
-                    value = "JSON array of paths list",
-                    required = true, dataType = "java.util.Set" )
+                    value = "JSON object, specifying paths, with other configuration options",
+                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
     @DELETE
-    @Path( "/clear" )
+    @Path( "/demote" )
     public Response doDelete(
             final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
-            final @ApiParam( required = true ) @PathParam( "name" ) String name, @Context final HttpServletRequest request )
+            final @ApiParam( required = true ) @PathParam( "name" ) String name, final DemoteRequest request )
     {
         return handler.doDelete( MAVEN_PKG_KEY, type, name, request, new EventMetadata() );
     }

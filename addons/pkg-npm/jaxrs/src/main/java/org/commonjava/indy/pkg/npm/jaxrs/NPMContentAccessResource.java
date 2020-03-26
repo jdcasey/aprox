@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiResponses;
 import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.core.bind.jaxrs.PackageContentAccessResource;
 import org.commonjava.indy.core.bind.jaxrs.util.RequestUtils;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.pkg.npm.inject.NPMContentHandler;
 import org.commonjava.indy.util.ApplicationContent;
 import org.commonjava.maven.galley.event.EventMetadata;
@@ -248,14 +249,14 @@ public class NPMContentAccessResource
     @ApiOperation( "Batch delete NPM package content under the given package store (type/name) and paths." )
     @ApiResponse( code=200, message = "Batch delete operation finished." )
     @ApiImplicitParam( name = "body", paramType = "body",
-                    value = "JSON array of paths list",
-                    required = true, dataType = "java.util.Set" )
-    @Path( "/clear" )
+                    value = "JSON object, specifying paths, with other configuration options",
+                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
+    @Path( "/demote" )
     @DELETE
     @Consumes( ApplicationContent.application_json )
     public Response doDelete(
             final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
-            final @ApiParam( required = true ) @PathParam( "name" ) String name,  @Context final HttpServletRequest request )
+            final @ApiParam( required = true ) @PathParam( "name" ) String name,  final DemoteRequest request )
     {
         return handler.doDelete( NPM_PKG_KEY, type, name, request, new EventMetadata(  ));
     }

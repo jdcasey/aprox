@@ -15,7 +15,6 @@
  */
 package org.commonjava.indy.core.bind.jaxrs;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
@@ -30,6 +29,7 @@ import org.commonjava.indy.core.bind.jaxrs.util.TransferStreamingOutput;
 import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.model.core.PackageTypes;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -182,7 +182,7 @@ public class ContentAccessHandler
     }
 
     public Response doDelete( final String packageType, final String type, final String name,
-                              final HttpServletRequest request, EventMetadata eventMetadata )
+                              final DemoteRequest request, EventMetadata eventMetadata )
     {
         setContext( PACKAGE_TYPE, packageType );
 
@@ -192,15 +192,12 @@ public class ContentAccessHandler
             return builder.build();
         }
 
-        Set<String> paths;
-        try
+        //TODO Support to retrieve the paths from the specific storeKey in the request
+        Set<String> paths = request.getPaths();
+        if ( paths.isEmpty() )
         {
-            paths = mapper.readValue( request.getInputStream(), new TypeReference<Set<String>>() {} );
-        }
-        catch ( IOException e )
-        {
-            logger.error( "Bad request.", e );
-            return responseHelper.formatResponse( e );
+            ResponseBuilder builder = Response.status( 400 );
+            return builder.build();
         }
 
         final StoreType st = StoreType.get( type );
