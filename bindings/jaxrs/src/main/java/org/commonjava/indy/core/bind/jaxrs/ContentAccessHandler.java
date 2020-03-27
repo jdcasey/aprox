@@ -189,7 +189,6 @@ public class ContentAccessHandler
             return builder.build();
         }
 
-        //TODO Support to retrieve the paths from the specific storeKey in the request
         Set<String> paths = request.getPaths();
         if ( paths.isEmpty() )
         {

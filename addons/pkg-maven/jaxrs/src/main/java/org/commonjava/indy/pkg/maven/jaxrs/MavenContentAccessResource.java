@@ -173,7 +173,7 @@ public class MavenContentAccessResource
                     value = "JSON object, specifying paths, with other configuration options",
                     required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
     @POST
-    @Path( "/demote" )
+    @Path( "/batch/demote" )
     public Response doDelete(
             final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
             final @ApiParam( required = true ) @PathParam( "name" ) String name, final DemoteRequest request )

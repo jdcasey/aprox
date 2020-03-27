@@ -18,7 +18,19 @@ public class DemoteRequest
 
     private StoreKey storeKey;
 
+    private String trackingID;
+
     private Set<String> paths;
+
+    public String getTrackingID()
+    {
+        return trackingID;
+    }
+
+    public void setTrackingID( String trackingID )
+    {
+        this.trackingID = trackingID;
+    }
 
     public StoreKey getStoreKey()
     {
@@ -48,19 +60,21 @@ public class DemoteRequest
         if ( o == null || getClass() != o.getClass() )
             return false;
         DemoteRequest that = (DemoteRequest) o;
-        return Objects.equals( storeKey, that.storeKey ) && Objects.equals( paths, that.paths );
+        return Objects.equals( storeKey, that.storeKey ) && Objects.equals( trackingID, that.trackingID )
+                        && Objects.equals( paths, that.paths );
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash( storeKey, paths );
+        return Objects.hash( storeKey, trackingID, paths );
     }
 
     @Override
     public String toString()
     {
-        return "DemoteRequest{" + "storeKey=" + storeKey + ", paths=" + paths + '}';
+        return "DemoteRequest{" + "storeKey=" + storeKey + ", trackingID='" + trackingID + '\'' + ", paths=" + paths
+                        + '}';
     }
 
     @Override
@@ -69,6 +83,7 @@ public class DemoteRequest
         out.writeObject( DEMOTE_REQUEST_VERSION );
         out.writeObject( storeKey );
         out.writeObject( paths );
+        out.writeObject( trackingID );
     }
 
     @Override
@@ -83,5 +98,6 @@ public class DemoteRequest
 
         this.storeKey = (StoreKey) in.readObject();
         this.paths = (Set<String>) in.readObject();
+        this.trackingID = (String) in.readObject();
     }
 }

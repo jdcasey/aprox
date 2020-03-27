@@ -252,7 +252,7 @@ public class NPMContentAccessResource
     @ApiImplicitParam( name = "body", paramType = "body",
                     value = "JSON object, specifying paths, with other configuration options",
                     required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
-    @Path( "/demote" )
+    @Path( "/batch/demote" )
     @POST
     @Consumes( ApplicationContent.application_json )
     public Response doDelete(

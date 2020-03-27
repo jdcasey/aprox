@@ -111,7 +111,7 @@ public class IndyContentClientModule
     public void demote( final StoreKey key, final DemoteRequest request )
             throws IndyClientException
     {
-        http.postRaw( contentPath( key, "demote" ), request );
+        http.postRaw( contentPath( key, "batch/demote" ), request );
     }
 
     @Deprecated

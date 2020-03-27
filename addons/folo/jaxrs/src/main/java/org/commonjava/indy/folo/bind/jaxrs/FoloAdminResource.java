@@ -16,6 +16,7 @@
 package org.commonjava.indy.folo.bind.jaxrs;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -24,13 +25,17 @@ import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
 import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.bind.jaxrs.util.ResponseHelper;
+import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
 import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.folo.ctl.FoloAdminController;
 import org.commonjava.indy.folo.ctl.FoloConstants;
 import org.commonjava.indy.folo.data.FoloContentException;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
+import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
 import org.commonjava.indy.folo.dto.TrackingIdsDTO;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
+import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +82,9 @@ public class FoloAdminResource
 
     @Inject
     private ContentController contentController;
+
+    @Inject
+    private ContentAccessHandler handler;
 
     @Inject
     private ResponseHelper responseHelper;
@@ -344,5 +352,59 @@ public class FoloAdminResource
         }
         return types;
     }
+
+    @ApiOperation( "Batch delete files uploaded through FOLO trackingID under the given storeKey." )
+    @ApiResponse( code=200, message = "Batch delete operation finished." )
+    @ApiImplicitParam( name = "body", paramType = "body",
+                    value = "JSON object, specifying trackingID and storeKey, with other configuration options",
+                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
+    @Path( "/batch/demote" )
+    @POST
+    public Response doDelete( @Context final UriInfo uriInfo, final DemoteRequest request )
+    {
+
+        String trackingID = request.getTrackingID();
+
+        if ( trackingID == null || request.getStoreKey() == null )
+        {
+            Response.ResponseBuilder builder = Response.status( 400 );
+            return builder.build();
+        }
+
+        if ( request.getPaths() == null || request.getPaths().isEmpty() )
+        {
+            final String baseUrl = uriInfo.getBaseUriBuilder().path( "api" ).build().toString();
+            try
+            {
+                final TrackedContentDTO record = controller.getRecord( trackingID, baseUrl );
+                if ( record == null || record.getUploads().isEmpty() )
+                {
+                    Response.ResponseBuilder builder = Response.status( 400 );
+                    return builder.build();
+                }
+
+                Set<String> paths = new HashSet<>(  );
+                for ( TrackedContentEntryDTO entry : record.getUploads() )
+                {
+                    if ( !paths.contains( entry.getPath() ) )
+                    {
+                        paths.add( entry.getPath() );
+                    }
+                }
+                request.setPaths( paths );
+            }
+            catch ( IndyWorkflowException e )
+            {
+                responseHelper.throwError( e );
+            }
+        }
+
+        String packageType = request.getStoreKey().getPackageType();
+        String type = request.getStoreKey().getType().name();
+        String name = request.getStoreKey().getName();
+
+        return handler.doDelete( packageType, type, name, request, new EventMetadata(  ) );
+    }
+
 
 }

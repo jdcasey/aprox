@@ -28,6 +28,7 @@ import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackingIdsDTO;
 import org.commonjava.indy.folo.model.TrackedContentRecord;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.model.core.StoreType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,12 @@ public class IndyFoloAdminClientModule
             throws IndyClientException
     {
         return http.get( UrlUtils.buildUrl( "/folo/admin/report/ids", trackingType ), TrackingIdsDTO.class );
+    }
+
+    public void batchRemoveFiles( final DemoteRequest request )
+        throws IndyClientException
+    {
+        http.postRaw( UrlUtils.buildUrl( "/folo/admin/batch/demote" ), request );
     }
 
     @Deprecated
