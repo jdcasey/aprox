@@ -224,6 +224,12 @@ public class Indy
         return module( IndyStatsClientModule.class );
     }
 
+    public IndyMaintenanceClientModule maint()
+             throws IndyClientException
+    {
+        return module( IndyMaintenanceClientModule.class );
+    }
+
     public <T extends IndyClientModule> T module( final Class<T> type )
             throws IndyClientException
     {

@@ -57,8 +57,9 @@ public class BatchDeleteFromRepositoryTest
         }
 
         DemoteRequest request = new DemoteRequest();
+        request.setStoreKey( hosted.getKey() );
         request.setPaths( paths );
-        client.content().demote( hosted.getKey(), request );
+        client.maint().deleteFilesFromStore( request );
 
         for ( String path : paths )
         {

@@ -399,11 +399,7 @@ public class FoloAdminResource
             }
         }
 
-        String packageType = request.getStoreKey().getPackageType();
-        String type = request.getStoreKey().getType().name();
-        String name = request.getStoreKey().getName();
-
-        return handler.doDelete( packageType, type, name, request, new EventMetadata(  ) );
+        return handler.doDelete( request, new EventMetadata(  ) );
     }
 
 

@@ -166,19 +166,4 @@ public class MavenContentAccessResource
         return handler.doGet( MAVEN_PKG_KEY, type, name, "", baseUri, request, new EventMetadata() );
     }
 
-    @Override
-    @ApiOperation( "Batch delete Maven artifact content under the given artifact store (type/name) and paths." )
-    @ApiResponse( code=200, message = "Batch delete operation finished." )
-    @ApiImplicitParam( name = "body", paramType = "body",
-                    value = "JSON object, specifying paths, with other configuration options",
-                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
-    @POST
-    @Path( "/batch/demote" )
-    public Response doDelete(
-            final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
-            final @ApiParam( required = true ) @PathParam( "name" ) String name, final DemoteRequest request )
-    {
-        return handler.doDelete( MAVEN_PKG_KEY, type, name, request, new EventMetadata() );
-    }
-
 }

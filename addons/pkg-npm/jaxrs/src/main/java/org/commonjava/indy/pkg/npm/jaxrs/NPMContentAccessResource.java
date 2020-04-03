@@ -246,20 +246,4 @@ public class NPMContentAccessResource
         return handler.doGet( NPM_PKG_KEY, type, name, "", baseUri, request, eventMetadata );
     }
 
-    @Override
-    @ApiOperation( "Batch delete NPM package content under the given package store (type/name) and paths." )
-    @ApiResponse( code=200, message = "Batch delete operation finished." )
-    @ApiImplicitParam( name = "body", paramType = "body",
-                    value = "JSON object, specifying paths, with other configuration options",
-                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
-    @Path( "/batch/demote" )
-    @POST
-    @Consumes( ApplicationContent.application_json )
-    public Response doDelete(
-            final @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
-            final @ApiParam( required = true ) @PathParam( "name" ) String name,  final DemoteRequest request )
-    {
-        return handler.doDelete( NPM_PKG_KEY, type, name, request, new EventMetadata(  ));
-    }
-
 }

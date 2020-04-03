@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.util.UrlUtils;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.model.core.dto.NotFoundCacheDTO;
 
@@ -45,6 +46,12 @@ public class IndyMaintenanceClientModule
             throws IndyClientException
     {
         getHttp().delete( UrlUtils.buildUrl( BASE_URL, "content", "all", StringUtils.isBlank( path ) ? null : path ) );
+    }
+
+    public void deleteFilesFromStore( final DemoteRequest request )
+            throws IndyClientException
+    {
+        getHttp().postRaw( UrlUtils.buildUrl( BASE_URL, "content/batch/demote" ), request );
     }
 
 }

@@ -102,16 +102,4 @@ public interface PackageContentAccessResource
             @ApiParam( required = true ) @PathParam( "name" ) String name, @Context UriInfo uriInfo,
             @Context HttpServletRequest request );
 
-    @ApiOperation( "Batch delete files under the given package store (type/name) and paths." )
-    @ApiResponse( code=200, message = "Batch delete operation finished." )
-    @ApiImplicitParam( name = "body", paramType = "body",
-                    value = "JSON object, specifying paths, with other configuration options",
-                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
-    @Path( "/batch/demote" )
-    @POST
-    @Consumes( ApplicationContent.application_json )
-    Response doDelete(
-            @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
-            @ApiParam( required = true ) @PathParam( "name" ) String name, final DemoteRequest request
-    );
 }

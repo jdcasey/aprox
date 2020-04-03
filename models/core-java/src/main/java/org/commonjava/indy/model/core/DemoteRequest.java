@@ -9,7 +9,8 @@ import java.io.ObjectOutput;
 import java.util.Objects;
 import java.util.Set;
 
-@ApiModel( description = "Request of batch files that will be removed from the repository." )
+@ApiModel( description = "Request of batch files that will be removed from the repository. Specifying the folo"
+                + " trackingID for removing the files uploaded through it, and that's supported in folo client only." )
 public class DemoteRequest
     implements Externalizable
 {

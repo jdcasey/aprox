@@ -108,12 +108,6 @@ public class IndyContentClientModule
         http.delete( contentPath( key, path ) );
     }
 
-    public void demote( final StoreKey key, final DemoteRequest request )
-            throws IndyClientException
-    {
-        http.postRaw( contentPath( key, "batch/demote" ), request );
-    }
-
     @Deprecated
     public void delete( final StoreType type, final String name, final String path )
             throws IndyClientException

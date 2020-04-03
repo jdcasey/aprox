@@ -118,7 +118,7 @@ public class IndyFoloAdminClientModule
         return http.get( UrlUtils.buildUrl( "/folo/admin/report/ids", trackingType ), TrackingIdsDTO.class );
     }
 
-    public void batchRemoveFiles( final DemoteRequest request )
+    public void deleteFilesFromStoreByTrackingID( final DemoteRequest request )
         throws IndyClientException
     {
         http.postRaw( UrlUtils.buildUrl( "/folo/admin/batch/demote" ), request );

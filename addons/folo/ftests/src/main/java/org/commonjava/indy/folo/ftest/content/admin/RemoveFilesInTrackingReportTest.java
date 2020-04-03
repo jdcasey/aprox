@@ -38,7 +38,7 @@ import static org.junit.Assert.assertThat;
  *     <li>The artifact c still exists in the repository</li>
  * </ul>
  */
-public class RemoveFilesInTrackingReportTest
+    public class RemoveFilesInTrackingReportTest
                 extends AbstractTrackingReportTest
 {
 
@@ -81,7 +81,7 @@ public class RemoveFilesInTrackingReportTest
         request.setStoreKey( key );
         request.setTrackingID( trackingId );
 
-        adminModule.batchRemoveFiles( request );
+        adminModule.deleteFilesFromStoreByTrackingID( request );
 
         for ( String path : Arrays.asList(a, b) )
         {

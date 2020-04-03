@@ -15,18 +15,19 @@
  */
 package org.commonjava.indy.core.bind.jaxrs.admin;
 
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -34,13 +35,16 @@ import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
 import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.bind.jaxrs.util.ResponseHelper;
+import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
 import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.core.ctl.IspnCacheController;
 import org.commonjava.indy.data.StoreDataManager;
+import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
+import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +69,9 @@ public class MaintenanceHandler
 
     @Inject
     private IndyObjectMapper mapper;
+
+    @Inject
+    private ContentAccessHandler contentAccessHandler;
 
     @Inject
     private ResponseHelper responseHelper;
@@ -264,6 +271,18 @@ public class MaintenanceHandler
             response = responseHelper.formatResponse( e );
         }
         return response;
+    }
+
+    @ApiOperation( "Batch delete files under the given package store (type/name) and paths." )
+    @ApiResponse( code=200, message = "Batch delete operation finished." )
+    @ApiImplicitParam( name = "body", paramType = "body",
+                    value = "JSON object, specifying storeKey and paths, the option trackingID is not supported in this API.",
+                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
+    @Path("/content/batch/demote")
+    @POST
+    public Response doDelete( final DemoteRequest request )
+    {
+        return contentAccessHandler.doDelete( request, new EventMetadata(  ) );
     }
 
 }

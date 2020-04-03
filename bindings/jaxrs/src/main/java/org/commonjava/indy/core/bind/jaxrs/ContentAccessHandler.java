@@ -178,10 +178,18 @@ public class ContentAccessHandler
         return doDelete( packageType, type, name, path, eventMetadata, null );
     }
 
-    public Response doDelete( final String packageType, final String type, final String name,
-                              final DemoteRequest request, EventMetadata eventMetadata )
+    public Response doDelete( final DemoteRequest request, EventMetadata eventMetadata )
     {
-        setContext( PACKAGE_TYPE, packageType );
+
+        StoreKey sk = request.getStoreKey();
+
+        if ( sk == null )
+        {
+            ResponseBuilder builder = Response.status( 400 );
+            return builder.build();
+        }
+
+        String packageType = sk.getPackageType();
 
         if ( !PackageTypes.contains( packageType ) )
         {
@@ -189,15 +197,14 @@ public class ContentAccessHandler
             return builder.build();
         }
 
+        setContext( PACKAGE_TYPE, packageType );
+
         Set<String> paths = request.getPaths();
         if ( paths.isEmpty() )
         {
             ResponseBuilder builder = Response.status( 400 );
             return builder.build();
         }
-
-        final StoreType st = StoreType.get( type );
-        StoreKey sk = new StoreKey( packageType, st, name );
 
         eventMetadata = eventMetadata.set( ContentManager.ENTRY_POINT_STORE, sk );
         setContext( CONTENT_ENTRY_POINT, sk.toString() );
@@ -214,7 +221,7 @@ public class ContentAccessHandler
             }
             catch ( final IndyWorkflowException e )
             {
-                logger.error( String.format( "Failed to tryDelete artifact: %s from: %s. Reason: %s", path, name,
+                logger.error( String.format( "Failed to tryDelete artifact: %s from: %s. Reason: %s", path, sk,
                                              e.getMessage() ), e );
                 results.put( path, e.getMessage() );
             }
