@@ -16,7 +16,6 @@
 package org.commonjava.indy.pkg.maven.jaxrs;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -25,7 +24,6 @@ import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
 import org.commonjava.indy.core.bind.jaxrs.PackageContentAccessResource;
 import org.commonjava.indy.core.bind.jaxrs.util.RequestUtils;
-import org.commonjava.indy.model.core.DemoteRequest;
 import org.commonjava.indy.util.PathUtils;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
@@ -36,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;

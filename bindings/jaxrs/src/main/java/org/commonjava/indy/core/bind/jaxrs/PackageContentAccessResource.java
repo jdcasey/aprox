@@ -15,22 +15,17 @@
  */
 package org.commonjava.indy.core.bind.jaxrs;
 
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
 import org.commonjava.indy.bind.jaxrs.util.REST;
-import org.commonjava.indy.model.core.DemoteRequest;
-import org.commonjava.indy.util.ApplicationContent;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -101,5 +96,4 @@ public interface PackageContentAccessResource
             @ApiParam( allowableValues = "hosted,group,remote", required = true ) @PathParam( "type" ) String type,
             @ApiParam( required = true ) @PathParam( "name" ) String name, @Context UriInfo uriInfo,
             @Context HttpServletRequest request );
-
 }
