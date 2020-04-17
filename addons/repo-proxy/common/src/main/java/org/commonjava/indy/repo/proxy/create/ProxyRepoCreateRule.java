@@ -19,12 +19,13 @@ import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 
 import java.net.MalformedURLException;
+import java.util.Optional;
 
 public interface ProxyRepoCreateRule
 {
     boolean matches( final StoreKey origKey );
 
-    RemoteRepository createRemote( final StoreKey origKey )
+    Optional<RemoteRepository> createRemote( final StoreKey origKey )
             throws MalformedURLException;
 
 }

@@ -141,8 +141,8 @@ public class RepoProxyCreatorNotMatchTest
             "        return \"maven\".equals(storeKey.getPackageType()) && \"pnc-builds\".equals(storeKey.getName())\n" +
             "    }\n" +
             "    @Override\n" +
-            "    RemoteRepository createRemote(StoreKey key) {\n" +
-            "        return new RemoteRepository(key.getPackageType(), key.getName(), \"" + targetBase + "\")\n" +
+            "    Optional<RemoteRepository> createRemote(StoreKey key) {\n" +
+            "        return Optional.of(new RemoteRepository(key.getPackageType(), key.getName(), \"" + targetBase + "\"))\n" +
             "    }\n" +
             "}";
         // @formatter:on;

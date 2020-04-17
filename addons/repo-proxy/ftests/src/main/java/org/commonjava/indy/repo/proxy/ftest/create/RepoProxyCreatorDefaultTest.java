@@ -124,8 +124,8 @@ public class RepoProxyCreatorDefaultTest
             "        return \"maven\".equals(storeKey.getPackageType())\n" +
             "    }\n" +
             "    @Override\n" +
-            "    RemoteRepository createRemote(StoreKey key) {\n" +
-            "        return new RemoteRepository(key.getPackageType(), key.getName(), \"" + targetBase + "\")\n" +
+            "    Optional<RemoteRepository> createRemote(StoreKey key) {\n" +
+            "        return Optional.of(new RemoteRepository(key.getPackageType(), key.getName(), \"" + targetBase + "\"))\n" +
             "    }\n" +
             "}";
         // @formatter:on;

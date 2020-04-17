@@ -182,8 +182,8 @@ public class RepoProxyCreatorWithNPMContentRewriteTest
                         "        return \"npm\".equals(storeKey.getPackageType()) && StoreType.group==storeKey.getType()\n" +
                         "    }\n" +
                         "    @Override\n" +
-                        "    RemoteRepository createRemote(StoreKey key) {\n" +
-                        "        return new RemoteRepository(key.getPackageType(), String.format(\"%s-%s\", StoreType.group, key.getName()), \"" + targetBase + "\")\n" +
+                        "    Optional<RemoteRepository> createRemote(StoreKey key) {\n" +
+                        "        return Optional.of(new RemoteRepository(key.getPackageType(), String.format(\"%s-%s\", StoreType.group, key.getName()), \"" + targetBase + "\"))\n" +
                         "    }\n" +
                         "}";
         // @formatter:on;

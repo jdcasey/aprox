@@ -36,7 +36,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -63,6 +66,9 @@ public class ProxyRepoCreateManager
 
     private List<ProxyRepoCreateRule> rules;
 
+    // This cache should be a very small cache in real system, so used a simple in-mem Map here.
+    private final Map<StoreKey, StoreKey> proxiedRepoCache = Collections.synchronizedMap( new HashMap<>() );
+
     @PostConstruct
     public void init()
     {
@@ -83,51 +89,71 @@ public class ProxyRepoCreateManager
         {
             throw new RepoProxyException( "Repo proxy addon is disabled" );
         }
-        if ( rules != null )
+
+        StoreKey cachedRemoteKey = proxiedRepoCache.get( origKey );
+        RemoteRepository newProxyToRemote = null;
+        if ( cachedRemoteKey == null )
         {
-            for ( ProxyRepoCreateRule rule : rules )
+            if ( rules != null )
             {
-                if ( rule.matches( origKey ) )
+                for ( ProxyRepoCreateRule rule : rules )
                 {
-                    logger.info( "[{}] Found rule {} to create repo {}", RepoProxyAddon.ADDON_NAME, rule, origKey );
-                    try
+                    if ( rule.matches( origKey ) )
                     {
-                        RemoteRepository repo = rule.createRemote( origKey );
-                        if ( repo != null )
+                        logger.info( "[{}] Found rule {} to create repo {}", RepoProxyAddon.ADDON_NAME, rule, origKey );
+                        try
                         {
-                            Optional<RemoteRepository> existedRepo =
-                                    existsAndGetStore( repo.getKey(), RemoteRepository.class );
-                            if ( existedRepo.isPresent() )
+                            Optional<RemoteRepository> repo = rule.createRemote( origKey );
+                            if ( repo.isPresent() )
                             {
-                                return existedRepo;
-                            }
-                            repo.setMetadata( ArtifactStore.METADATA_ORIGIN, REPO_PROXY_ORIGIN );
-                            boolean created = storeManager.storeArtifactStore( repo, new ChangeSummary(
-                                                                                       ChangeSummary.SYSTEM_USER, "[Repository proxy] create remote proxy" ), true, false,
-                                                                               new EventMetadata() );
-                            if ( created )
-                            {
-                                logger.info( "[{}] Repo {} found or created to do proxy to", RepoProxyAddon.ADDON_NAME,
-                                             repo.getKey() );
-                                return Optional.of( repo );
-                            }
-                            else
-                            {
-                                logger.warn( "[{}] Repo {} not created successfully to do proxy to",
-                                             RepoProxyAddon.ADDON_NAME, repo.getKey() );
+                                newProxyToRemote = repo.get();
+                                cachedRemoteKey = repo.get().getKey();
+                                proxiedRepoCache.put( origKey, repo.get().getKey() );
                             }
                         }
-                        else
+                        catch ( MalformedURLException e )
                         {
-                            logger.warn( "[{}] Repo creation from rule {} not succeed.", RepoProxyAddon.ADDON_NAME,
-                                         rule );
+                            logger.warn( "Repo creation failed for key {} with rule {}, Reason: {}", origKey, rule,
+                                         e.getMessage() );
                         }
+                        break;
                     }
-                    catch ( MalformedURLException | IndyDataException e )
-                    {
-                        logger.warn( "Repo creation failed for key {} with rule {}, Reason: {}", origKey, rule,
-                                     e.getMessage() );
-                    }
+                }
+            }
+        }
+        if ( cachedRemoteKey != null )
+        {
+            Optional<RemoteRepository> existedRepo = existsAndGetStore( cachedRemoteKey );
+            if ( existedRepo.isPresent() )
+            {
+                return existedRepo;
+            }
+            if ( newProxyToRemote != null )
+            {
+                newProxyToRemote.setMetadata( ArtifactStore.METADATA_ORIGIN, REPO_PROXY_ORIGIN );
+                boolean created = false;
+                try
+                {
+                    created = storeManager.storeArtifactStore( newProxyToRemote,
+                                                               new ChangeSummary( ChangeSummary.SYSTEM_USER,
+                                                                                  "[Repository proxy] create remote proxy" ),
+                                                               true, false, new EventMetadata() );
+                }
+                catch ( IndyDataException e )
+                {
+                    logger.warn( "[{}] Repo creation not succeed for key {} because of: {}.", RepoProxyAddon.ADDON_NAME,
+                                 newProxyToRemote.getKey(), e.getMessage() );
+                }
+                if ( created )
+                {
+                    logger.info( "[{}] Repo {} found or created to do proxy to", RepoProxyAddon.ADDON_NAME,
+                                 newProxyToRemote.getKey() );
+                    return of( newProxyToRemote );
+                }
+                else
+                {
+                    logger.warn( "[{}] Repo {} not created successfully to do proxy to", RepoProxyAddon.ADDON_NAME,
+                                 newProxyToRemote.getKey() );
                 }
             }
         }
@@ -136,10 +162,10 @@ public class ProxyRepoCreateManager
         final StoreKey sameNamedRemoteKey = StoreKey.fromString(
                 String.format( "%s:%s:%s", origKey.getPackageType(), StoreType.remote.singularEndpointName(),
                                origKey.getName() ) );
-        return existsAndGetStore( sameNamedRemoteKey, RemoteRepository.class );
+        return existsAndGetStore( sameNamedRemoteKey );
     }
 
-    private <S extends ArtifactStore> Optional<S> existsAndGetStore( final StoreKey key, Class<S> repoType )
+    private Optional<RemoteRepository> existsAndGetStore( final StoreKey key )
     {
         ArtifactStore repo = null;
         try
@@ -154,7 +180,7 @@ public class ProxyRepoCreateManager
         {
             logger.debug( "Cannot find store {} for pre-check with exception: {}", key, e.getMessage() );
         }
-        return repo == null ? empty() : of( (S) repo );
+        return repo == null ? empty() : of( (RemoteRepository) repo );
     }
 
     public synchronized void parseRules()

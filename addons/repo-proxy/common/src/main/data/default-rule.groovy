@@ -15,8 +15,7 @@
  */
 
 import org.commonjava.indy.repo.proxy.create.*
-
-import org.commonjava.indy.model.core.*;
+import org.commonjava.indy.model.core.*
 
 class DefaultRule extends AbstractProxyRepoCreateRule {
     @Override
@@ -25,11 +24,11 @@ class DefaultRule extends AbstractProxyRepoCreateRule {
     }
 
     @Override
-    RemoteRepository createRemote(StoreKey key) {
+    Optional<RemoteRepository> createRemote(StoreKey key) {
         def pkgType = key.getPackageType()
         def type = key.getType().singularEndpointName()
         def name = key.getName()
-        return new RemoteRepository(pkgType, String.format("%s-%s", type, name), String.format("http://some.indy/api/content/%s/%s/%s", pkgType, type, name))
+        return Optional.of(new RemoteRepository(pkgType, String.format("%s-%s", type, name), String.format("http://some.indy/api/content/%s/%s/%s", pkgType, type, name)))
     }
 
 

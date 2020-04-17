@@ -18,6 +18,9 @@ package org.commonjava.indy.repo.proxy.create;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 
+import java.util.Optional;
+
+import static java.util.Optional.empty;
 
 public abstract class AbstractProxyRepoCreateRule
         implements ProxyRepoCreateRule
@@ -30,9 +33,9 @@ public abstract class AbstractProxyRepoCreateRule
     }
 
     @Override
-    public RemoteRepository createRemote( final StoreKey key )
+    public Optional<RemoteRepository> createRemote( final StoreKey key )
     {
-        return null;
+        return empty();
     }
 
     public String getTargetIndyUrl(){
