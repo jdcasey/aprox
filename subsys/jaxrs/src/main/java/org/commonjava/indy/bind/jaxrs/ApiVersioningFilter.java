@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 
 import static io.undertow.util.StatusCodes.GONE;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -107,20 +108,21 @@ public class ApiVersioningFilter
         httpServletResponse.addHeader( HEADER_INDY_CUR_API_VERSION, indyVersioning.getApiVersion() );
         httpServletResponse.addHeader( HEADER_INDY_MIN_API_VERSION, indyDeprecatedApis.getMinApiVersion() );
 
-        IndyDeprecatedApis.DeprecatedApiEntry deprecatedApiEntry = indyDeprecatedApis.getDeprecated( reqApiVersion );
+        Optional<IndyDeprecatedApis.DeprecatedApiEntry>
+                deprecatedApiEntry = indyDeprecatedApis.getDeprecated( reqApiVersion );
 
         String deprecatedApiVersion = null;
 
-        if ( deprecatedApiEntry != null )
+        if ( deprecatedApiEntry.isPresent() )
         {
-            if (deprecatedApiEntry.isOff() )
+            if ( deprecatedApiEntry.get().isOff() )
             {
                 httpServletResponse.setStatus( GONE ); // Return 410
                 return;
             }
             else
             {
-                deprecatedApiVersion = deprecatedApiEntry.getValue();
+                deprecatedApiVersion = deprecatedApiEntry.get().getValue();
             }
         }
 
