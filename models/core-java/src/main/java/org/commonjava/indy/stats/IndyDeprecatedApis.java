@@ -88,7 +88,16 @@ public class IndyDeprecatedApis
         {
             return null;
         }
-        Float reqVer = Float.parseFloat( reqApiVersion );
+        Float reqVer;
+        try
+        {
+            reqVer = Float.parseFloat( reqApiVersion );
+        }
+        catch ( NumberFormatException e )
+        {
+            logger.warn( "Unknown api version: {}", reqApiVersion );
+            return null;
+        }
 
         // the scopes may overlap, we go through range entries first and other entries next
         for ( DeprecatedApiEntry et : deprecatedApis )
