@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 
@@ -101,10 +102,16 @@ public class PathMappedGroupRepositoryFilter
 
     private String getStrategyPath( final StoreKey key, final String rawPath )
     {
+        if ( isBlank( rawPath ) )
+        {
+            return null;
+        }
+
+        Path parent = null;
         if ( key.getPackageType().equals( MAVEN_PKG_KEY ) )
         {
             // Use parent path because 1. maven metadata generator need to list it, 2. it is supper set of file path
-            return Paths.get( rawPath ).getParent().toString();
+            parent = Paths.get( rawPath ).getParent();
         }
         else if ( key.getPackageType().equals( NPM_PKG_KEY ) )
         {
@@ -113,17 +120,16 @@ public class PathMappedGroupRepositoryFilter
              * jquery/-/jquery-1.5.1.tgz -> jquery/-/, jquery-1.5.1.tgz
              * jquery -> jquery/, package.json
              */
-            Path parent = Paths.get( rawPath ).getParent();
-            if ( parent == null )
-            {
-                return rawPath;
-            }
-            else
-            {
-                return parent.toString();
-            }
+            parent = Paths.get( rawPath ).getParent();
         }
-        return null;
+        if ( parent == null )
+        {
+            return rawPath;
+        }
+        else
+        {
+            return parent.toString();
+        }
     }
 
 }
