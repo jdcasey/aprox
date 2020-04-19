@@ -80,6 +80,14 @@ public class IndyStoresClientModule
         http.deleteWithChangelog( UrlUtils.buildUrl( STORE_BASEPATH, key.getPackageType(), key.getType().singularEndpointName(), key.getName() ), changelog );
     }
 
+    public void delete( final StoreKey key, final String changelog, final boolean deleteContent )
+                    throws IndyClientException
+    {
+        http.deleteWithChangelog(
+                        UrlUtils.buildUrl( STORE_BASEPATH, key.getPackageType(), key.getType().singularEndpointName(),
+                                           key.getName(), deleteContent ? "?deleteContent=true" : "" ), changelog );
+    }
+
     public boolean update( final ArtifactStore store, final String changelog )
         throws IndyClientException
     {

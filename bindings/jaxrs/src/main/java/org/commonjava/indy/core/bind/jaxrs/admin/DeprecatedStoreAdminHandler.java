@@ -430,7 +430,7 @@ public class DeprecatedStoreAdminHandler
 
             String user = securityManager.getUser( securityContext, request );
 
-            adminController.delete( key, user, summary );
+            adminController.delete( key, user, summary, false );
 
             response = responseHelper.markDeprecated( noContent(), altPath ).build();
         }

@@ -16,7 +16,6 @@
 package org.commonjava.indy.conf;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Base configuration for Indy's core. This basically sets timeouts for a couple different (relatively obscure) features.
@@ -75,6 +74,12 @@ public interface IndyConfiguration
     File getIndyConfDir();
 
     Boolean isAllowRemoteListDownload();
+
+    /**
+     * Disposable stores can be deleted alone with its the content. It serves as a safe guard because mis-deleted
+     * repo definition can be restored but mis-deleted content can not.
+     */
+    String getDisposableStorePattern();
 
     int getRemoteMetadataTimeoutSeconds();
 

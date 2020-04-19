@@ -28,14 +28,12 @@ import static org.commonjava.indy.util.ApplicationContent.application_json;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.mail.Store;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -49,7 +47,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -362,12 +359,13 @@ public class StoreAdminHandler
     public Response delete(final @PathParam("packageType") String packageType,
                            final @ApiParam(allowableValues = "hosted,group,remote", required = true) @PathParam("type") String type,
                            final @ApiParam(required = true) @PathParam("name") String name,
+                           final @QueryParam("deleteContent") boolean deleteContent,
                            @Context final HttpServletRequest request,
                            final @Context SecurityContext securityContext) {
         final StoreType st = StoreType.get(type);
         final StoreKey key = new StoreKey(packageType, st, name);
 
-        logger.info("Deleting: {}", key);
+        logger.info( "Deleting: {}, deleteContent: {}", key, deleteContent );
         Response response;
         try {
             String summary = null;
@@ -385,10 +383,11 @@ public class StoreAdminHandler
             if (isEmpty(summary)) {
                 summary = "Changelog not provided";
             }
+            summary += ( ", deleteContent:" + deleteContent );
 
             String user = securityManager.getUser(securityContext, request);
 
-            adminController.delete(key, user, summary);
+            adminController.delete( key, user, summary, deleteContent );
 
             response = noContent().build();
         } catch (final IndyWorkflowException e) {
