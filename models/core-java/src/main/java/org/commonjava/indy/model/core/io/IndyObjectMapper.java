@@ -122,6 +122,7 @@ public class IndyObjectMapper
     {
         setSerializationInclusion( Include.NON_EMPTY );
         configure( Feature.AUTO_CLOSE_JSON_CONTENT, true );
+        configure( DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         enable( SerializationFeature.INDENT_OUTPUT, SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID );
 

@@ -37,6 +37,25 @@ public class Engines
     {
     }
 
+    protected Engines( String engine )
+    {
+        String[] strings = engine.split( String.valueOf( Character.SPACE_SEPARATOR ) );
+
+        if ( strings.length != 2  )
+        {
+            return;
+        }
+
+        if ( NPM.equals( strings[0] ) )
+        {
+            enginesMap.put( NPM, strings[1] );
+        }
+        else if ( NODE.equals( strings[0] ) )
+        {
+            enginesMap.put( NODE, strings[1] );
+        }
+    }
+
     public String getNode()
     {
         return enginesMap.get( NODE );

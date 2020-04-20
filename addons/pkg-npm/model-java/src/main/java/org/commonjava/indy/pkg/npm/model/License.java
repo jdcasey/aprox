@@ -30,6 +30,12 @@ public class License
         this.url = null;
     }
 
+    public License( final String type )
+    {
+        this.type = type;
+        this.url = null;
+    }
+
     public License( final String type, final String url )
     {
         this.type = type;

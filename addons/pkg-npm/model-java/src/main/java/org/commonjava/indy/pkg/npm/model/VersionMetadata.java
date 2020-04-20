@@ -65,7 +65,7 @@ public class VersionMetadata
     @ApiModelProperty( value = "These styles are now deprecated. Instead, use SPDX expressions." )
     private List<License> licenses;
 
-    private String license;
+    private License license;
 
     private Map<String, String> dependencies;
 
@@ -74,7 +74,7 @@ public class VersionMetadata
     private Map<String, String> jsdomVersions;
 
     @ApiModelProperty( required = false, dataType = "Map", allowableValues = "prepare:<script>, build:<script>, start:<script>, test:<script>, precommit:<script>, commitmsg:<script>, etc." )
-    private Map<String, String> scripts;
+    private Map<String, Object> scripts;
 
     private Dist dist;
 
@@ -82,7 +82,7 @@ public class VersionMetadata
 
     private Commitplease commitplease;
 
-    private Engines engines;
+    private List<Engines> engines;
 
     @JsonProperty( "_engineSupported" )
     private Boolean engineSupported;
@@ -270,12 +270,12 @@ public class VersionMetadata
         this.licenses = licenses;
     }
 
-    public String getLicense()
+    public License getLicense()
     {
         return license;
     }
 
-    public void setLicense( String license )
+    public void setLicense( License license )
     {
         this.license = license;
     }
@@ -310,12 +310,12 @@ public class VersionMetadata
         this.jsdomVersions = jsdomVersions;
     }
 
-    public Map<String, String> getScripts()
+    public Map<String, Object> getScripts()
     {
         return scripts;
     }
 
-    public void setScripts( Map<String, String> scripts )
+    public void setScripts( Map<String, Object> scripts )
     {
         this.scripts = scripts;
     }
@@ -350,12 +350,12 @@ public class VersionMetadata
         this.commitplease = commitplease;
     }
 
-    public Engines getEngines()
+    public List<Engines> getEngines()
     {
         return engines;
     }
 
-    public void setEngines( Engines engines )
+    public void setEngines( List<Engines> engines )
     {
         this.engines = engines;
     }

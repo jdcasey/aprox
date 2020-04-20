@@ -307,7 +307,10 @@ public class PackageMetadataGenerator
                     packageMetadata.setName( versionMetadata.getName() );
                     packageMetadata.setDescription( versionMetadata.getDescription() );
                     packageMetadata.setAuthor( versionMetadata.getAuthor() );
-                    packageMetadata.setLicense( versionMetadata.getLicense() );
+                    if ( versionMetadata.getLicense() != null )
+                    {
+                        packageMetadata.setLicense( versionMetadata.getLicense().getType() );
+                    }
                     packageMetadata.setRepository( versionMetadata.getRepository() );
                     packageMetadata.setBugs( versionMetadata.getBugs() );
                     distTags.setLatest( versionMetadata.getVersion() );

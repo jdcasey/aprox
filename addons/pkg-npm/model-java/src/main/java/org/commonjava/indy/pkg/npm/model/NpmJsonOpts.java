@@ -15,6 +15,8 @@
  */
 package org.commonjava.indy.pkg.npm.model;
 
+import java.util.List;
+
 public class NpmJsonOpts
 {
 
@@ -22,7 +24,7 @@ public class NpmJsonOpts
 
     private final Boolean wscript;
 
-    private final Boolean contributors;
+    private final List<String> contributors;
 
     private final Boolean serverjs;
 
@@ -34,7 +36,7 @@ public class NpmJsonOpts
         this.serverjs = null;
     }
 
-    public NpmJsonOpts( final String file, final Boolean wscript, final Boolean contributors, final Boolean serverjs )
+    public NpmJsonOpts( final String file, final Boolean wscript, final List<String> contributors, final Boolean serverjs )
     {
         this.file = file;
         this.wscript = wscript;
@@ -52,7 +54,7 @@ public class NpmJsonOpts
         return wscript;
     }
 
-    public Boolean getContributors()
+    public List<String> getContributors()
     {
         return contributors;
     }

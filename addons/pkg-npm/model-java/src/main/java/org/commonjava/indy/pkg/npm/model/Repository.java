@@ -32,6 +32,12 @@ public class Repository
         this.url = null;
     }
 
+    public Repository( final String url )
+    {
+        this.type = null;
+        this.url = url;
+    }
+
     public Repository( final String type, final String url )
     {
         this.type = type;
