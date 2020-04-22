@@ -44,7 +44,9 @@
     <repository>
       <id>sonatype-snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-      <snapshots><enabled>true</enabled></snapshots>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
   
@@ -132,6 +134,8 @@
     <jacoco.report.dir>${project.build.directory}</jacoco.report.dir>
     <junit.report.dir>${project.build.directory}/surefire-reports</junit.report.dir>
     <failsafe.report.dir>${project.build.directory}/failsafe-reports</failsafe.report.dir>
+
+    <skipNpmConfig>true</skipNpmConfig>
 
   </properties>
   
@@ -1241,9 +1245,18 @@
         <artifactId>rwx</artifactId>
         <version>${rwxVersion}</version>
         <exclusions>
-          <exclusion><groupId>org.codehaus.groovy</groupId><artifactId>groovy-templates</artifactId></exclusion>
-          <exclusion><groupId>org.codehaus.groovy</groupId><artifactId>groovy-xml</artifactId></exclusion>
-          <exclusion><groupId>org.codehaus.groovy</groupId><artifactId>groovy</artifactId></exclusion>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-templates</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-xml</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       
@@ -1920,6 +1933,101 @@
             <skip>false</skip>
           </configuration>
         </plugin>
+        <!-- Download node.js and related modules to install 3rd party frontend libraries -->
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>1.1</version>
+
+          <configuration>
+            <workingDirectory>./</workingDirectory>
+          </configuration>
+
+          <executions>
+            <execution>
+              <id>install node and npm</id>
+              <goals>
+                <goal>install-node-and-npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <nodeVersion>v8.12.0</nodeVersion>
+                <npmVersion>6.4.1</npmVersion>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>config ssl</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <skip>${skipNpmConfig}</skip>
+                <arguments>config set strict-ssl false</arguments>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>config registry</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <skip>${skipNpmConfig}</skip>
+                <arguments>config set registry ${env.NPMREGISTRY}</arguments>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>npm install</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <arguments>ci -d</arguments>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>npm build</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <arguments>run-script build</arguments>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>delete ssl</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <skip>${skipNpmConfig}</skip>
+                <arguments>config delete strict-ssl</arguments>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>delete registry</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <phase>generate-resources</phase>
+              <configuration>
+                <skip>${skipNpmConfig}</skip>
+                <arguments>config delete registry</arguments>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
 
         <!-- <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
