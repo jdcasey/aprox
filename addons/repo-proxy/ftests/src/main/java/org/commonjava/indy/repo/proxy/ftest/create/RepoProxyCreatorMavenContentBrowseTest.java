@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -38,18 +39,18 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Check if the content browse rewriting features can work well for this proxy addon
+ * Check if the content browse rewriting features in maven can work well for this proxy addon
  * <br/>
  * GIVEN:
  * <ul>
- *     <li>A external repo with specified path </li>
+ *     <li>An external repo with specified path </li>
  *     <li>Configured the repo-proxy enabled</li>
- *     <li>Deployed a repo creator script whose rule to create remote repo which points to the external repo</li>
+ *     <li>Deployed a repo creator script whose rule to create maven remote repo which points to the external repo</li>
  * </ul>
  * <br/>
  * WHEN:
  * <ul>
- *     <li>Request directory path through content-browse api for a hosted repo</li>
+ *     <li>Request directory path through content-browse api for a maven hosted repo</li>
  * </ul>
  * <br/>
  * THEN:
@@ -58,13 +59,13 @@ import static org.junit.Assert.assertThat;
  *     <li>The content should include hosted repo info for both store key and key path.</li>
  * </ul>
  */
-public class RepoProxyCreatorContentBrowseTest
+public class RepoProxyCreatorMavenContentBrowseTest
         extends AbstractContentManagementTest
 
 {
     private static final String REPO_NAME = "test";
 
-    private HostedRepository hosted = new HostedRepository( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, REPO_NAME );
+    private HostedRepository hosted = new HostedRepository( MAVEN_PKG_KEY, REPO_NAME );
 
 
     @Test
@@ -72,7 +73,7 @@ public class RepoProxyCreatorContentBrowseTest
             throws Exception
     {
         final StoreKey remoteKey =
-                new StoreKey( MavenPackageTypeDescriptor.MAVEN_PKG_KEY, StoreType.remote, REPO_NAME );
+                new StoreKey( MAVEN_PKG_KEY, StoreType.remote, REPO_NAME );
         RemoteRepository remote = client.stores().load( remoteKey, RemoteRepository.class );
         assertThat( remote, nullValue() );
 
