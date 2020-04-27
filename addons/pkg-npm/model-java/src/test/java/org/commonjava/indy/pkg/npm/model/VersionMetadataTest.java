@@ -17,6 +17,7 @@ package org.commonjava.indy.pkg.npm.model;
 
 import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
+import org.commonjava.indy.pkg.npm.model.io.PackageSerializerModule;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -52,5 +53,27 @@ public class VersionMetadataTest
 
         assertThat( jsonResult.contains( "_id" ), equalTo( false ) );
 
+    }
+
+    @Test
+    public void customDeserializerTest() throws Exception
+    {
+        final IndyObjectMapper mapper = new IndyObjectMapper( true );
+        mapper.registerModule( new PackageSerializerModule() );
+        String json = IOUtils.toString(
+                        Thread.currentThread().getContextClassLoader().getResourceAsStream( "test-package-tmp.json" ) );
+
+        final PackageMetadata result = mapper.readValue( json, PackageMetadata.class );
+        final VersionMetadata version = result.getVersions().get( "0.0.4" );
+
+        assertThat( result.getVersions().size(), equalTo( 5 ) );
+
+        assertThat( version.getName(), equalTo( "tmp" ) );
+        assertThat( version.getVersion(), equalTo( "0.0.4" ) );
+        assertThat( version.getRepository().getType(), equalTo("git"));
+        assertThat( version.getEngines().get( 0 ).getNode(), equalTo( "0.4.10" ) );
+        assertThat( version.getScripts().get( "test" ), equalTo( "vows test/*-test.js" ) );
+        assertThat( version.getLicenses().get( 0 ).getType(), equalTo( "GPLv2" ) );
+        assertThat( version.getDist().getTarball(), equalTo( "https://registry.npmjs.org/tmp/-/tmp-0.0.4.tgz" ) );
     }
 }
