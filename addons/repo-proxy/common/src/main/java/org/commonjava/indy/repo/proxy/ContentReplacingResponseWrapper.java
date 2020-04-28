@@ -53,9 +53,7 @@ public class ContentReplacingResponseWrapper extends HttpServletResponseWrapper
 
     @Override
     public ServletOutputStream getOutputStream()
-            throws IOException
     {
-        final ServletOutputStream originalStream = this.getResponse().getOutputStream();
         return this.out;
     }
 }
