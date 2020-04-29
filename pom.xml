@@ -65,8 +65,8 @@
     <!--<luceneVersion>7.3.0</luceneVersion>-->
     <hibernateVersion>5.8.1.Final</hibernateVersion>
     <resteasyVersion>3.0.12.Final</resteasyVersion>
-    <undertowVersion>2.0.1.Final</undertowVersion>
-    <xnioVersion>3.3.0.Final</xnioVersion>
+    <undertowVersion>2.1.0.Final</undertowVersion>
+    <xnioVersion>3.8.0.Final</xnioVersion>
     <keycloakVersion>7.0.1</keycloakVersion>
     <bouncycastleVersion>1.64</bouncycastleVersion>
     <bytemanVersion>3.0.6</bytemanVersion>

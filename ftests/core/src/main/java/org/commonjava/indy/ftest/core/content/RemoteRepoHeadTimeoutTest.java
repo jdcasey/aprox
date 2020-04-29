@@ -15,72 +15,45 @@
  */
 package org.commonjava.indy.ftest.core.content;
 
-import static org.commonjava.indy.model.core.StoreType.remote;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.http.HttpStatus;
-import org.commonjava.indy.client.core.IndyClientException;
-import org.commonjava.indy.ftest.core.AbstractContentManagementTest;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.maven.galley.model.Location;
-import org.commonjava.test.http.expect.ExpectationServer;
-import org.junit.Rule;
 import org.junit.Test;
 
 public class RemoteRepoHeadTimeoutTest
-        extends AbstractContentManagementTest
+                extends AbstractRemoteRepoTimeoutTest
 {
 
-    public class DelayInputStream
-        extends InputStream
-    {
-        @Override
-        public int read()
-            throws IOException
-        {
-            try
-            {
-                Thread.sleep( 5000 );
-            }
-            catch ( final InterruptedException e )
-            {
-            }
-
-            return 0;
-        }
-    }
-
-    @Rule
-    public ExpectationServer server = new ExpectationServer();
-
     @Test
-    public void run()
-        throws Exception
+    public void run() throws Exception
     {
         final String repo1 = "repo1";
-        final String path = "org/foo/bar/maven-metadata.xml";
+        final String path = "foo/bar/1.0/bar-1.0.pom";
 
         server.expect( server.formatUrl( repo1, path ), 200, new DelayInputStream() );
 
-        RemoteRepository remote1 = new RemoteRepository( repo1, server.formatUrl( repo1 ) );
-        remote1.setMetadata( Location.CONNECTION_TIMEOUT_SECONDS, Integer.toString( 1 ) );
+        RemoteRepository remote1 = new RemoteRepository( MAVEN_PKG_KEY, repo1, server.formatUrl( repo1 ) );
+        setRemoteTimeout( remote1 );
 
-        remote1 = client.stores()
-                        .create( remote1, "adding remote", RemoteRepository.class );
+        remote1 = client.stores().create( remote1, "adding remote", RemoteRepository.class );
 
-        try
-        {
-            client.content()
-                  .exists( remote, repo1, path );
-        }
-        catch ( final IndyClientException e )
-        {
-            assertThat( e.getStatusCode(), equalTo( HttpStatus.SC_BAD_GATEWAY ) );
-        }
+        client.content().exists( remote1.getKey(), path );
+
+        assertResult( client.stores().load( remote1.getKey(), RemoteRepository.class ) );
+    }
+
+    @Override
+    protected void setRemoteTimeout( RemoteRepository remote )
+    {
+        remote.setMetadata( Location.CONNECTION_TIMEOUT_SECONDS, Integer.toString( 1 ) );
+    }
+
+    @Override
+    protected void assertResult( RemoteRepository remote ) throws Exception
+    {
+        assertTrue( remote.isDisabled() );
     }
 
     @Override

@@ -20,7 +20,11 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.maven.galley.model.Location;
 import org.commonjava.maven.galley.transport.htcli.model.HttpLocation;
 import org.commonjava.maven.galley.transport.htcli.model.LocationTrustType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,10 +135,39 @@ public class RepositoryLocation
         {
             return type.cast( value );
         }
-        else
+        else if ( value.getClass() == String.class && Number.class.isAssignableFrom( type ) )
         {
-            return defaultValue;
+            Number n = null;
+            try
+            {
+                n = NumberFormat.getInstance().parse( (String) value );
+            }
+            catch ( ParseException e )
+            {
+                Logger logger = LoggerFactory.getLogger( getClass() );
+                logger.error( "Failed to get attribute, key: {}, value: {}", key, value, e );
+            }
+            // convert, e.g., n might be Long while the T is Integer
+            Object ret;
+            if ( type == Long.TYPE )
+            {
+                ret = new Long( n.longValue() );
+            }
+            else if ( type == Float.TYPE )
+            {
+                ret = new Float( n.floatValue() );
+            }
+            else if ( type == Double.TYPE )
+            {
+                ret = new Double( n.doubleValue() );
+            }
+            else
+            {
+                ret = new Integer( n.intValue() ); // default int
+            }
+            return (T) ret;
         }
+        return defaultValue;
     }
 
     @Override

@@ -56,7 +56,7 @@ public abstract class AbstractRemoteRepoTimeoutTest extends AbstractContentManag
             {
             }
 
-            return 0;
+            return -1;
         }
     }
 
