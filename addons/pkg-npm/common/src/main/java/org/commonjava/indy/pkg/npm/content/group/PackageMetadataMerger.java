@@ -57,10 +57,12 @@ public class PackageMetadataMerger
     {
     }
 
-    public PackageMetadataMerger( Iterable<PackageMetadataProvider> providers )
+    public PackageMetadataMerger( Iterable<PackageMetadataProvider> providers, PackageSerializerModule module )
     {
         metadataProviders = new ArrayList<>();
         providers.forEach( provider -> metadataProviders.add( provider ) );
+
+        packageSerializerModule = module;
     }
 
     @PostConstruct
@@ -84,6 +86,7 @@ public class PackageMetadataMerger
 
         final PackageMetadata packageMetadata = new PackageMetadata();
         final IndyObjectMapper mapper = new IndyObjectMapper( true );
+        mapper.registerModule( packageSerializerModule );
 
         for ( final Transfer src : sources )
         {

@@ -57,6 +57,7 @@ public class VersionMetadataDeserializer extends StdDeserializer<VersionMetadata
         vm.setKeywords( parseList( mapper, vNode.get( "keywords" ), String.class ) );
         vm.setLicense( parseObject( mapper, vNode.get( "license" ), License.class ) );
         vm.setMain( parseValue( vNode, "main" ) );
+        vm.setUrl( parseValue( vNode, "url" ) );
 
         vm.setContributors( parseList( mapper, vNode.get( "contributors" ), UserInfo.class ));
         vm.setEngines( parseList( mapper, vNode.get( "engines" ), Engines.class ));
