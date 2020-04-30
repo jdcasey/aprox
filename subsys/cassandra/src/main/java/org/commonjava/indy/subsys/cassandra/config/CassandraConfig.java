@@ -37,6 +37,12 @@ public class CassandraConfig
 
     private String cassandraPass;
 
+    private int connectTimeoutMillis = 60000;
+
+    private int readTimeoutMillis = 60000;
+
+    private int readRetries = 3;
+
     public CassandraConfig()
     {
     }
@@ -98,6 +104,39 @@ public class CassandraConfig
     public String getCassandraPass()
     {
         return cassandraPass;
+    }
+
+    public int getConnectTimeoutMillis()
+    {
+        return connectTimeoutMillis;
+    }
+
+    @ConfigName( "cassandra.connect.timeout.millis" )
+    public void setConnectTimeoutMillis( int connectTimeoutMillis )
+    {
+        this.connectTimeoutMillis = connectTimeoutMillis;
+    }
+
+    public int getReadTimeoutMillis()
+    {
+        return readTimeoutMillis;
+    }
+
+    @ConfigName( "cassandra.read.timeout.millis" )
+    public void setReadTimeoutMillis( int readTimeoutMillis )
+    {
+        this.readTimeoutMillis = readTimeoutMillis;
+    }
+
+    public int getReadRetries()
+    {
+        return readRetries;
+    }
+
+    @ConfigName( "cassandra.read.retries" )
+    public void setReadRetries( int readRetries )
+    {
+        this.readRetries = readRetries;
     }
 
     @Override
