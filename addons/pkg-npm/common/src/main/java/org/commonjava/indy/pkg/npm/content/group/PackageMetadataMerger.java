@@ -51,18 +51,21 @@ public class PackageMetadataMerger
     @Inject
     private PackageSerializerModule packageSerializerModule;
 
+    @Inject
+    private IndyObjectMapper mapper;
+
     private List<PackageMetadataProvider> metadataProviders;
 
     public PackageMetadataMerger()
     {
     }
 
-    public PackageMetadataMerger( Iterable<PackageMetadataProvider> providers, PackageSerializerModule module )
+    public PackageMetadataMerger( Iterable<PackageMetadataProvider> providers, IndyObjectMapper mapper )
     {
         metadataProviders = new ArrayList<>();
         providers.forEach( provider -> metadataProviders.add( provider ) );
 
-        packageSerializerModule = module;
+        this.mapper = mapper;
     }
 
     @PostConstruct
@@ -73,6 +76,8 @@ public class PackageMetadataMerger
         {
             metadataProviderInstances.forEach( provider -> metadataProviders.add( provider ) );
         }
+
+        mapper.registerModule( packageSerializerModule );
     }
 
     public byte[] merge( final Collection<Transfer> sources, final Group group, final String path )
@@ -85,8 +90,6 @@ public class PackageMetadataMerger
         boolean merged = false;
 
         final PackageMetadata packageMetadata = new PackageMetadata();
-        final IndyObjectMapper mapper = new IndyObjectMapper( true );
-        mapper.registerModule( packageSerializerModule );
 
         for ( final Transfer src : sources )
         {
@@ -164,8 +167,7 @@ public class PackageMetadataMerger
         InputStream stream = null;
 
         final PackageMetadata packageMetadata = new PackageMetadata();
-        final IndyObjectMapper mapper = new IndyObjectMapper( true );
-        mapper.registerModule( packageSerializerModule );
+
         for ( final Transfer src : sources )
         {
             if ( !src.exists() )

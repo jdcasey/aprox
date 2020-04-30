@@ -70,7 +70,7 @@ public class PackageMetadataMergerTest
 
     private CacheProvider cacheProvider;
 
-    private PackageSerializerModule module;
+    private IndyObjectMapper mapper;
 
     @Before
     public void setup()
@@ -80,7 +80,9 @@ public class PackageMetadataMergerTest
                 Collections.singleton( new NPMStoragePathCalculator() ) ), new NoOpFileEventManager(),
                                                new TransferDecoratorManager( new NoOpTransferDecorator() ), false );
 
-        module = new PackageSerializerModule();
+        mapper = new IndyObjectMapper( true );
+        mapper.registerModule( new PackageSerializerModule() );
+
     }
 
     @Test
@@ -100,8 +102,8 @@ public class PackageMetadataMergerTest
 
         List<Transfer> sources = Arrays.asList( t1, t2 );
 
-        byte[] output = new PackageMetadataMerger( Collections.emptyList(), module ).merge( sources, g, path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
+        byte[] output = new PackageMetadataMerger( Collections.emptyList(), mapper ).merge( sources, g, path );
+
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
@@ -170,8 +172,8 @@ public class PackageMetadataMergerTest
 
         List<Transfer> sources = Arrays.asList( t1, t2 );
 
-        byte[] output = new PackageMetadataMerger( Collections.emptyList(), module ).merge( sources, g, path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
+        byte[] output = new PackageMetadataMerger( Collections.emptyList(), mapper ).merge( sources, g, path );
+
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
@@ -213,8 +215,8 @@ public class PackageMetadataMergerTest
 
         List<Transfer> sources = Arrays.asList( t1, t2 );
 
-        byte[] output = new PackageMetadataMerger( Collections.emptyList(), module ).merge( sources, g, path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
+        byte[] output = new PackageMetadataMerger( Collections.emptyList(), mapper ).merge( sources, g, path );
+
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
@@ -265,9 +267,8 @@ public class PackageMetadataMergerTest
         provided.setMaintainers( added );
         TestPackageMetadataProvider testProvider = new TestPackageMetadataProvider( provided );
 
-        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), module ).merge( sources, g,
+        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), mapper ).merge( sources, g,
                                                                                                       path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
@@ -312,9 +313,8 @@ public class PackageMetadataMergerTest
 
         TestPackageMetadataProvider testProvider = new TestPackageMetadataProvider( provided );
 
-        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), module ).merge( sources, g,
+        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), mapper ).merge( sources, g,
                                                                                                       path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
@@ -343,9 +343,8 @@ public class PackageMetadataMergerTest
 
         TestPackageMetadataProvider testProvider = new TestPackageMetadataProvider( provided );
 
-        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), module ).merge( sources, g,
+        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), mapper ).merge( sources, g,
                                                                                                       path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
@@ -369,9 +368,8 @@ public class PackageMetadataMergerTest
         TestPackageMetadataProvider testProvider = new TestPackageMetadataProvider(
                         new IndyWorkflowException( "Failed to get provider content" ) );
 
-        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), module ).merge( sources, g,
+        byte[] output = new PackageMetadataMerger( Collections.singletonList( testProvider ), mapper ).merge( sources, g,
                                                                                                       path );
-        IndyObjectMapper mapper = new IndyObjectMapper( true );
         PackageMetadata merged = mapper.readValue( IOUtils.toString( new ByteArrayInputStream( output ) ),
                                                    PackageMetadata.class );
 
