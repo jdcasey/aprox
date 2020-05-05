@@ -1,5 +1,7 @@
 package org.commonjava.indy.pathmapped.inject;
 
+import com.google.common.collect.Lists;
+import org.commonjava.indy.conf.IndyConfiguration;
 import org.commonjava.indy.core.content.group.AbstractGroupRepositoryFilter;
 import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
@@ -16,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,6 +35,9 @@ public class PathMappedGroupRepositoryFilter
 
     @Inject
     private CacheProvider cacheProvider;
+
+    @Inject
+    private IndyConfiguration indyConfig;
 
     private PathMappedFileManager pathMappedFileManager;
 
@@ -81,7 +87,24 @@ public class PathMappedGroupRepositoryFilter
             return concreteStores;
         }
 
-        Set<String> ret = pathMappedFileManager.getFileSystemContainingDirectory( candidates, strategyPath );
+        // batch it to avoid huge 'IN' query
+        Set<String> ret = new HashSet<>();
+        int batchSize = indyConfig.getFileSystemContainingBatchSize();
+        List<List<String>> subSets = Lists.partition( candidates, batchSize );
+        subSets.forEach( subSet -> {
+            logger.debug( "Get file system containing, strategyPath: {}, subSet: {}", strategyPath, subSet );
+            Set<String> st = pathMappedFileManager.getFileSystemContainingDirectory( subSet, strategyPath );
+            if ( st == null )
+            {
+                // query failed but those candidates may contain the target path so we add all subSet candidates
+                logger.warn( "Get fileSystems query failed, add subSet candidates" );
+                ret.addAll( subSet );
+            }
+            else
+            {
+                ret.addAll( st );
+            }
+        } );
 
         return concreteStores.stream()
                              .filter( store -> store.getType() == StoreType.remote || ret.contains(

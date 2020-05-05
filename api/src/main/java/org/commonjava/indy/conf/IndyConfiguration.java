@@ -101,4 +101,12 @@ public interface IndyConfiguration
     Boolean isStandalone();
 
     boolean isRepositoryFilterEnabled();
+
+    /**
+     * FileSystemContaining is an operation by which we get what path in which repository. We use batching to
+     * limit the query candidates size to avoid huge 'IN' query.
+     * @return
+     * @since 2.1.0
+     */
+    int getFileSystemContainingBatchSize();
 }
