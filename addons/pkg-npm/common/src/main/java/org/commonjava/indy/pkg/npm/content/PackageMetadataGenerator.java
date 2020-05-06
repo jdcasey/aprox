@@ -309,7 +309,7 @@ public class PackageMetadataGenerator
                     packageMetadata.setAuthor( versionMetadata.getAuthor() );
                     if ( versionMetadata.getLicense() != null )
                     {
-                        packageMetadata.setLicense( versionMetadata.getLicense().getType() );
+                        packageMetadata.setLicense( versionMetadata.getLicense() );
                     }
                     packageMetadata.setRepository( versionMetadata.getRepository() );
                     packageMetadata.setBugs( versionMetadata.getBugs() );
