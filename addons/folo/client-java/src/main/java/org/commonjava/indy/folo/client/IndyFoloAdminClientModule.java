@@ -28,17 +28,11 @@ import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackingIdsDTO;
 import org.commonjava.indy.folo.model.TrackedContentRecord;
-import org.commonjava.indy.model.core.DemoteRequest;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.StoreType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.commonjava.indy.client.core.helper.HttpResources.entityToString;
 
 public class IndyFoloAdminClientModule
     extends IndyClientModule
@@ -118,10 +112,10 @@ public class IndyFoloAdminClientModule
         return http.get( UrlUtils.buildUrl( "/folo/admin/report/ids", trackingType ), TrackingIdsDTO.class );
     }
 
-    public void deleteFilesFromStoreByTrackingID( final DemoteRequest request )
+    public void deleteFilesFromStoreByTrackingID( final BatchDeleteRequest request )
         throws IndyClientException
     {
-        http.postRaw( UrlUtils.buildUrl( "/folo/admin/batch/demote" ), request );
+        http.postRaw( UrlUtils.buildUrl( "/folo/admin/batch/delete" ), request );
     }
 
     @Deprecated

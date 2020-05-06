@@ -33,7 +33,7 @@ import org.commonjava.indy.folo.data.FoloContentException;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
 import org.commonjava.indy.folo.dto.TrackingIdsDTO;
-import org.commonjava.indy.model.core.DemoteRequest;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.slf4j.Logger;
@@ -357,10 +357,10 @@ public class FoloAdminResource
     @ApiResponse( code=200, message = "Batch delete operation finished." )
     @ApiImplicitParam( name = "body", paramType = "body",
                     value = "JSON object, specifying trackingID and storeKey, with other configuration options",
-                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
-    @Path( "/batch/demote" )
+                    required = true, dataType = "org.commonjava.indy.model.core.BatchDeleteRequest" )
+    @Path( "/batch/delete" )
     @POST
-    public Response doDelete( @Context final UriInfo uriInfo, final DemoteRequest request )
+    public Response doDelete( @Context final UriInfo uriInfo, final BatchDeleteRequest request )
     {
 
         String trackingID = request.getTrackingID();

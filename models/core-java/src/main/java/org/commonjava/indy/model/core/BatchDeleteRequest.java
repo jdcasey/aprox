@@ -11,11 +11,11 @@ import java.util.Set;
 
 @ApiModel( description = "Request of batch files that will be removed from the repository. Specifying the folo"
                 + " trackingID for removing the files uploaded through it, and that's supported in folo client only." )
-public class DemoteRequest
+public class BatchDeleteRequest
     implements Externalizable
 {
 
-    private static final int DEMOTE_REQUEST_VERSION = 1;
+    private static final int BATCH_DELETE_REQUEST_VERSION = 1;
 
     private StoreKey storeKey;
 
@@ -60,7 +60,7 @@ public class DemoteRequest
             return true;
         if ( o == null || getClass() != o.getClass() )
             return false;
-        DemoteRequest that = (DemoteRequest) o;
+        BatchDeleteRequest that = (BatchDeleteRequest) o;
         return Objects.equals( storeKey, that.storeKey ) && Objects.equals( trackingID, that.trackingID )
                         && Objects.equals( paths, that.paths );
     }
@@ -74,14 +74,14 @@ public class DemoteRequest
     @Override
     public String toString()
     {
-        return "DemoteRequest{" + "storeKey=" + storeKey + ", trackingID='" + trackingID + '\'' + ", paths=" + paths
+        return "BatchDeleteRequest{" + "storeKey=" + storeKey + ", trackingID='" + trackingID + '\'' + ", paths=" + paths
                         + '}';
     }
 
     @Override
     public void writeExternal( final ObjectOutput out ) throws IOException
     {
-        out.writeObject( DEMOTE_REQUEST_VERSION );
+        out.writeObject( BATCH_DELETE_REQUEST_VERSION );
         out.writeObject( storeKey );
         out.writeObject( paths );
         out.writeObject( trackingID );
@@ -90,11 +90,11 @@ public class DemoteRequest
     @Override
     public void readExternal( final ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        int demoteRequestVersion = in.readInt();
-        if ( demoteRequestVersion > DEMOTE_REQUEST_VERSION )
+        int batchDeleteRequestVersion = in.readInt();
+        if ( batchDeleteRequestVersion > BATCH_DELETE_REQUEST_VERSION )
         {
-            throw new IOException( "Cannot deserialize. DemoteRequest version in data stream is: " + demoteRequestVersion
-                                                   + " but this class can only deserialize up to version: " + DEMOTE_REQUEST_VERSION );
+            throw new IOException( "Cannot deserialize. BatchDeleteRequest version in data stream is: " + batchDeleteRequestVersion
+                                                   + " but this class can only deserialize up to version: " + BATCH_DELETE_REQUEST_VERSION );
         }
 
         this.storeKey = (StoreKey) in.readObject();

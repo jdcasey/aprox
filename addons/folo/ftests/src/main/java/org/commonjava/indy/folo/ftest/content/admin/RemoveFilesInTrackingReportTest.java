@@ -3,7 +3,7 @@ package org.commonjava.indy.folo.ftest.content.admin;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
 import org.commonjava.indy.folo.ftest.report.AbstractTrackingReportTest;
-import org.commonjava.indy.model.core.DemoteRequest;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.StoreKey;
 import org.junit.Test;
 
@@ -77,7 +77,7 @@ import static org.junit.Assert.assertThat;
         exists = client.content().exists( key, c );
         assertThat( "The file does not exists.", exists, equalTo( true ) );
 
-        DemoteRequest request = new DemoteRequest();
+        BatchDeleteRequest request = new BatchDeleteRequest();
         request.setStoreKey( key );
         request.setTrackingID( trackingId );
 

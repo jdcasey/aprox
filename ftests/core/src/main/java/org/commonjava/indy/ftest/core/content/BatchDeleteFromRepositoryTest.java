@@ -1,7 +1,7 @@
 package org.commonjava.indy.ftest.core.content;
 
 import org.commonjava.indy.ftest.core.AbstractContentManagementTest;
-import org.commonjava.indy.model.core.DemoteRequest;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class BatchDeleteFromRepositoryTest
             assertThat( "The file does not exists.", exists, equalTo( true ) );
         }
 
-        DemoteRequest request = new DemoteRequest();
+        BatchDeleteRequest request = new BatchDeleteRequest();
         request.setStoreKey( hosted.getKey() );
         request.setPaths( paths );
         client.maint().deleteFilesFromStore( request );

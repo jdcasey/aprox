@@ -39,7 +39,7 @@ import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
 import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.core.ctl.IspnCacheController;
 import org.commonjava.indy.data.StoreDataManager;
-import org.commonjava.indy.model.core.DemoteRequest;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -277,10 +277,10 @@ public class MaintenanceHandler
     @ApiResponse( code=200, message = "Batch delete operation finished." )
     @ApiImplicitParam( name = "body", paramType = "body",
                     value = "JSON object, specifying storeKey and paths, the option trackingID is not supported in this API.",
-                    required = true, dataType = "org.commonjava.indy.model.core.DemoteRequest" )
-    @Path("/content/batch/demote")
+                    required = true, dataType = "org.commonjava.indy.model.core.BatchDeleteRequest" )
+    @Path("/content/batch/delete")
     @POST
-    public Response doDelete( final DemoteRequest request )
+    public Response doDelete( final BatchDeleteRequest request )
     {
         return contentAccessHandler.doDelete( request, new EventMetadata(  ) );
     }

@@ -15,7 +15,6 @@
  */
 package org.commonjava.indy.core.bind.jaxrs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.commonjava.indy.IndyWorkflowException;
 import org.commonjava.indy.bind.jaxrs.IndyResources;
 import org.commonjava.indy.bind.jaxrs.util.JaxRsRequestHelper;
@@ -29,7 +28,7 @@ import org.commonjava.indy.core.bind.jaxrs.util.TransferStreamingOutput;
 import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
-import org.commonjava.indy.model.core.DemoteRequest;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.PackageTypes;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -178,7 +177,7 @@ public class ContentAccessHandler
         return doDelete( packageType, type, name, path, eventMetadata, null );
     }
 
-    public Response doDelete( final DemoteRequest request, EventMetadata eventMetadata )
+    public Response doDelete( final BatchDeleteRequest request, EventMetadata eventMetadata )
     {
 
         StoreKey sk = request.getStoreKey();
