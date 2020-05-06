@@ -107,7 +107,7 @@ public class NPMGroupContentMergeRetrieveTest
         assertThat( merged.getReadmeFilename(), equalTo( "README.md" ) );
         assertThat( merged.getHomepage(), equalTo( "https://jquery.com" ) );
         assertThat( merged.getBugs().getUrl(), equalTo( "https://github.com/jquery/jquery/issues" ) );
-        assertThat( merged.getLicense(), equalTo( "MIT" ) );
+        assertThat( merged.getLicense().getType(), equalTo( "MIT" ) );
 
         // dist-tags object merging verification
         assertThat( merged.getDistTags().getBeta(), equalTo( "3.2.1-beta.1" ) );

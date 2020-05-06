@@ -115,7 +115,7 @@ public class PackageMetadataMergerTest
         assertThat( merged.getReadmeFilename(), equalTo( "README.md" ) );
         assertThat( merged.getHomepage(), equalTo( "https://jquery.com" ) );
         assertThat( merged.getBugs().getUrl(), equalTo( "https://github.com/jquery/jquery/issues" ) );
-        assertThat( merged.getLicense(), equalTo( "MIT" ) );
+        assertThat( merged.getLicense().getType(), equalTo( "MIT" ) );
 
         // dist-tags object merging verification
         assertThat( merged.getDistTags().getBeta(), equalTo( "3.2.1-beta.1" ) );
@@ -185,7 +185,7 @@ public class PackageMetadataMergerTest
         assertThat( merged.getReadmeFilename(), equalTo( "README1.md" ) );
         assertThat( merged.getHomepage(), equalTo( "https://jquery1.com" ) );
         assertThat( merged.getBugs().getUrl(), equalTo( "https://github.com/jquery1/jquery1/issues" ) );
-        assertThat( merged.getLicense(), equalTo( "MIT1" ) );
+        assertThat( merged.getLicense().getType(), equalTo( "MIT1" ) );
 
         // dist-tags object merging verification
         assertThat( merged.getDistTags().getBeta(), equalTo( "2.2.1" ) );
@@ -228,7 +228,7 @@ public class PackageMetadataMergerTest
         assertThat( merged.getReadmeFilename(), equalTo( "README1.md" ) );
         assertThat( merged.getHomepage(), equalTo( "https://jquery1.com" ) );
         assertThat( merged.getBugs().getUrl(), equalTo( "https://github.com/jquery1/jquery1/issues" ) );
-        assertThat( merged.getLicense(), equalTo( "MIT1" ) );
+        assertThat( merged.getLicense().getType(), equalTo( "MIT1" ) );
 
         // dist-tags object merging verification
         assertThat( merged.getDistTags().getBeta(), equalTo( "2.2.1" ) );
@@ -381,7 +381,7 @@ public class PackageMetadataMergerTest
         assertThat( merged.getReadmeFilename(), equalTo( "README1.md" ) );
         assertThat( merged.getHomepage(), equalTo( "https://jquery1.com" ) );
         assertThat( merged.getBugs().getUrl(), equalTo( "https://github.com/jquery1/jquery1/issues" ) );
-        assertThat( merged.getLicense(), equalTo( "MIT1" ) );
+        assertThat( merged.getLicense().getType(), equalTo( "MIT1" ) );
 
         // dist-tags object merging verification
         assertThat( merged.getDistTags().getBeta(), equalTo( "2.2.1" ) );
