@@ -17,6 +17,8 @@ package org.commonjava.indy.pkg.npm.content;
 
 import org.commonjava.indy.content.StoragePathCalculator;
 import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.maven.galley.io.checksum.ChecksumAlgorithm;
+import org.commonjava.maven.galley.transport.htcli.model.HttpExchangeMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,19 +51,47 @@ public class NPMStoragePathCalculator
     @Override
     public String calculateStoragePath( final StoreKey key, final String path )
     {
+
         if ( PKG_TYPE_NPM.equals( key.getPackageType() ) )
         {
+            String pkg = path;
+
+            final String extension = httpMetaOrChecksum( path );
+            if ( extension != null )
+            {
+                pkg = path.substring( 0, path.indexOf( extension ) );
+            }
+
             // This is considering the single path for npm standard like "/jquery"
-            final boolean isSinglePath = path.split( "/" ).length < 2;
+            final boolean isSinglePath = pkg.split( "/" ).length < 2;
             // This is considering the scoped path for npm standard like "/@type/jquery"
-            final boolean isScopedPath = path.startsWith( "@" ) && path.split( "/" ).length < 3;
+            final boolean isScopedPath = pkg.startsWith( "@" ) && pkg.split( "/" ).length < 3;
             if ( isSinglePath || isScopedPath )
             {
-                logger.debug( "Modifying target path: {}, appending '{}'", path, METADATA_NAME );
-                return normalize( path, METADATA_NAME );
+                logger.debug( "Modifying target path: {}, appending '{}', store {}", path, METADATA_NAME, key.toString() );
+                return extension != null ?
+                                normalize( pkg, METADATA_NAME + extension ) : normalize( pkg, METADATA_NAME );
             }
         }
 
         return path;
     }
+
+    private String httpMetaOrChecksum( String path )
+    {
+        if ( path.endsWith( HttpExchangeMetadata.FILE_EXTENSION ) )
+        {
+            return HttpExchangeMetadata.FILE_EXTENSION;
+        }
+
+        for ( ChecksumAlgorithm checksumAlgorithm : ChecksumAlgorithm.values() )
+        {
+            if ( path.endsWith( checksumAlgorithm.getExtension() ) )
+            {
+                return checksumAlgorithm.getExtension();
+            }
+        }
+        return null;
+    }
+
 }
