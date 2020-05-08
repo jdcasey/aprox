@@ -15,14 +15,17 @@
  */
 package org.commonjava.indy.pkg.npm.content;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commonjava.indy.content.StoragePathCalculator;
 import org.commonjava.indy.model.core.StoreKey;
-import org.commonjava.maven.galley.io.checksum.ChecksumAlgorithm;
-import org.commonjava.maven.galley.transport.htcli.model.HttpExchangeMetadata;
+import org.commonjava.maven.galley.io.SpecialPathConstants;
+import org.commonjava.maven.galley.model.SpecialPathInfo;
+import org.commonjava.maven.galley.spi.io.SpecialPathManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
@@ -48,6 +51,9 @@ public class NPMStoragePathCalculator
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
+    @Inject
+    SpecialPathManager specialPathManager;
+
     @Override
     public String calculateStoragePath( final StoreKey key, final String path )
     {
@@ -56,7 +62,7 @@ public class NPMStoragePathCalculator
         {
             String pkg = path;
 
-            final String extension = httpMetaOrChecksum( path );
+            final String extension = getSpecialPathExt( path );
             if ( extension != null )
             {
                 pkg = path.substring( 0, path.indexOf( extension ) );
@@ -77,19 +83,16 @@ public class NPMStoragePathCalculator
         return path;
     }
 
-    private String httpMetaOrChecksum( String path )
+    private String getSpecialPathExt( String path )
     {
-        if ( path.endsWith( HttpExchangeMetadata.FILE_EXTENSION ) )
-        {
-            return HttpExchangeMetadata.FILE_EXTENSION;
-        }
 
-        for ( ChecksumAlgorithm checksumAlgorithm : ChecksumAlgorithm.values() )
+        SpecialPathInfo spi = specialPathManager.getSpecialPathInfo( path, SpecialPathConstants.PKG_TYPE_NPM );
+
+        if ( spi != null && spi.isMetadata() )
         {
-            if ( path.endsWith( checksumAlgorithm.getExtension() ) )
-            {
-                return checksumAlgorithm.getExtension();
-            }
+            return path.endsWith( SpecialPathConstants.HTTP_METADATA_EXT ) ?
+                            SpecialPathConstants.HTTP_METADATA_EXT :
+                            "." + FilenameUtils.getExtension( path );
         }
         return null;
     }
