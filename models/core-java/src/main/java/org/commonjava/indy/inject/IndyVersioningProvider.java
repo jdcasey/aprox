@@ -48,15 +48,19 @@ public class IndyVersioningProvider
 
     public IndyVersioningProvider()
     {
+        ClassLoader cl = IndyVersioningProvider.class.getClassLoader();
+
         // Load indy-version
         final Properties props = new Properties();
-        try (InputStream is = Thread.currentThread()
-                                    .getContextClassLoader()
-                                    .getResourceAsStream( INDY_VERSIONING_PROPERTIES ))
+        try (InputStream is = cl.getResourceAsStream( INDY_VERSIONING_PROPERTIES ))
         {
             if ( is != null )
             {
                 props.load( is );
+            }
+            else
+            {
+                logger.warn( "Resource not found, file: {}, loader: {}", INDY_VERSIONING_PROPERTIES, cl );
             }
         }
         catch ( final IOException e )
@@ -76,13 +80,15 @@ public class IndyVersioningProvider
         logger.info( "Get deprecatedApiFile: {}", deprecatedApiFile );
 
         final Properties deprApis = new Properties();
-        try (InputStream is = Thread.currentThread()
-                                    .getContextClassLoader()
-                                    .getResourceAsStream( deprecatedApiFile ))
+        try (InputStream is = cl.getResourceAsStream( deprecatedApiFile ))
         {
             if ( is != null )
             {
                 deprApis.load( is );
+            }
+            else
+            {
+                logger.warn( "Resource not found, file: {}, loader: {}", INDY_DEPRECATED_APIS_PROPERTIES, cl );
             }
         }
         catch ( final IOException e )
