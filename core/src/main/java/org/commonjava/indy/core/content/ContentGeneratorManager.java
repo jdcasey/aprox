@@ -92,10 +92,10 @@ public class ContentGeneratorManager
                                               EventMetadata eventMetadata ) throws IndyWorkflowException
     {
         Transfer item = null;
+        String storagePath =
+                        pathGenerator.getPath( new ConcreteResource( LocationUtils.toLocation( group ), path ) );
         for ( final ContentGenerator generator : contentGenerators )
         {
-            String storagePath =
-                    pathGenerator.getPath( new ConcreteResource( LocationUtils.toLocation( group ), path ) );
             final boolean canProcess =  generator.canProcess( path ) || generator.canProcess( storagePath );
             if ( canProcess )
             {
