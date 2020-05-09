@@ -34,6 +34,7 @@ import org.commonjava.indy.util.LocationUtils;
 import org.commonjava.maven.galley.cache.FileCacheProvider;
 import org.commonjava.maven.galley.event.NoOpFileEventManager;
 import org.commonjava.maven.galley.io.NoOpTransferDecorator;
+import org.commonjava.maven.galley.io.SpecialPathManagerImpl;
 import org.commonjava.maven.galley.io.TransferDecoratorManager;
 import org.commonjava.maven.galley.model.ConcreteResource;
 import org.commonjava.maven.galley.model.Transfer;
@@ -77,7 +78,7 @@ public class PackageMetadataMergerTest
             throws Exception
     {
         cacheProvider = new FileCacheProvider( temp.newFolder( "cache" ), new IndyPathGenerator(
-                Collections.singleton( new NPMStoragePathCalculator() ) ), new NoOpFileEventManager(),
+                Collections.singleton( new NPMStoragePathCalculator( new SpecialPathManagerImpl(  ) ) ) ), new NoOpFileEventManager(),
                                                new TransferDecoratorManager( new NoOpTransferDecorator() ), false );
 
         mapper = new IndyObjectMapper( true );

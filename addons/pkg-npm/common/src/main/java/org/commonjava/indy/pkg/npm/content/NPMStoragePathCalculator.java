@@ -54,6 +54,15 @@ public class NPMStoragePathCalculator
     @Inject
     SpecialPathManager specialPathManager;
 
+    protected NPMStoragePathCalculator()
+    {
+    }
+
+    public NPMStoragePathCalculator( SpecialPathManager specialPathManager )
+    {
+        this.specialPathManager = specialPathManager;
+    }
+
     @Override
     public String calculateStoragePath( final StoreKey key, final String path )
     {

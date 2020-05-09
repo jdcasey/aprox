@@ -23,10 +23,12 @@ import org.commonjava.maven.galley.GalleyCore;
 import org.commonjava.maven.galley.GalleyCoreBuilder;
 import org.commonjava.maven.galley.cache.FileCacheProviderFactory;
 import org.commonjava.maven.galley.event.EventMetadata;
+import org.commonjava.maven.galley.io.SpecialPathManagerImpl;
 import org.commonjava.maven.galley.maven.internal.type.StandardTypeMapper;
 import org.commonjava.maven.galley.maven.spi.type.TypeMapper;
 import org.commonjava.maven.galley.model.Transfer;
 import org.commonjava.maven.galley.nfc.MemoryNotFoundCache;
+import org.commonjava.maven.galley.spi.io.SpecialPathManager;
 import org.commonjava.maven.galley.spi.transport.LocationExpander;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,6 +60,8 @@ public class PackageMetadataGeneratorTest
 
     private GalleyCore core;
 
+    private SpecialPathManager specialPathManager;
+
     @Before
     public void setup() throws Exception
     {
@@ -86,8 +90,12 @@ public class PackageMetadataGeneratorTest
 
         final GroupMergeHelper helper = new GroupMergeHelper( downloads );
 
+        specialPathManager = new SpecialPathManagerImpl(  );
         fileManager = new DefaultDownloadManager( stores, core.getTransferManager(), core.getLocationExpander(), rescanService );
-        generator = new PackageMetadataGenerator( contentAccess, stores, downloads, types, merger, helper, new MemoryNotFoundCache(), new IndyPathGenerator( Collections.singleton( new NPMStoragePathCalculator() ) ), new NPMStoragePathCalculator() );
+        generator = new PackageMetadataGenerator( contentAccess, stores, downloads, types, merger, helper,
+                                                  new MemoryNotFoundCache(), new IndyPathGenerator(
+                        Collections.singleton( new NPMStoragePathCalculator( specialPathManager ) ) ),
+                                                  new NPMStoragePathCalculator( specialPathManager ) );
 
     }
 
