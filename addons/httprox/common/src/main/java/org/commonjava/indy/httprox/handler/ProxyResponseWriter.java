@@ -45,7 +45,6 @@ import org.commonjava.indy.util.ApplicationStatus;
 import org.commonjava.maven.galley.spi.cache.CacheProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.commonjava.indy.metrics.RequestContextHelper;
 import org.xnio.ChannelListener;
 import org.xnio.StreamConnection;
 import org.xnio.conduits.ConduitStreamSinkChannel;
@@ -55,9 +54,14 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
+import org.commonjava.cdi.util.weft.WeftExecutorService;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static java.lang.Integer.parseInt;
@@ -124,7 +128,7 @@ public final class ProxyResponseWriter
 
     private final String cls; // short class name for metrics
 
-    private final ThreadPoolExecutor tunnelAndMITMExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+    private final WeftExecutorService tunnelAndMITMExecutor;
 
     private boolean summaryReported;
 
@@ -137,7 +141,7 @@ public final class ProxyResponseWriter
                                 final StreamConnection accepted, final IndyMetricsConfig metricsConfig,
                                 final MetricRegistry metricRegistry, final GoldenSignalsMetricSet sliMetricSet,
                                 final CacheProducer cacheProducer,
-                                final long start )
+                                final long start, final WeftExecutorService executor )
     {
         this.config = config;
         this.contentController = contentController;
@@ -154,6 +158,7 @@ public final class ProxyResponseWriter
         startNanos = start;
         this.cls = ClassUtils.getAbbreviatedName( getClass().getName(), 1 ); // e.g., foo.bar.ClassA -> f.b.ClassA
         this.proxyAuthCache = cacheProducer.getCache( HTTP_PROXY_AUTH_CACHE );
+        this.tunnelAndMITMExecutor = executor;
     }
 
     public void setProxyRequestReader( ProxyRequestReader proxyRequestReader )

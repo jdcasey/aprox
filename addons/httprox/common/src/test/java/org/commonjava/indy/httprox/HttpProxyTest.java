@@ -47,6 +47,7 @@ import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.core.inject.ExpiringMemoryNotFoundCache;
 import org.commonjava.indy.httprox.conf.HttproxConfig;
 import org.commonjava.indy.httprox.handler.ProxyAcceptHandler;
+import org.commonjava.indy.httprox.handler.ProxyTransfersExecutor;
 import org.commonjava.indy.httprox.keycloak.KeycloakProxyAuthenticator;
 import org.commonjava.indy.mem.data.MemoryStoreDataManager;
 import org.commonjava.indy.model.core.RemoteRepository;
@@ -204,10 +205,15 @@ public class HttpProxyTest
 
         ScriptEngine scriptEngine = new ScriptEngine( dfm );
 
+        WeftExecutorService transferService =
+              new PoolWeftExecutorService( "test-mitm-transfers", (ThreadPoolExecutor) Executors.newCachedThreadPool(), 2, 10f, false,null, null );
+        ProxyTransfersExecutor handler = new ProxyTransfersExecutor( transferService );
+
         proxy = new HttpProxy( config, bootOpts,
                                new ProxyAcceptHandler( config, storeManager, contentController, auth, core.getCache(),
                                                        scriptEngine, new MDCManager(), null, null,
-                                                       new CacheProducer( null, cacheManager, null ) ) );
+                                                       new CacheProducer( null, cacheManager, null ),
+                                                       handler ) );
         proxy.start();
     }
 

@@ -85,7 +85,7 @@
     <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-core</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>

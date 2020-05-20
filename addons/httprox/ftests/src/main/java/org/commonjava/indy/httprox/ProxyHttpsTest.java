@@ -22,6 +22,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.commonjava.indy.client.core.helper.HttpResources;
+import org.commonjava.indy.core.conf.IndyWeftConfig;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.dto.StoreListingDTO;
 import org.commonjava.indy.test.fixture.core.CoreServerFixture;
@@ -154,5 +155,7 @@ public class ProxyHttpsTest
         copyToConfigFile( "ssl/ca.der", "ssl/ca.der" );
         copyToConfigFile( "ssl/ca.crt", "ssl/ca.crt" );
         copyToConfigFile( "ssl/ca.jks", "ssl/ca.jks" );
+        String threadPools = new IndyWeftConfig().getDefaultConfigFileName();
+        copyToConfigFile( threadPools, threadPools );
     }
 }
