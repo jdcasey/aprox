@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.commonjava.indy</groupId>
     <artifactId>indy-implied-repos</artifactId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>2.2.0</version>
   </parent>
   <artifactId>indy-implied-repos-client-java</artifactId>
   <name>Indy :: Add-Ons :: Implied Repositories :: Java Client</name>
