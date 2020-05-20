@@ -196,8 +196,10 @@ public abstract class AbstractIndyFunctionalTest
     public void stop()
             throws IndyLifecycleException
     {
-        dropKeyspace( "cache_" );
-        dropKeyspace( "storage_" );
+        CassandraClient cassandraClient = CDI.current().select( CassandraClient.class ).get();
+        dropKeyspace( "cache_" , cassandraClient);
+        dropKeyspace( "storage_", cassandraClient );
+        cassandraClient.close();
         closeCacheProvider();
         closeQuietly( fixture );
         closeQuietly( client );
@@ -212,11 +214,10 @@ public abstract class AbstractIndyFunctionalTest
         }
     }
 
-    private void dropKeyspace( String prefix )
+    private void dropKeyspace( String prefix, CassandraClient cassandraClient )
     {
         String keyspace = getKeyspace( prefix );
         logger.debug( "Drop cassandra keyspace: {}", keyspace );
-        CassandraClient cassandraClient = CDI.current().select( CassandraClient.class ).get();
         Session session = cassandraClient.getSession( keyspace );
         if ( session != null )
         {
@@ -229,7 +230,6 @@ public abstract class AbstractIndyFunctionalTest
                 logger.warn( "Failed to drop keyspace: {}, reason: {}", keyspace, ex );
             }
         }
-        cassandraClient.close();
     }
 
     protected void sleepAndRunFileGC( long milliseconds )
