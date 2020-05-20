@@ -35,11 +35,16 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.Map;
+import java.util.Enumeration;
+import java.lang.reflect.InvocationTargetException;
 
 @ApplicationScoped
 public class ScriptEngine
 {
-
+    private static final Logger logger = LoggerFactory.getLogger( ScriptEngine.class.getName() );
     public static final String SCRIPTS_SUBDIR = "scripts";
 
     public enum StandardScriptType
@@ -62,6 +67,7 @@ public class ScriptEngine
     ;
 
     private final GroovyClassLoader groovyClassloader = new GroovyClassLoader();
+    private final Map<String, Class<?>> scriptClassMap = new ConcurrentHashMap(25, 1);
 
     @Inject
     private DataFileManager dataFileManager;
@@ -104,72 +110,86 @@ public class ScriptEngine
                                               final Class<T> type, boolean processCdiInjections )
             throws IndyGroovyException
     {
-        DataFile dataFile = dataFileManager.getDataFile( SCRIPTS_SUBDIR, scriptType.subdir(), name );
-        String script = null;
-        if ( dataFile == null || !dataFile.exists() || dataFile.isDirectory() )
+        AtomicReference<Exception> err = new AtomicReference<>();
+        Class<?> clazz = scriptClassMap.computeIfAbsent( name, (n) ->
         {
-            URL resource = Thread.currentThread()
-                                 .getContextClassLoader()
-                                 .getResource( Paths.get( SCRIPTS_SUBDIR, scriptType.subdir(), name ).toString() );
-            if ( resource == null )
+            String script = null;
+            String scriptPath = Paths.get( SCRIPTS_SUBDIR, scriptType.subdir(), name ).toString(); 
+            DataFile dataFile = dataFileManager.getDataFile( scriptPath );
+            if ( dataFile == null || !dataFile.exists() || dataFile.isDirectory() )
             {
-                throw new IndyGroovyException( "Cannot read standard script from: %s/%s/%s", SCRIPTS_SUBDIR,
-                                               scriptType.subdir(), name );
+                URL resource = Thread.currentThread()
+                     .getContextClassLoader()
+                     .getResource( scriptPath );
+
+                if ( resource == null )
+                {
+                    err.set( new IndyGroovyException( "Cannot read standard script from: %s/%s/%s", SCRIPTS_SUBDIR,
+                                                  scriptType.subdir(), name ) );
+                    return null;
+                }
+                else
+                {
+                    logger.debug( "Loading script: {}/{}/{} for class: {} from classpath resource: {}", SCRIPTS_SUBDIR,
+                                  scriptType, name, type.getName(), resource );
+                    try (InputStream in = resource.openStream())
+                    {
+                        script = IOUtils.toString( in );
+                    }
+                    catch ( IOException e )
+                    {
+                        err.set( new IndyGroovyException( "Cannot read standard script from classpath: %s/%s/%s. Reason: %s",
+                               e, SCRIPTS_SUBDIR, scriptType.subdir(), name, e.getMessage() ) );
+                    }
+                }
             }
             else
             {
-                Logger logger = LoggerFactory.getLogger( getClass() );
-                logger.debug( "Loading script: {}/{}/{} for class: {} from classpath resource: {}", SCRIPTS_SUBDIR,
-                              scriptType, name, type.getName(), resource );
-                try (InputStream in = resource.openStream())
+                try
                 {
-                    script = IOUtils.toString( in );
+                    script = dataFile.readString();
                 }
                 catch ( IOException e )
                 {
-                    throw new IndyGroovyException( "Cannot read standard script from classpath: %s/%s/%s. Reason: %s",
-                                                   e, SCRIPTS_SUBDIR, scriptType.subdir(), name, e.getMessage() );
+                    err.set( new IndyGroovyException( "Failed to read standard script from: %s/%s. Reason: %s", e,
+                                                  scriptType.subdir(), name, e.getMessage() ) );
+                    return null;
                 }
             }
-        }
-        else
-        {
+            Class<?> scriptClazz = null;
             try
             {
-                script = dataFile.readString();
+                scriptClazz = groovyClassloader.parseClass( script );
             }
-            catch ( IOException e )
+            catch ( final CompilationFailedException e )
             {
-                throw new IndyGroovyException( "Failed to read standard script from: %s/%s. Reason: %s", e,
-                                               scriptType.subdir(), name, e.getMessage() );
+                err.set( new IndyGroovyException( "Failed to compile groovy script: '%s'. Reason: %s", e, script,
+                                              e.getMessage()) );
             }
+            return scriptClazz;
+        } );
+        Exception e = err.get();
+        if ( e != null )
+        {
+           throw ( IndyGroovyException )e;
         }
-
         Object instance = null;
-        try
+        T result = null;
+        try 
         {
-            final Class<?> clazz = groovyClassloader.parseClass( script );
-            instance = clazz.newInstance();
+            instance = clazz.getDeclaredConstructor().newInstance();
 
-            T result = type.cast( instance );
-
-            return processCdiInjections ? inject( result ) : result;
-        }
-        catch ( final CompilationFailedException e )
+            result = type.cast( instance );
+        } catch ( final InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ie )
         {
-            throw new IndyGroovyException( "Failed to compile groovy script: '%s'. Reason: %s", e, script,
-                                           e.getMessage() );
-        }
-        catch ( final InstantiationException | IllegalAccessException e )
+           throw new IndyGroovyException( "Cannot instantiate class parsed from script: '%s'. Reason: %s", name,
+                                          e.getMessage() );
+        }catch ( final ClassCastException cce )
         {
-            throw new IndyGroovyException( "Cannot instantiate class parsed from script: '%s'. Reason: %s", e, script,
-                                           e.getMessage() );
+           throw new IndyGroovyException( "Script: '%s' instance: %s cannot be cast as: %s", name, instance,
+                                          type.getName() );
         }
-        catch ( final ClassCastException e )
-        {
-            throw new IndyGroovyException( "Script: '%s' instance: %s cannot be cast as: %s", e, script, instance,
-                                           type.getName() );
-        }
+        return processCdiInjections ? inject( result ) : result;
     }
 
     public <T> T parseScriptInstance( final File script, final Class<T> type )
@@ -269,5 +289,4 @@ public class ScriptEngine
 
         return bean;
     }
-
 }

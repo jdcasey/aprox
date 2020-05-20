@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.conduits.ConduitStreamSinkChannel;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,7 +81,7 @@ public class ProxySSLTunnel implements Runnable
                     throws IOException
     {
         targetChannel.socket().setSoTimeout( (int) TimeUnit.MINUTES.toMillis( config.getMITMSoTimeoutMinutes() ) );
-        InputStream inStream = targetChannel.socket().getInputStream();
+        InputStream inStream = new BufferedInputStream( targetChannel.socket().getInputStream() );
         ReadableByteChannel wrappedChannel = Channels.newChannel( inStream );
 
         ByteBuffer byteBuffer = ByteBuffer.allocate( DEFAULT_READ_BUF_SIZE );

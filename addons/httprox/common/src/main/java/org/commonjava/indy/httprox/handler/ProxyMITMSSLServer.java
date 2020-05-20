@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.BufferedOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -138,7 +139,7 @@ public class ProxyMITMSSLServer implements Runnable
     private char[] keystorePassword = "password".toCharArray(); // keystore password can not be null
 
     // TODO: What are the memory footprint implications of this? It seems like these will never be purged.
-    private static Map<String, KeyStore> keystoreMap = new ConcurrentHashMap(); // cache keystore, key: hostname
+    private static Map<String, HostContext> hostContextMap = new ConcurrentHashMap(); // cache keystore and socket factory, key: hostname
 
     /**
      * Generate the keystore on-the-fly and initiate SSL socket factory.
@@ -146,29 +147,30 @@ public class ProxyMITMSSLServer implements Runnable
     private SSLServerSocketFactory getSSLServerSocketFactory( String host ) throws Exception
     {
         AtomicReference<Exception> err = new AtomicReference<>();
-        KeyStore ks = keystoreMap.computeIfAbsent( host, (k) -> {
-            try
-            {
-                return getKeyStore(k);
-            }
-            catch ( Exception e )
-            {
-                err.set( e );
-            }
-            return null;
-        } );
+        HostContext context = hostContextMap.computeIfAbsent( host, (k) -> {
+           try
+           {
+               final KeyStore ks = getKeyStore(k);
+               final KeyManagerFactory kmf = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
+               kmf.init( ks, keystorePassword );
 
-        if ( ks == null || err.get() != null )
+               final SSLContext sc = SSLContext.getInstance( "TLS" );
+               sc.init( kmf.getKeyManagers(), null, null );
+               final SSLServerSocketFactory factory = sc.getServerSocketFactory();
+               return new HostContext(ks, factory);
+           }
+           catch ( Exception e )
+           {
+               err.set( e );
+           }
+           return null;
+        } );
+        if ( context == null || err.get() != null )
         {
             throw err.get();
         }
 
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
-        kmf.init( ks, keystorePassword );
-
-        SSLContext sc = SSLContext.getInstance( "TLS" );
-        sc.init( kmf.getKeyManagers(), null, null );
-        return sc.getServerSocketFactory();
+        return context.getSslSocketFactory();
     }
 
     private KeyStore getKeyStore( String host ) throws Exception
@@ -287,13 +289,14 @@ public class ProxyMITMSSLServer implements Runnable
         logger.debug( "Requesting remote URL: {}", remoteUrl.toString() );
 
         ArtifactStore store = proxyResponseHelper.getArtifactStore( trackingId, remoteUrl );
-        try (OutputStream out = socket.getOutputStream())
+        try (BufferedOutputStream out = new BufferedOutputStream( socket.getOutputStream() ))
         {
             HttpConduitWrapper http =
                             new HttpConduitWrapper( new OutputStreamSinkChannel( out ), null, contentController,
                                                     cacheProvider );
             proxyResponseHelper.transfer( http, store, remoteUrl.getPath(), GET_METHOD.equals( method ),
                                           proxyUserPass, meter );
+            out.flush();
             http.close();
         }
     }
@@ -339,5 +342,21 @@ public class ProxyMITMSSLServer implements Runnable
     {
         isCancelled = true;
         logger.debug( "MITM server timed out waiting for response creation" );
+    }
+
+    class HostContext{
+       private KeyStore keystore;
+       private SSLServerSocketFactory sslSocketFactory;
+       HostContext(KeyStore ks, SSLServerSocketFactory factory){
+          keystore = ks;
+          sslSocketFactory = factory;
+       }
+      KeyStore getKeystore() {
+         return keystore;
+      }
+      SSLServerSocketFactory getSslSocketFactory() {
+         return sslSocketFactory;
+      }
+       
     }
 }
