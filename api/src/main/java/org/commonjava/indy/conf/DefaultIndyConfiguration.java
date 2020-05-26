@@ -98,6 +98,8 @@ public class DefaultIndyConfiguration
 
     private boolean repositoryFilterEnabled;
 
+    private String gaCacheStorePattern;
+
     private String disposableStorePattern;
 
     public DefaultIndyConfiguration()
@@ -369,6 +371,18 @@ public class DefaultIndyConfiguration
     public boolean isRepositoryFilterEnabled()
     {
         return repositoryFilterEnabled;
+    }
+
+    @ConfigName( "ga-cache.store.pattern" )
+    public void getGACacheStorePattern( String gaCacheStorePattern )
+    {
+        this.gaCacheStorePattern = gaCacheStorePattern;
+    }
+
+    @Override
+    public String getGACacheStorePattern()
+    {
+        return gaCacheStorePattern;
     }
 
     @ConfigName( "standalone" )

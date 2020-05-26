@@ -102,6 +102,8 @@ public interface IndyConfiguration
 
     boolean isRepositoryFilterEnabled();
 
+    String getGACacheStorePattern();
+
     /**
      * FileSystemContaining is an operation by which we get what path in which repository. We use batching to
      * limit the query candidates size to avoid huge 'IN' query.

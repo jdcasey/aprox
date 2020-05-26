@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -46,6 +45,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.commonjava.indy.conf.DefaultIndyConfiguration.DEFAULT_NOT_FOUND_CACHE_TIMEOUT_SECONDS;
+import static org.commonjava.indy.subsys.cassandra.util.SchemaUtils.getSchemaCreateKeyspace;
 
 @ApplicationScoped
 @Alternative
@@ -67,12 +67,6 @@ public class CassandraNotFoundCache
     private PreparedStatement preparedCountByStore;
 
     private PreparedStatement preparedQueryByStore;
-
-    private static String getSchemaCreateKeyspace( String keyspace )
-    {
-        return "CREATE KEYSPACE IF NOT EXISTS " + keyspace
-                        + " WITH REPLICATION = {'class':'SimpleStrategy', 'replication_factor':1};";
-    }
 
     // @formatter:off
     private static String getSchemaCreateTable( String keyspace )

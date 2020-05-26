@@ -91,6 +91,12 @@ public class CassandraClient
 
     public Session getSession( String keyspace )
     {
+        if ( !config.isEnabled() )
+        {
+            logger.info( "Cassandra client not enabled" );
+            return null;
+        }
+
         return sessions.computeIfAbsent( keyspace, key -> {
             logger.info( "Connect to Cassandra, host: {}, port: {}, user: {}, keyspace: {}", host, port, username,
                          key );
