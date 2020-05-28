@@ -21,19 +21,16 @@ import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.pathmapped.cache.PathMappedMavenGACache;
-import org.commonjava.maven.galley.cache.pathmapped.PathMappedCacheProvider;
 import org.commonjava.maven.galley.model.SpecialPathInfo;
-import org.commonjava.maven.galley.spi.cache.CacheProvider;
 import org.commonjava.maven.galley.spi.io.SpecialPathManager;
-import org.commonjava.storage.pathmapped.core.PathMappedFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,9 +45,6 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     @Inject
-    private CacheProvider cacheProvider;
-
-    @Inject
     private IndyConfiguration indyConfig;
 
     @Inject
@@ -58,17 +52,6 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
 
     @Inject
     private PathMappedMavenGACache gaCache;
-
-    private PathMappedFileManager pathMappedFileManager;
-
-    @PostConstruct
-    void setup()
-    {
-        if ( cacheProvider instanceof PathMappedCacheProvider )
-        {
-            pathMappedFileManager = ( (PathMappedCacheProvider) cacheProvider ).getPathMappedFileManager();
-        }
-    }
 
     @Override
     public int getPriority()
@@ -79,7 +62,7 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
     @Override
     public boolean canProcess( String path, Group group )
     {
-        if ( pathMappedFileManager != null && group.getPackageType().equals( PKG_TYPE_MAVEN ))
+        if ( gaCache.isStarted() && group.getPackageType().equals( PKG_TYPE_MAVEN ) )
         {
             return true;
         }
@@ -87,58 +70,61 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
     }
 
     /**
-     * Filter for remote repos + hosted repos which contains the target groupId/artifactId (GA).
+     * Filter for remote repos and hosted repos which contain the target groupId/artifactId (GA).
      */
     @Override
     public List<ArtifactStore> filter( String path, Group group, List<ArtifactStore> concreteStores )
     {
-        List<String> candidates = getHostedStoreNames( concreteStores );
-        if ( candidates.isEmpty() )
-        {
-            logger.debug( "No candidate matches, skip" );
-            return concreteStores;
-        }
-
         String gaPath = getGAPath( path );
-        if ( gaPath == null )
+        if ( isBlank( gaPath ) )
         {
-            logger.debug( "Can not get gaPath from raw path: {}", path );
+            logger.debug( "Not get gaPath, raw path: {}", path );
             return concreteStores;
         }
 
-        logger.debug( "Get gaPath: {}", gaPath );
         Set<String> storesContaining = gaCache.getStoresContaining( gaPath );
-        Set<String> intersection = getIntersection( storesContaining, candidates );
+        logger.debug( "Get from GA cache, gaPath: {}, containing: {}", gaPath, storesContaining );
+
         Set<String> scanned = gaCache.getScannedStores();
+
+        /*
+         * Check staled stores. It is because of repo deletion. Indy start-up only update 'scanned-repos'.
+         * Stores in each single ga entry are maintained here. For performance reason, we do it in approximately 1/8 rate.
+         */
+        if ( System.currentTimeMillis() % 8 == 0 )
+        {
+            checkStaledStores( storesContaining, scanned, gaPath );
+        }
 
         return concreteStores.stream().filter( store -> {
             String storeName = store.getKey().getName();
-            if ( store.getType() == StoreType.remote || intersection.contains( storeName ) )
+            if ( store.getType() == StoreType.remote )
             {
                 return true;
             }
-            if ( !scanned.contains( storeName ) ) // unknown
+            if ( storesContaining.contains( storeName ) )
             {
-                logger.debug( "Scanned not contain candidate: {}", storeName );
-                gaCache.addToScanIfApplicable( storeName );
+                return true;
+            }
+            else if ( !scanned.contains( storeName ) ) // unknown
+            {
+                logger.debug( "Unknown store: {}", storeName );
+                gaCache.addToScanIfPatternMatch( storeName );
                 return true;
             }
             return false;
         } ).collect( Collectors.toList() );
     }
 
-    private List<String> getHostedStoreNames( List<ArtifactStore> concreteStores )
+    private void checkStaledStores( Set<String> storesContaining, Set<String> scanned, String gaPath )
     {
-        return concreteStores.stream()
-                             .filter( store -> store.getType() == StoreType.hosted )
-                             .map( store -> store.getKey().getName() )
-                             .collect( Collectors.toList() );
-    }
-
-    private Set<String> getIntersection( Set<String> storesContaining, List<String> candidates )
-    {
-        storesContaining.retainAll( candidates );
-        return storesContaining;
+        Set<String> staled = new HashSet<>( storesContaining );
+        staled.removeAll( scanned );
+        if ( !staled.isEmpty() )
+        {
+            logger.info( "Clean staled stores, gaPath: {}, staled: {}", gaPath, staled );
+            gaCache.reduce( gaPath, staled );
+        }
     }
 
     private String getGAPath( String rawPath )

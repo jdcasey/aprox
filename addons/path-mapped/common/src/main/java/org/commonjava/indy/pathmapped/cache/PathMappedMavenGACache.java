@@ -32,6 +32,7 @@ import org.commonjava.indy.subsys.infinispan.CacheProducer;
 import org.commonjava.maven.galley.cache.pathmapped.PathMappedCacheProvider;
 import org.commonjava.maven.galley.spi.cache.CacheProvider;
 import org.commonjava.storage.pathmapped.core.PathMappedFileManager;
+import org.commonjava.storage.pathmapped.model.PathMap;
 import org.commonjava.storage.pathmapped.spi.PathDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class PathMappedMavenGACache
 
     private PathMappedFileManager pathMappedFileManager;
 
-    private PreparedStatement preparedQueryByGA;
+    private PreparedStatement preparedQueryByGA, preparedStoresReduction, preparedStoresIncrement;
 
     @Inject
     private CassandraClient cassandraClient;
@@ -102,6 +103,8 @@ public class PathMappedMavenGACache
     private String keyspace;
 
     private Session session;
+
+    private boolean started;
 
     private Set<String> toScanRepos = Collections.synchronizedSet( new HashSet<>() );
 
@@ -118,6 +121,7 @@ public class PathMappedMavenGACache
         this.cassandraClient = cassandraClient;
         this.storeDataManager = storeDataManager;
         this.gaStorePattern = config.getGACacheStorePattern();
+        this.keyspace = config.getCacheKeyspace();
         this.cacheProvider = cacheProvider;
         init();
     }
@@ -125,6 +129,8 @@ public class PathMappedMavenGACache
     @PostConstruct
     public void init()
     {
+        gaStorePattern = config.getGACacheStorePattern();
+
         if ( isBlank( gaStorePattern ) )
         {
             logger.info( "GA cache store pattern is null" );
@@ -132,6 +138,8 @@ public class PathMappedMavenGACache
         }
 
         logger.info( "Start GA cache, store pattern: {}", gaStorePattern );
+
+        keyspace = config.getCacheKeyspace();
 
         session = cassandraClient.getSession( keyspace );
         if ( session == null )
@@ -142,12 +150,13 @@ public class PathMappedMavenGACache
 
         inMemoryCache = cacheProducer.getCache( "ga-in-memory-cache" );
 
-        keyspace = config.getCacheKeyspace();
-
         session.execute( getSchemaCreateKeyspace( keyspace ) );
         session.execute( getSchemaCreateTable( keyspace ) );
 
         preparedQueryByGA = session.prepare( "SELECT stores FROM " + keyspace + ".ga WHERE ga=?;" );
+
+        preparedStoresIncrement = session.prepare( "UPDATE " + keyspace + ".ga SET stores = stores + ? WHERE ga=?;" );
+        preparedStoresReduction = session.prepare( "UPDATE " + keyspace + ".ga SET stores = stores - ? WHERE ga=?;" );
 
         if ( cacheProvider instanceof PathMappedCacheProvider )
         {
@@ -158,8 +167,19 @@ public class PathMappedMavenGACache
     @Override
     public void start() throws IndyLifecycleException
     {
+        if ( isBlank( gaStorePattern ) )
+        {
+            logger.info( "Skip GA cache start" );
+            return;
+        }
         fill();
         startTimer();
+        started = true;
+    }
+
+    public boolean isStarted()
+    {
+        return started;
     }
 
     @Override
@@ -184,17 +204,20 @@ public class PathMappedMavenGACache
             public void run()
             {
                 logger.info( "[GA cache] Scan, toScanRepos: {}", toScanRepos );
-                Set<String> set = new HashSet<>( toScanRepos );
+                Set<String> toScan = new HashSet<>( toScanRepos );
                 toScanRepos.clear();
-                if ( !set.isEmpty() )
+
+                Set<String> scanned = getScannedStores(); // double check
+                toScan.removeAll( scanned );
+                if ( !toScan.isEmpty() )
                 {
-                    scanAndUpdate( set );
+                    scanAndUpdate( toScan );
                 }
             }
-        }, MINUTES.toMillis( 1 ), MINUTES.toMillis( 5 ) ); // every 5 min
+        }, MINUTES.toMillis( 5 ), MINUTES.toMillis( 5 ) ); // every 5 min
     }
 
-    private void fill()
+    public void fill()
     {
         Set<String> matched; // matched stores
         try
@@ -213,6 +236,8 @@ public class PathMappedMavenGACache
             return;
         }
 
+        logger.info( "Fill cache, matched stores: {}", matched );
+
         // find scanned stores
         Set<String> scanned = getScannedStores();
 
@@ -226,16 +251,13 @@ public class PathMappedMavenGACache
             scanned = getScannedStores(); // refresh scanned
         }
 
-        // find deleted stores and remove from cache, deleted = scanned - matched
+        // find deleted stores and remove from 'scanned-stores'
         Set<String> deleted = new HashSet<>( scanned );
         deleted.removeAll( matched );
         if ( !deleted.isEmpty() )
         {
             logger.info( "Find deleted stores, deleted: {}", deleted );
-            deleted.forEach( store -> session.execute(
-                            "UPDATE " + keyspace + ".ga SET stores = stores - {'" + store + "'} WHERE ga=?;",
-                            SCANNED_STORES ) );
-            inMemoryCache.remove( SCANNED_STORES );
+            reduce( SCANNED_STORES, deleted );
         }
     }
 
@@ -248,7 +270,6 @@ public class PathMappedMavenGACache
                                               .filter( hosted -> hosted.getName().matches( gaStorePattern ) )
                                               .map( hostedRepository -> hostedRepository.getKey().getName() )
                                               .collect( Collectors.toSet() );
-        logger.debug( "Get matched stores: {}", matched );
         return matched;
     }
 
@@ -275,13 +296,24 @@ public class PathMappedMavenGACache
 
     private void update( String ga, Set<String> set )
     {
-        set.forEach( s -> session.execute( "UPDATE " + keyspace + ".ga SET stores = stores + {'" + s + "'} WHERE ga=?;",
-                                           ga ) );
+        BoundStatement bound = preparedStoresIncrement.bind();
+        bound.setSet( 0, set );
+        bound.setString( 1, ga );
+        session.execute( bound );
+        inMemoryCache.remove( ga ); // clear to force reloading
+    }
+
+    public void reduce( String ga, Set<String> set )
+    {
+        BoundStatement bound = preparedStoresReduction.bind();
+        bound.setSet( 0, set );
+        bound.setString( 1, ga );
+        session.execute( bound );
         inMemoryCache.remove( ga ); // clear to force reloading
     }
 
     /**
-     * Scan the target store set to find all GAs in all stores.
+     * Scan the stores to find all GAs.
      * @param notScanned
      * @param gaMap
      * @param completed
@@ -292,19 +324,10 @@ public class PathMappedMavenGACache
         notScanned.forEach( storeName -> {
             Set<String> gaSet = new HashSet<>();
             pathDB.traverse( "maven:hosted:" + storeName, ROOT_DIR, pathMap -> {
-                String fileName = pathMap.getFilename();
-                if ( fileName.endsWith( ".pom" ) )
+                String gaPath = getGAPath( pathMap );
+                if ( isNotBlank( gaPath ) )
                 {
-                    // get parent's parent
-                    String parent = pathMap.getParentPath();
-                    if ( isNotBlank( parent ) )
-                    {
-                        Path ga = Paths.get( parent ).getParent();
-                        if ( ga != null )
-                        {
-                            gaSet.add( ga.toString() );
-                        }
-                    }
+                    gaSet.add( gaPath );
                 }
             }, 0, PathDB.FileType.file );
 
@@ -316,6 +339,32 @@ public class PathMappedMavenGACache
         } );
     }
 
+    /**
+     * Get GA path from pathMap obj. If it is pom file, get parent's parent.
+     */
+    private static String getGAPath( PathMap pathMap )
+    {
+        String ret = null;
+        String fileName = pathMap.getFilename();
+        if ( fileName.endsWith( ".pom" ) )
+        {
+            String parent = pathMap.getParentPath();
+            if ( isNotBlank( parent ) )
+            {
+                Path ga = Paths.get( parent ).getParent();
+                if ( ga != null )
+                {
+                    ret = ga.toString();
+                    if ( ret.startsWith( "/" ) )
+                    {
+                        ret = ret.substring( 1 ); // remove the leading '/'
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
     public Set<String> getScannedStores()
     {
         return getStoresContaining( SCANNED_STORES );
@@ -324,8 +373,6 @@ public class PathMappedMavenGACache
     /**
      * Get stores contain the target gaPath. It checks the inMemoryCache first. If not found, query db
      * and update inMemoryCache.
-     * @param gaPath
-     * @return
      */
     public Set<String> getStoresContaining( String gaPath )
     {
@@ -351,9 +398,9 @@ public class PathMappedMavenGACache
     }
 
     /**
-     * Add store to 'toScanRepos' if the name matches 'gaStorePattern'. The timer task scans them periodically.
+     * Add store to 'toScanRepos' if the name matches 'gaStorePattern'. The timer task scans them.
      */
-    public void addToScanIfApplicable( String storeName )
+    public void addToScanIfPatternMatch( String storeName )
     {
         if ( gaStorePattern != null && storeName.matches( gaStorePattern ) )
         {

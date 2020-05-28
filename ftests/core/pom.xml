@@ -72,6 +72,11 @@
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-path-mapped-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-pkg-maven-common</artifactId>
       <scope>test</scope>
     </dependency>

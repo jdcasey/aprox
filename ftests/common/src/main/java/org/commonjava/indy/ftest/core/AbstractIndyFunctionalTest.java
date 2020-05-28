@@ -282,7 +282,8 @@ public abstract class AbstractIndyFunctionalTest
             throws IOException
     {
         writeConfigFile( "conf.d/default.conf", "[default]\ncache.keyspace=" + getKeyspace( "cache_" )
-                        + "\naffected.groups.exclude=^build-\\d+" + "\nrepository.filter.enabled=true" );
+                        + "\naffected.groups.exclude=^build-\\d+"
+                        + "\nrepository.filter.enabled=true\nga-cache.store.pattern=^build-\\d+" );
         writeConfigFile( "conf.d/storage.conf", "[storage-default]\n"
                         + "storage.dir=" + fixture.getBootOptions().getHomeDir() + "/var/lib/indy/storage\n"
                         + "storage.gc.graceperiodinhours=0\n"
