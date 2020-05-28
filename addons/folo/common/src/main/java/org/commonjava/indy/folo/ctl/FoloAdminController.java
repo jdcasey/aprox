@@ -456,7 +456,7 @@ public class FoloAdminController
 
         if ( transfer == null )
         {
-            return null;
+            return entry;
         }
 
         contentDigester.removeMetadata( transfer );
