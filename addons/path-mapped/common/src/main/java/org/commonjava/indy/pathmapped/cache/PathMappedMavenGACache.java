@@ -42,7 +42,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -105,8 +104,6 @@ public class PathMappedMavenGACache
     private Session session;
 
     private boolean started;
-
-    private Set<String> toScanRepos = Collections.synchronizedSet( new HashSet<>() );
 
     public PathMappedMavenGACache()
     {
@@ -194,7 +191,6 @@ public class PathMappedMavenGACache
         return "MavenGACache";
     }
 
-    // we use a TimerTask to scan 'toScanRepos' periodically
     private void startTimer()
     {
         Timer timer = new Timer( true );
@@ -203,18 +199,9 @@ public class PathMappedMavenGACache
             @Override
             public void run()
             {
-                logger.info( "[GA cache] Scan, toScanRepos: {}", toScanRepos );
-                Set<String> toScan = new HashSet<>( toScanRepos );
-                toScanRepos.clear();
-
-                Set<String> scanned = getScannedStores(); // double check
-                toScan.removeAll( scanned );
-                if ( !toScan.isEmpty() )
-                {
-                    scanAndUpdate( toScan );
-                }
+                fill();
             }
-        }, MINUTES.toMillis( 5 ), MINUTES.toMillis( 5 ) ); // every 5 min
+        }, MINUTES.toMillis( 30 ), MINUTES.toMillis( 30 ) ); // every 30 min
     }
 
     public void fill()
@@ -334,7 +321,7 @@ public class PathMappedMavenGACache
             gaSet.forEach( ga -> {
                 gaMap.computeIfAbsent( ga, k -> new HashSet<>() ).add( storeName );
             } );
-            logger.debug( "Scan result, storeName: {}, gaSet: {}", storeName, gaSet );
+            logger.info( "Scan result, store: {}, gaSet: {}", storeName, gaSet );
             completed.add( storeName );
         } );
     }
@@ -395,17 +382,6 @@ public class PathMappedMavenGACache
         }
         inMemoryCache.put( gaPath, ret );
         return ret;
-    }
-
-    /**
-     * Add store to 'toScanRepos' if the name matches 'gaStorePattern'. The timer task scans them.
-     */
-    public void addToScanIfPatternMatch( String storeName )
-    {
-        if ( gaStorePattern != null && storeName.matches( gaStorePattern ) )
-        {
-            toScanRepos.add( storeName );
-        }
     }
 
 }

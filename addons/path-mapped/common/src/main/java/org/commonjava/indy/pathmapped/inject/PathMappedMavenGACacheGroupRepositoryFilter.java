@@ -88,7 +88,7 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
         Set<String> scanned = gaCache.getScannedStores();
 
         /*
-         * Check staled stores. It is because of repo deletion. Indy start-up only update 'scanned-repos'.
+         * Check staled stores because of repo deletion. GA cache timer task only updates 'scanned-repos'.
          * Stores in each single ga entry are maintained here. For performance reason, we do it in approximately 1/8 rate.
          */
         if ( System.currentTimeMillis() % 8 == 0 )
@@ -109,7 +109,6 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
             else if ( !scanned.contains( storeName ) ) // unknown
             {
                 logger.debug( "Unknown store: {}", storeName );
-                gaCache.addToScanIfPatternMatch( storeName );
                 return true;
             }
             return false;
