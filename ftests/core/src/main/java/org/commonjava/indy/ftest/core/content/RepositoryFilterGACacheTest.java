@@ -15,34 +15,37 @@
  */
 package org.commonjava.indy.ftest.core.content;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.core.content.group.GroupRepositoryFilterManager;
 import org.commonjava.indy.ftest.core.AbstractContentManagementTest;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.pathmapped.cache.PathMappedMavenGACache;
-import org.commonjava.indy.test.fixture.core.CoreServerFixture;
+import org.commonjava.indy.pathmapped.inject.PathMappedGroupRepositoryFilter;
+import org.commonjava.indy.pathmapped.inject.PathMappedMavenGACacheGroupRepositoryFilter;
 import org.commonjava.test.http.expect.ExpectationServer;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.inject.spi.CDI;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.commonjava.indy.core.content.group.GroupRepositoryFilterManager.REPO_FILTER;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
-import static org.commonjava.indy.subsys.template.ScriptEngine.SCRIPTS_SUBDIR;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Given:
@@ -106,7 +109,7 @@ import static org.junit.Assert.assertThat;
  * ########### NOTE ############
  *
  * Even if the GA cache filter does not work properly, the following filters and default retrieval logic will still
- * return the right answer. We can only check the log to see whether the GA cache filter works. We also need to
+ * return the right file. We can only check the log to see whether the GA cache filter works. We also need to
  * make sure it works before the default path-mapped filter.
  */
 public class RepositoryFilterGACacheTest
@@ -153,9 +156,11 @@ public class RepositoryFilterGACacheTest
         "</metadata>\n";
     /* @formatter:on */
 
+
     @Test
     public void run() throws Exception
     {
+        BufferedLogAppender bufferedLogAppender = prepareTestAppender();
 
         final String remoteR = "R";
 
@@ -206,38 +211,50 @@ public class RepositoryFilterGACacheTest
         // fill the GA cache (because when test fixture starts up the repos are not created yet)
         CDI.current().select( PathMappedMavenGACache.class).get().fill();
 
-                        // get pom
+        // get pom
         String pomPath = getPomPath( A_0, V1 );
         try (InputStream stream = client.content().get( g.getKey(), pomPath ))
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + pomPath + "\n" + str );
-            //assertThat( str, equalTo( content_1_remote ) );
+            assertThat( str, containsString( "<artifactId>" + A_0 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V1 + "</version>" ) );
         }
+        checkLogMessage( pomPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:npc_builds, maven:remote:R]" );
 
         pomPath = getPomPath( A_1, V2_1 );
         try (InputStream stream = client.content().get( g.getKey(), pomPath ))
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + pomPath + "\n" + str );
-            //assertThat( str, equalTo( content_1_remote ) );
+            assertThat( str, containsString( "<artifactId>" + A_1 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V2_1 + "</version>" ) );
         }
+        checkLogMessage( pomPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:build-1, maven:hosted:build-2, maven:hosted:npc_builds, maven:remote:R]" );
 
         pomPath = getPomPath( A_2, V2_1 );
         try (InputStream stream = client.content().get( g.getKey(), pomPath ))
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + pomPath + "\n" + str );
-            //assertThat( str, equalTo( content_1_remote ) );
+            assertThat( str, containsString( "<artifactId>" + A_2 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V2_1 + "</version>" ) );
         }
+        checkLogMessage( pomPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:build-3, maven:hosted:build-4, maven:hosted:npc_builds, maven:remote:R]" );
 
         pomPath = getPomPath( A_1, V1 );
         try (InputStream stream = client.content().get( g.getKey(), pomPath ))
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + pomPath + "\n" + str );
-            //assertThat( str, equalTo( content_1_remote ) );
+            assertThat( str, containsString( "<artifactId>" + A_1 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V1 + "</version>" ) );
         }
+        checkLogMessage( pomPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:build-1, maven:hosted:build-2, maven:hosted:npc_builds, maven:remote:R]" );
 
         // get metadata
         String metadataPath = getMetadataPath( A_0 );
@@ -245,27 +262,108 @@ public class RepositoryFilterGACacheTest
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + metadataPath + "\n" + str );
-            //assertThat( str, containsString( "<version>1.0</version>" ) );
-            //assertThat( str, containsString( "<version>1.0-rh-0001</version>" ) );
+            assertThat( str, containsString( "<artifactId>" + A_0 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V1 + "</version>" ) );
         }
+        checkLogMessage( metadataPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:npc_builds, maven:remote:R]" );
 
         metadataPath = getMetadataPath( A_1 );
         try (InputStream stream = client.content().get( g.getKey(), metadataPath ))
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + metadataPath + "\n" + str );
-            //assertThat( str, containsString( "<version>1.0</version>" ) );
-            //assertThat( str, containsString( "<version>1.0-rh-0001</version>" ) );
+            assertThat( str, containsString( "<artifactId>" + A_1 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V1 + "</version>" ) );
+            assertThat( str, containsString( "<version>" + V2_1 + "</version>" ) );
+            assertThat( str, containsString( "<version>" + V2_2 + "</version>" ) );
         }
+        checkLogMessage( metadataPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:build-1, maven:hosted:build-2, maven:hosted:npc_builds, maven:remote:R]" );
 
         metadataPath = getMetadataPath( A_2 );
         try (InputStream stream = client.content().get( g.getKey(), metadataPath ))
         {
             String str = IOUtils.toString( stream );
             System.out.println( ">>>> " + metadataPath + "\n" + str );
-            //assertThat( str, containsString( "<version>1.0</version>" ) );
-            //assertThat( str, containsString( "<version>1.0-rh-0001</version>" ) );
+            assertThat( str, containsString( "<artifactId>" + A_2 + "</artifactId>" ) );
+            assertThat( str, containsString( "<version>" + V1 + "</version>" ) );
+            assertThat( str, containsString( "<version>" + V2_1 + "</version>" ) );
+            assertThat( str, containsString( "<version>" + V2_2 + "</version>" ) );
         }
+        checkLogMessage( metadataPath, bufferedLogAppender.getMessages().toString(),
+                         "[maven:hosted:build-3, maven:hosted:build-4, maven:hosted:npc_builds, maven:remote:R]" );
+
+        //
+        String messages = bufferedLogAppender.getMessages().toString();
+        System.out.println(">>>>\n{\n" + messages + "}\n\n");
+    }
+
+    /**
+     * Check 1. GA cache filter result match expected; 2. it works before the default path-mapped filter
+     */
+    private void checkLogMessage( String path, String messages, String expected )
+    {
+        int gaFilterIndex = 0, defaultFilterIndex = 0;
+        String[] lines = messages.split( "\n" );
+        for ( int i = 0; i < lines.length; i++ )
+        {
+            String line = lines[i];
+            if ( line.contains( path ) )
+            {
+                if ( line.contains( PathMappedMavenGACacheGroupRepositoryFilter.class.getSimpleName() ) )
+                {
+                    assertTrue( line.contains( expected ) );
+                    gaFilterIndex = i;
+                }
+                else if ( line.contains( PathMappedGroupRepositoryFilter.class.getSimpleName() ) )
+                {
+                    defaultFilterIndex = i;
+                }
+            }
+        }
+        assertTrue( gaFilterIndex < defaultFilterIndex );
+    }
+
+    class BufferedLogAppender
+                    extends AppenderBase<ILoggingEvent>
+    {
+        private StringBuilder messages = new StringBuilder(  );
+        private String filter;
+
+        public BufferedLogAppender( String filter )
+        {
+            this.filter = filter;
+        }
+
+        @Override
+        protected void append( ILoggingEvent event )
+        {
+            String message = event.getFormattedMessage();
+            if ( message.contains( filter ) )
+            {
+                messages.append( "[" + event.getThreadName() + "] " + message + "\n" );
+            }
+        }
+
+        public StringBuilder getMessages()
+        {
+            return messages;
+        }
+    }
+
+    private BufferedLogAppender prepareTestAppender()
+    {
+        BufferedLogAppender ret = null;
+        Logger filterManagerLogger = LoggerFactory.getLogger( GroupRepositoryFilterManager.class );
+        if ( filterManagerLogger instanceof ch.qos.logback.classic.Logger )
+        {
+            ch.qos.logback.classic.Logger logbackLogger = (ch.qos.logback.classic.Logger) filterManagerLogger;
+            ret = new BufferedLogAppender( "Filter processed" );
+            ret.start();
+            logbackLogger.addAppender( ret );
+        }
+        return ret;
     }
 
     private String getPomPath( String A, String V )
