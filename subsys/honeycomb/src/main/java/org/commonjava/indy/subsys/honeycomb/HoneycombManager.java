@@ -66,6 +66,9 @@ public class HoneycombManager
     @Inject
     private IndyTracingContext tracingContext;
 
+    @Inject
+    private IndyEventPostProcessor eventPostProcessor;
+
     public HoneycombManager()
     {
     }
@@ -79,7 +82,8 @@ public class HoneycombManager
             String dataset = configuration.getDataset();
 
             logger.debug( "Init Honeycomb manager, dataset: {}", dataset );
-            client = new HoneyClient( LibHoney.options().setDataset( dataset ).setWriteKey( writeKey ).build() ); //, new ConsoleTransport( new ResponseObservable() ) );
+            client = new HoneyClient( LibHoney.options().setDataset( dataset ).setWriteKey( writeKey )
+                                              .setEventPostProcessor( eventPostProcessor ).build() ); //, new ConsoleTransport( new ResponseObservable() ) );
             LibHoney.setDefault( client );
 
             SpanPostProcessor postProcessor = Tracing.createSpanProcessor( client, Sampling.alwaysSampler() );
