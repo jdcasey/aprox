@@ -62,6 +62,7 @@ import java.util.Set;
 import static org.commonjava.indy.folo.ctl.FoloConstants.ALL;
 import static org.commonjava.indy.folo.ctl.FoloConstants.TRACKING_TYPE.IN_PROGRESS;
 import static org.commonjava.indy.folo.ctl.FoloConstants.TRACKING_TYPE.SEALED;
+import static org.commonjava.indy.util.ApplicationContent.application_json;
 import static org.commonjava.indy.util.ApplicationContent.application_zip;
 
 @Api( value = "FOLO Tracking Record Access", description = "Manages FOLO tracking records." )
@@ -360,6 +361,7 @@ public class FoloAdminResource
                     required = true, dataType = "org.commonjava.indy.model.core.BatchDeleteRequest" )
     @Path( "/batch/delete" )
     @POST
+    @Produces( application_json )
     public Response doDelete( @Context final UriInfo uriInfo, final BatchDeleteRequest request )
     {
 
