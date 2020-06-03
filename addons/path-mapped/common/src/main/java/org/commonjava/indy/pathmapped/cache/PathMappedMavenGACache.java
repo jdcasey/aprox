@@ -25,7 +25,8 @@ import org.commonjava.indy.action.StartupAction;
 import org.commonjava.indy.conf.IndyConfiguration;
 import org.commonjava.indy.data.IndyDataException;
 import org.commonjava.indy.data.StoreDataManager;
-import org.commonjava.indy.pkg.PackageTypeConstants;
+import org.commonjava.indy.model.core.ArtifactStore;
+import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.subsys.cassandra.CassandraClient;
 import org.commonjava.indy.subsys.infinispan.CacheHandle;
 import org.commonjava.indy.subsys.infinispan.CacheProducer;
@@ -44,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -54,6 +56,7 @@ import static java.util.Collections.emptySet;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
 import static org.commonjava.indy.subsys.cassandra.util.SchemaUtils.getSchemaCreateKeyspace;
 import static org.commonjava.storage.pathmapped.util.PathMapUtils.ROOT_DIR;
 
@@ -251,7 +254,7 @@ public class PathMappedMavenGACache
     private Set<String> getMatchedStores() throws IndyDataException
     {
         Set<String> matched = storeDataManager.query()
-                                              .packageType( PackageTypeConstants.PKG_TYPE_MAVEN )
+                                              .packageType( PKG_TYPE_MAVEN )
                                               .getAllHostedRepositories()
                                               .stream()
                                               .filter( hosted -> hosted.getName().matches( gaStorePattern ) )
@@ -384,4 +387,23 @@ public class PathMappedMavenGACache
         return ret;
     }
 
+    /**
+     * Check if any candidate matches. If no one matches, this is a signal to skip the GA filter.
+     */
+    public boolean matchAny( List<ArtifactStore> concreteStores )
+    {
+        if ( isBlank( gaStorePattern ) )
+        {
+            return false;
+        }
+        for ( ArtifactStore store : concreteStores )
+        {
+            if ( store.getPackageType().equals( PKG_TYPE_MAVEN ) && store.getType() == StoreType.hosted
+                            && store.getName().matches( gaStorePattern ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

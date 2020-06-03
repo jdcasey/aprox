@@ -82,6 +82,12 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
             return concreteStores;
         }
 
+        if ( !gaCache.matchAny( concreteStores ) )
+        {
+            logger.debug( "No matched candidate, skip" );
+            return concreteStores;
+        }
+
         Set<String> storesContaining = gaCache.getStoresContaining( gaPath );
         logger.debug( "Get from GA cache, gaPath: {}, containing: {}", gaPath, storesContaining );
 
