@@ -241,7 +241,13 @@ public class PathMappedMavenGACache
         if ( !notScanned.isEmpty() )
         {
             List<List<String>> batches = Lists.partition( notScanned, 100 );
-            batches.forEach( batch -> scanAndUpdate( batch ) );
+            batches.forEach( batch -> {
+                boolean success = scanAndUpdate( batch );
+                if ( !success )
+                {
+                    logger.warn( "Scan failed for: {}", batch ); // just log it, timer task will try the failed later
+                }
+            } );
             scanned = getScannedStores(); // refresh scanned
         }
 
@@ -267,7 +273,7 @@ public class PathMappedMavenGACache
         return matched;
     }
 
-    private void scanAndUpdate( Collection<String> notScanned )
+    private boolean scanAndUpdate( Collection<String> notScanned )
     {
         logger.info( "Scan and update, notScanned: {}", notScanned );
 
@@ -280,12 +286,13 @@ public class PathMappedMavenGACache
         catch ( Exception ex )
         {
             logger.error( "Failed to scan: ", ex );
-            return;
+            return false;
         }
 
         logger.debug( "Scan complete, completed: {}, gaMap: {}", completed, gaMap );
         gaMap.forEach( ( ga, stores ) -> update( ga, stores ) );
         update( SCANNED_STORES, completed );
+        return true;
     }
 
     private void update( String ga, Set<String> set )
