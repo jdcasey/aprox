@@ -20,6 +20,7 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.google.common.collect.Lists;
 import org.commonjava.indy.action.IndyLifecycleException;
 import org.commonjava.indy.action.StartupAction;
 import org.commonjava.indy.conf.IndyConfiguration;
@@ -43,6 +44,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -232,12 +235,13 @@ public class PathMappedMavenGACache
         Set<String> scanned = getScannedStores();
 
         // find not-scanned stores, notScanned = matched - scanned
-        Set<String> notScanned = new HashSet<>( matched );
+        List<String> notScanned = new ArrayList<>( matched );
         notScanned.removeAll( scanned );
 
         if ( !notScanned.isEmpty() )
         {
-            scanAndUpdate( notScanned );
+            List<List<String>> batches = Lists.partition( notScanned, 100 );
+            batches.forEach( batch -> scanAndUpdate( batch ) );
             scanned = getScannedStores(); // refresh scanned
         }
 
@@ -263,7 +267,7 @@ public class PathMappedMavenGACache
         return matched;
     }
 
-    private void scanAndUpdate( Set<String> notScanned )
+    private void scanAndUpdate( Collection<String> notScanned )
     {
         logger.info( "Scan and update, notScanned: {}", notScanned );
 
@@ -308,7 +312,7 @@ public class PathMappedMavenGACache
      * @param gaMap
      * @param completed
      */
-    private void scan( final Set<String> notScanned, final Map<String, Set<String>> gaMap, final Set<String> completed )
+    private void scan( final Collection<String> notScanned, final Map<String, Set<String>> gaMap, final Set<String> completed )
     {
         PathDB pathDB = pathMappedFileManager.getPathDB();
         notScanned.forEach( storeName -> {
