@@ -71,6 +71,10 @@ public class PathMappedMavenGACache
 
     public static final String SCANNED_STORES = "scanned-stores";
 
+    private static final int SCAN_BATCH_SIZE = 100;
+
+    private static final int TIMER_PERIOD_MINUTES = 60;
+
     // @formatter:off
     private static String getSchemaCreateTable( String keyspace )
     {
@@ -207,7 +211,7 @@ public class PathMappedMavenGACache
             {
                 fill();
             }
-        }, MINUTES.toMillis( 30 ), MINUTES.toMillis( 30 ) ); // every 30 min
+        }, MINUTES.toMillis( TIMER_PERIOD_MINUTES ), MINUTES.toMillis( TIMER_PERIOD_MINUTES ) );
     }
 
     public void fill()
@@ -240,7 +244,7 @@ public class PathMappedMavenGACache
 
         if ( !notScanned.isEmpty() )
         {
-            List<List<String>> batches = Lists.partition( notScanned, 100 );
+            List<List<String>> batches = Lists.partition( notScanned, SCAN_BATCH_SIZE );
             batches.forEach( batch -> {
                 boolean success = scanAndUpdate( batch );
                 if ( !success )
