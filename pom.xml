@@ -822,9 +822,14 @@
       </dependency>
 
       <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>2.7.8</version>
+        <groupId>io.agroal</groupId>
+        <artifactId>agroal-api</artifactId>
+        <version>1.8</version>
+      </dependency>
+      <dependency>
+        <groupId>io.agroal</groupId>
+        <artifactId>agroal-pool</artifactId>
+        <version>1.8</version>
       </dependency>
 
       <dependency>

@@ -34,28 +34,18 @@ import static java.lang.Boolean.TRUE;
 import static org.commonjava.indy.subsys.cpool.ConnectionPoolConfig.SECTION;
 
 @ApplicationScoped
-@SectionName( SECTION)
+@SectionName( SECTION )
 public class ConnectionPoolConfig
         extends MapSectionListener
         implements IndyConfigInfo
 {
     public static final String SECTION = "connection-pools";
 
-    public static final String URL_SUBKEY = "url";
-
-    private static final String USER_SUBKEY = "user";
-
-    private static final String PASSWORD_SUBKEY = "password";
-
-    private static final String DS_CLASS_SUBKEY = "datasource.class";
-
-    private static final String DS_PROPERTY_PREFIX = "datasource.";
+    public static final String DS_PROPERTY_PREFIX = "datasource.";
 
     private static final String METRICS_SUBKEY = "metrics";
 
     private static final String HEALTH_CHECKS_SUBKEY = "healthChecks";
-
-    private static final String DRIVER_CLASS_SUBKEY = "driver.class";
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 

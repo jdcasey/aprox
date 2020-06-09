@@ -34,8 +34,13 @@
       <artifactId>indy-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
+      <groupId>io.agroal</groupId>
+      <artifactId>agroal-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.agroal</groupId>
+      <artifactId>agroal-pool</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
