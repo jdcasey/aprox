@@ -43,6 +43,8 @@ public class CassandraConfig
 
     private int readRetries = 3;
 
+    private int writeRetries = 3;
+
     public CassandraConfig()
     {
     }
@@ -137,6 +139,17 @@ public class CassandraConfig
     public void setReadRetries( int readRetries )
     {
         this.readRetries = readRetries;
+    }
+
+    public int getWriteRetries()
+    {
+        return writeRetries;
+    }
+
+    @ConfigName( "cassandra.write.retries" )
+    public void setWriteRetries( int writeRetries )
+    {
+        this.writeRetries = writeRetries;
     }
 
     @Override

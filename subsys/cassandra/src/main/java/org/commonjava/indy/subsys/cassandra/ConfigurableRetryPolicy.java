@@ -32,11 +32,14 @@ public class ConfigurableRetryPolicy
 
     final private RetryPolicy delegate = DefaultRetryPolicy.INSTANCE;
 
-    final int retries; // number of retries
+    final int readRetries;
 
-    public ConfigurableRetryPolicy( int retries )
+    final int writeRetries;
+
+    public ConfigurableRetryPolicy( int readRetries, int writeRetries )
     {
-        this.retries = retries;
+        this.readRetries = readRetries;
+        this.writeRetries = writeRetries;
     }
 
     /**
@@ -47,8 +50,8 @@ public class ConfigurableRetryPolicy
     public RetryDecision onReadTimeout( Statement statement, ConsistencyLevel cl, int requiredResponses,
                                         int receivedResponses, boolean dataRetrieved, int nbRetry )
     {
-        logger.warn( "ReadTimeout, statement: {}, nbRetry: {}, retries: {}", statement, nbRetry, retries );
-        if ( nbRetry >= retries )
+        logger.warn( "ReadTimeout, statement: {}, nbRetry: {}, readRetries: {}", statement, nbRetry, readRetries );
+        if ( nbRetry >= readRetries )
         {
             return RetryDecision.rethrow();
         }
@@ -59,7 +62,12 @@ public class ConfigurableRetryPolicy
     public RetryDecision onWriteTimeout( Statement statement, ConsistencyLevel cl, WriteType writeType,
                                          int requiredAcks, int receivedAcks, int nbRetry )
     {
-        return delegate.onWriteTimeout( statement, cl, writeType, requiredAcks, receivedAcks, nbRetry );
+        logger.warn( "WriteTimeout, statement: {}, nbRetry: {}, writeRetries: {}", statement, nbRetry, writeRetries );
+        if ( nbRetry >= writeRetries )
+        {
+            return RetryDecision.rethrow();
+        }
+        return RetryDecision.tryNextHost( cl );
     }
 
     @Override

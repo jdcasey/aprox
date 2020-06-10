@@ -75,7 +75,8 @@ public class CassandraClient
         socketOptions.setReadTimeoutMillis( config.getReadTimeoutMillis() );
         Cluster.Builder builder = Cluster.builder()
                                          .withoutJMXReporting()
-                                         .withRetryPolicy( new ConfigurableRetryPolicy( config.getReadRetries() ) )
+                                         .withRetryPolicy( new ConfigurableRetryPolicy( config.getReadRetries(),
+                                                                                        config.getWriteRetries() ) )
                                          .addContactPoint( host )
                                          .withPort( port )
                                          .withSocketOptions( socketOptions );
