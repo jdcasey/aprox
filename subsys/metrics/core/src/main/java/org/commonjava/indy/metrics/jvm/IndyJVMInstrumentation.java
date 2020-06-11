@@ -17,6 +17,7 @@ package org.commonjava.indy.metrics.jvm;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
+import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
 import com.codahale.metrics.jvm.ClassLoadingGaugeSet;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
@@ -24,6 +25,7 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 
 import java.lang.management.ManagementFactory;
+import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -48,7 +50,7 @@ public class IndyJVMInstrumentation
     {
         registry.register( name( nodePrefix, JVM_MEMORY ), new MemoryUsageGaugeSet() );
         registry.register( name( nodePrefix, JVM_GARBAGE ), new GarbageCollectorMetricSet() );
-        registry.register( name( nodePrefix, JVM_THREADS ), new ThreadStatesGaugeSet() );
+        registry.register( name( nodePrefix, JVM_THREADS ), new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS ));
         registry.register( name( nodePrefix, JVM_FILES ), new FileDescriptorRatioGauge() );
         registry.register( name( nodePrefix, JVM_CLASSLOADING ), new ClassLoadingGaugeSet() );
         registry.register( name( nodePrefix, JVM_BUFFERS ),
