@@ -22,8 +22,11 @@ import org.commonjava.indy.model.core.ArtifactStore;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.indy.pathmapped.cache.PathMappedMavenGACache;
 import org.commonjava.maven.galley.cache.pathmapped.PathMappedCacheProvider;
+import org.commonjava.maven.galley.model.SpecialPathInfo;
 import org.commonjava.maven.galley.spi.cache.CacheProvider;
+import org.commonjava.maven.galley.spi.io.SpecialPathManager;
 import org.commonjava.storage.pathmapped.core.PathMappedFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.commonjava.atlas.maven.ident.util.SnapshotUtils.LOCAL_SNAPSHOT_VERSION_PART;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 
@@ -53,6 +58,12 @@ public class PathMappedGroupRepositoryFilter
 
     @Inject
     private IndyConfiguration indyConfig;
+
+    @Inject
+    private PathMappedMavenGACache gaCache;
+
+    @Inject
+    private SpecialPathManager specialPathManager;
 
     private PathMappedFileManager pathMappedFileManager;
 
@@ -95,6 +106,12 @@ public class PathMappedGroupRepositoryFilter
             return concreteStores;
         }
 
+        if ( gaCache.isStarted() && isMavenMetadataNonSnapshotPath( group, path ) )
+        {
+            logger.debug( "Maven metadata, use GA cache filter result, skip" );
+            return concreteStores;
+        }
+
         String strategyPath = getStrategyPath( group.getKey(), path );
         if ( strategyPath == null )
         {
@@ -125,6 +142,16 @@ public class PathMappedGroupRepositoryFilter
                              .filter( store -> store.getType() == StoreType.remote || ret.contains(
                                              store.getKey().toString() ) )
                              .collect( Collectors.toList() );
+    }
+
+    private boolean isMavenMetadataNonSnapshotPath( Group group, String path )
+    {
+        if ( group.getPackageType().equals( PKG_TYPE_MAVEN ) )
+        {
+            SpecialPathInfo pathInfo = specialPathManager.getSpecialPathInfo( path );
+            return pathInfo != null && pathInfo.isMetadata() && !path.contains( LOCAL_SNAPSHOT_VERSION_PART );
+        }
+        return false;
     }
 
     /**

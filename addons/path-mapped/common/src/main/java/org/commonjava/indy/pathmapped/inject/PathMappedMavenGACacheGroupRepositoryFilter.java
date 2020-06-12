@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.commonjava.atlas.maven.ident.util.SnapshotUtils.LOCAL_SNAPSHOT_VERSION_PART;
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
 
 @ApplicationScoped
@@ -146,7 +147,7 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
             if ( pathInfo != null && pathInfo.isMetadata() )
             {
                 // Metadata may be at two levels, e.g., foo/bar/maven-metadata.xml, foo/bar/3.0.0-SNAPSHOT/maven-metadata.xml
-                if ( parent.endsWith( "SNAPSHOT" ) )
+                if ( parent.endsWith( LOCAL_SNAPSHOT_VERSION_PART ) )
                 {
                     gaPath = parent.getParent();
                 }
