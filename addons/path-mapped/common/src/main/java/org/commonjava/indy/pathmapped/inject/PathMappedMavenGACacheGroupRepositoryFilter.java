@@ -128,7 +128,7 @@ public class PathMappedMavenGACacheGroupRepositoryFilter
         if ( !staled.isEmpty() )
         {
             logger.info( "Clean staled stores, gaPath: {}, staled: {}", gaPath, staled );
-            gaCache.reduce( gaPath, staled );
+            gaCache.reduce( gaPath, staled, true );
         }
     }
 

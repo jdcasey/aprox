@@ -261,7 +261,7 @@ public class PathMappedMavenGACache
         if ( !deleted.isEmpty() )
         {
             logger.info( "Find deleted stores, deleted: {}", deleted );
-            reduce( SCANNED_STORES, deleted );
+            reduce( SCANNED_STORES, deleted, false );
         }
     }
 
@@ -308,12 +308,19 @@ public class PathMappedMavenGACache
         inMemoryCache.remove( ga ); // clear to force reloading
     }
 
-    public void reduce( String ga, Set<String> set )
+    public void reduce( String ga, Set<String> set, boolean isAsync )
     {
         BoundStatement bound = preparedStoresReduction.bind();
         bound.setSet( 0, set );
         bound.setString( 1, ga );
-        session.execute( bound );
+        if ( isAsync )
+        {
+            session.executeAsync( bound );
+        }
+        else
+        {
+            session.execute( bound );
+        }
         inMemoryCache.remove( ga ); // clear to force reloading
     }
 
