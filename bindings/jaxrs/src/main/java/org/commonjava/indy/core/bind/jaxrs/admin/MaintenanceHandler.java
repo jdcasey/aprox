@@ -16,6 +16,7 @@
 package org.commonjava.indy.core.bind.jaxrs.admin;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+import static org.commonjava.indy.util.ApplicationContent.application_json;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -36,6 +37,7 @@ import org.commonjava.indy.bind.jaxrs.IndyResources;
 import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.bind.jaxrs.util.ResponseHelper;
 import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
+import org.commonjava.indy.core.bind.jaxrs.util.MaintenanceController;
 import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.core.ctl.IspnCacheController;
 import org.commonjava.indy.data.StoreDataManager;
@@ -60,6 +62,9 @@ public class MaintenanceHandler
 {
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    @Inject
+    private MaintenanceController maintenanceController;
 
     @Inject
     private ContentController contentController;
@@ -268,6 +273,28 @@ public class MaintenanceHandler
         catch ( final Exception e )
         {
             logger.error( String.format( "Failed to export: %s. Reason: %s", key, e.getMessage() ), e );
+            response = responseHelper.formatResponse( e );
+        }
+        return response;
+    }
+
+    @ApiOperation( "Get tombstone stores that have no content and not in any group." )
+    @ApiResponse( code = 200, message = "Complete." )
+    @Produces( application_json )
+    @Path( "/stores/tombstone/{packageType}/hosted" )
+    @GET
+    public Response getTombstoneStores(
+                    @ApiParam( "The packageType" ) @PathParam( "packageType" ) final String packageType )
+    {
+        Response response;
+        try
+        {
+            Set<StoreKey> tombstoneStores = maintenanceController.getTombstoneStores( packageType );
+            response = Response.ok( mapper.writeValueAsString( tombstoneStores ) ).build();
+        }
+        catch ( final Exception e )
+        {
+            logger.error( String.format( "Failed to get tombstone stores. Reason: %s", e.getMessage() ), e );
             response = responseHelper.formatResponse( e );
         }
         return response;
