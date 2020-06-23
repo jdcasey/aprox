@@ -62,6 +62,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -762,6 +763,22 @@ public class ScheduleManager
                 logger.debug( "EXPIRED: {}", expiredKey );
                 final String type = (String) expiredContent.get( ScheduleManager.JOB_TYPE );
                 final String data = (String) expiredContent.get( ScheduleManager.PAYLOAD );
+                if ( logger.isInfoEnabled() && ScheduleManager.CONTENT_JOB_TYPE.equals( type ) )
+                {
+                    ContentExpiration expiration;
+                    try
+                    {
+                        expiration = objectMapper.readValue( data, ContentExpiration.class );
+                        final StoreKey key = expiration.getKey();
+                        final String path = expiration.getPath();
+                        logger.info( "Expiring: {} in: {} at: {}.", path, key,
+                                      new Date( System.currentTimeMillis() ) );
+                    }
+                    catch ( final IOException ioe )
+                    {
+                        // ignore
+                    }
+                }
                 fireEvent( eventDispatcher, new SchedulerTriggerEvent( type, data ) );
 /*
                 scheduleEventLockCache.executeCache( cache -> cache.put( expiredKey, nodeHolder.getLocalIndyNode(),
