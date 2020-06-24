@@ -82,7 +82,7 @@
     <honeycombVersion>1.1.0</honeycombVersion>
     <cassandraUnitVersion>3.7.1.0</cassandraUnitVersion>
     <datastaxVersion>3.7.2</datastaxVersion>
-    <pathmappedStorageVersion>1.5-SNAPSHOT</pathmappedStorageVersion>
+    <pathmappedStorageVersion>1.5</pathmappedStorageVersion>
 
     <!-- commonjava/redhat projects -->
     <atlasVersion>1.1.0</atlasVersion>
