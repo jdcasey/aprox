@@ -49,4 +49,12 @@ public interface PackageTypeDescriptor
      * @return
      */
     String getAdminRestBasePath();
+
+    /**
+     * If the core repository functions use browsing, as with PyPI, then this should be true. For other types of packages,
+     * this should probably be <code>false</code>, in order to redirect browsing users to the browsing API.
+     *
+     * @return false by default, but true if content browsing (directory rendering) is a core part of the repository function.
+     */
+    default boolean isBrowsingIntegrated(){ return false; }
 }

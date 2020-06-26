@@ -194,6 +194,8 @@ public class MavenContentsFilteringTransferDecorator
 
         private StringBuilder buffer = new StringBuilder();
 
+        private OutputStream stream;
+
         private final boolean allowsSnapshots;
 
         private final boolean allowsReleases;
@@ -207,6 +209,7 @@ public class MavenContentsFilteringTransferDecorator
                                                final IndyMetricsManager metricsManager )
         {
             super( stream );
+            this.stream = stream;
             this.allowsSnapshots = allowsSnapshots;
             this.allowsReleases = allowsReleases;
             this.transfer = transfer;
@@ -384,12 +387,21 @@ public class MavenContentsFilteringTransferDecorator
         }
 
         @Override
+        public void write( byte[] b, int off, int len ) throws IOException
+        {
+            for(int i=off; i<len; i++)
+            {
+                buffer.append( (char) b[i] );
+            }
+        }
+
+        @Override
         public void flush() throws IOException
         {
             try
             {
-                out.write( filterMetadata().getBytes() );
-                out.flush();
+                stream.write( filterMetadata().getBytes() );
+                stream.flush();
             }
             finally
             {

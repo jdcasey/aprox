@@ -16,7 +16,7 @@
 #
 
 
-REPO_BASE="indy/var/lib/indy/data/indy"
+REPO_BASE="indy/data/store-v2"
 ETC_BASE="indy/etc/indy"
 
 DIR=$(dirname $(dirname $(realpath $0)))

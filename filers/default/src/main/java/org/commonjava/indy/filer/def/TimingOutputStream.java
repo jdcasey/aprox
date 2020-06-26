@@ -52,12 +52,15 @@ public class TimingOutputStream
 
     private Meter meter;
 
+    private CountingOutputStream stream;
+
     private BiConsumer<String, Double> cumulativeConsumer;
 
     public TimingOutputStream( final CountingOutputStream stream, Function<String, TimingProvider> timerProvider,
                                Function<String, Meter> meterProvider, BiConsumer<String, Double> cumulativeConsumer )
     {
         super( stream );
+        this.stream = stream;
         this.cumulativeConsumer = cumulativeConsumer;
         this.timerProvider = timerProvider == null ? ( s ) -> null : timerProvider;
         this.meterProvider = meterProvider;
@@ -109,7 +112,7 @@ public class TimingOutputStream
             if ( meter != null )
             {
                 logger.trace( "Marking meter: {}", meter );
-                meter.mark( (long) ( ( (CountingOutputStream) this.out ).getByteCount() / ( elapsed / NANOS_PER_SEC ) ) );
+                meter.mark( (long) ( ( (CountingOutputStream) stream ).getByteCount() / ( elapsed / NANOS_PER_SEC ) ) );
             }
 
             cumulativeConsumer.accept( RAW_IO_WRITE, elapsed / NANOS_PER_MILLISECOND );

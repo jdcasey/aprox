@@ -29,6 +29,7 @@ import org.commonjava.indy.core.ctl.ContentController;
 import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.metrics.conf.IndyMetricsConfig;
 import org.commonjava.indy.model.core.BatchDeleteRequest;
+import org.commonjava.indy.model.core.PackageTypeDescriptor;
 import org.commonjava.indy.model.core.PackageTypes;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -66,13 +67,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.commonjava.indy.core.bind.jaxrs.util.RequestUtils.isDirectoryPath;
-import static org.commonjava.indy.core.ctl.ContentController.LISTING_HTML_FILE;
 import static org.commonjava.indy.metrics.RequestContextHelper.CONTENT_ENTRY_POINT;
 import static org.commonjava.indy.metrics.RequestContextHelper.HTTP_STATUS;
 import static org.commonjava.indy.metrics.RequestContextHelper.METADATA_CONTENT;
 import static org.commonjava.indy.metrics.RequestContextHelper.PACKAGE_TYPE;
 import static org.commonjava.indy.metrics.RequestContextHelper.PATH;
 import static org.commonjava.indy.metrics.RequestContextHelper.setContext;
+import static org.commonjava.indy.model.core.PackageTypes.getPackageTypeDescriptor;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 
 @ApplicationScoped
@@ -460,7 +461,8 @@ public class ContentAccessHandler
                 "GET path: '{}' (RAW: '{}')\nIn store: '{}'\nUser addMetadata header is: '{}'\nStandard addMetadata header for that is: '{}'",
                 path, request.getPathInfo(), sk, acceptInfo.getRawAccept(), standardAccept );
 
-        if ( isDirectoryPath( path, request ) )
+        PackageTypeDescriptor ptd = getPackageTypeDescriptor( packageType );
+        if ( (ptd == null || !ptd.isBrowsingIntegrated() ) && isDirectoryPath( path, request ) )
         {
             response = RequestUtils.redirectContentListing( packageType, type, name, path, request, builderModifier );
         }

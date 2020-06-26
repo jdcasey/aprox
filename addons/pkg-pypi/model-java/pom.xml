@@ -17,39 +17,38 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
   <parent>
+    <artifactId>indy-pkg-pypi</artifactId>
     <groupId>org.commonjava.indy</groupId>
-    <artifactId>indy-parent</artifactId>
     <version>2.3.0-SNAPSHOT</version>
   </parent>
-  
-  <artifactId>indy-addons</artifactId>
-  <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
 
-  <name>Indy :: Add-Ons :: Parent</name>
-  
-  <modules>
-    <module>content-index</module>
-    <module>dot-maven</module>
-    <module>folo</module>
-    <module>httprox</module>
-    <module>implied-repos</module>
-    <module>koji</module>
-    <module>promote</module>
-    <module>revisions</module>
-    <module>pkg-maven</module>
-    <module>diagnostics</module>
-    <module>pkg-npm</module>
-    <module>pkg-pypi</module>
-    <module>hosted-by-archive</module>
-    <module>content-browse</module>
-    <module>changelog</module>
-    <module>event-audit</module>
-    <module>sli</module>
-    <module>path-mapped</module>
-    <module>repo-proxy</module>
-    <!-- DO NOT REMOVE: append::addon -->
-  </modules>
+  <artifactId>indy-pkg-pypi-model-java</artifactId>
+  <name>Indy :: Add-Ons :: Package-PyPI :: Java Domain Model</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-model-core-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
 </project>

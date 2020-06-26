@@ -37,6 +37,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -132,7 +133,21 @@ public class ResourceManagementFilter
 
             threadContext.put( METHOD_PATH_TIME, tn );
 
-            logger.debug( "START request: {} (from: {})", tn, clientAddr );
+            if ( logger.isDebugEnabled() )
+            {
+                StringBuilder sb = new StringBuilder();
+                for( Enumeration<String> names = hsr.getHeaderNames(); names.hasMoreElements();){
+                    String nom = names.nextElement();
+                    for( Enumeration<String> headers = hsr.getHeaders( nom ); headers.hasMoreElements();){
+                        if ( sb.length() > 0 )
+                        {
+                            sb.append("\n    ");
+                        }
+                        sb.append( nom ).append( " = " ).append( headers.nextElement() );
+                    }
+                }
+                logger.debug( "START request: {} (from: {})\n    Headers:\n\n", tn, clientAddr, sb );
+            }
 
             Thread.currentThread().setName( tn );
 

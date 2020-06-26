@@ -61,9 +61,9 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.commonjava.maven.galley.util.PathUtils.normalize;
 import static org.commonjava.maven.galley.util.PathUtils.parentPath;
-import static org.jsoup.helper.StringUtil.isBlank;
 
 @ApplicationScoped
 public class ContentController

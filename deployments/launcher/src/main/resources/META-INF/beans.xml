@@ -30,6 +30,8 @@
   </interceptors>
 
   <decorators>
+    <class>org.commonjava.indy.pkg.pypi.content.CDNTransportRedirector</class>
+
     <!-- ordering is CRITICAL here. First declaration is outermost in decoration chain -->
     <class>org.commonjava.indy.koji.content.KojiContentManagerDecorator</class>
     <class>org.commonjava.indy.content.index.IndexingContentManagerDecorator</class>

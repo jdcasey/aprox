@@ -15,7 +15,6 @@
  */
 package org.commonjava.indy.pkg.npm.content;
 
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.commonjava.indy.metrics.IndyMetricsManager;
 import org.commonjava.indy.model.core.StoreKey;
@@ -32,15 +31,14 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.commonjava.indy.content.ContentManager.ENTRY_POINT_BASE_URI;
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
 import static org.commonjava.indy.pkg.npm.content.DecoratorUtils.updatePackageJson;
-import static org.jsoup.helper.StringUtil.isBlank;
 
 @ApplicationScoped
 public class NPMPackageMaskingTransferDecorator
