@@ -121,10 +121,10 @@
       <artifactId>galley-test-harness-maven</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
+<!--     <dependency>
       <groupId>org.commonjava.maven.galley</groupId>
       <artifactId>galley-maven</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-test-utils</artifactId>

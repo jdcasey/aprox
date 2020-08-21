@@ -19,6 +19,11 @@
 REPO_BASE="indy/var/lib/indy/data/indy"
 ETC_BASE="indy/etc/indy"
 
+LAUNCHER="launcher"
+if [ "x${TEST_LAUNCHER}" != "x" ]; then
+  LAUNCHER=$TEST_LAUNCHER
+fi
+
 DIR=$(dirname $(dirname $(realpath $0)))
 if [ "x${TEST_REPOS}" != "x" ]; then
   TEST_REPOS=$(realpath $TEST_REPOS)
@@ -30,12 +35,12 @@ fi
 
 pushd $DIR
 
-pushd $DIR/deployments/launcher/target/
+pushd $DIR/deployments/$LAUNCHER/target/
 if [ "$1" == "-e" ]; then
-  echo "Use existing $DIR/deployments/launcher/target/indy"
+  echo "Use existing $DIR/deployments/$LAUNCHER/target/indy"
 else
   rm -rf indy
-  tar -zxvf indy-launcher-*-complete.tar.gz
+  tar -zxvf indy-*-launcher*-complete.tar.gz
 fi
 
 if [ "x${TEST_REPOS}" != "x" ]; then
@@ -98,4 +103,4 @@ fi
 
 popd
 
-exec $DIR/deployments/launcher/target/indy/bin/indy.sh
+exec $DIR/deployments/$LAUNCHER/target/indy/bin/indy.sh

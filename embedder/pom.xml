@@ -158,6 +158,10 @@
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-folo-promote-changes</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-koji-jaxrs</artifactId>
     </dependency>
     <dependency>

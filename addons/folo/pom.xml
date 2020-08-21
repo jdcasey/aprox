@@ -33,6 +33,7 @@
     <module>ftests</module>
     <module>model-java</module>
     <module>jaxrs</module>
+    <module>promote-changes</module>
   </modules>
 
 </project>

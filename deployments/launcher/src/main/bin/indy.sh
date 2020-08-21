@@ -32,7 +32,7 @@ INDY_LOGCONF_DIR=${INDY_LOGCONF_DIR:-${BASEDIR}/etc/indy/logging}
 echo "Loading logging config from: ${INDY_LOGCONF_DIR}"
 
 CP="${INDY_LOCALLIB_DIR}:${INDY_LOGCONF_DIR}"
-for f in $(find $BASEDIR/lib/indy-embedder-*.jar -type f)
+for f in $(find $BASEDIR/lib/indy*-embedder-*.jar -type f)
 do
   CP=${CP}:${f}
 done

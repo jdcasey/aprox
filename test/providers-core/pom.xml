@@ -38,14 +38,20 @@
       <artifactId>indy-filer-default</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.weld.se</groupId>
-      <artifactId>weld-se-core</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-db-flat</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.commonjava.maven.galley</groupId>
+      <artifactId>galley-maven</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.weld.se</groupId>
+      <artifactId>weld-se-core</artifactId>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>

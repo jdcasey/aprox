@@ -36,7 +36,6 @@ import org.commonjava.indy.pkg.npm.model.PackageMetadata;
 import org.commonjava.indy.pkg.npm.model.VersionMetadata;
 import org.commonjava.indy.util.LocationUtils;
 import org.commonjava.maven.galley.event.EventMetadata;
-import org.commonjava.maven.galley.maven.spi.type.TypeMapper;
 import org.commonjava.maven.galley.model.ConcreteResource;
 import org.commonjava.maven.galley.model.Transfer;
 import org.commonjava.maven.galley.model.TransferOperation;
@@ -64,9 +63,6 @@ public class PackageMetadataGenerator
 {
 
     @Inject
-    private TypeMapper typeMapper;
-
-    @Inject
     private PackageMetadataMerger merger;
 
     @Inject
@@ -83,8 +79,7 @@ public class PackageMetadataGenerator
     }
 
     public PackageMetadataGenerator( final DirectContentAccess fileManager, final StoreDataManager storeManager,
-                                     final DownloadManager downloadManager,
-                                     final TypeMapper typeMapper, final PackageMetadataMerger merger,
+                                     final DownloadManager downloadManager, final PackageMetadataMerger merger,
                                      final GroupMergeHelper mergeHelper, final NotFoundCache nfc,
                                      final PathGenerator pathGenerator,
                                      final NPMStoragePathCalculator storagePathCalculator,
@@ -92,7 +87,6 @@ public class PackageMetadataGenerator
     {
         super( fileManager, storeManager, mergeHelper, nfc, mergedContentActions );
         this.downloadManager = downloadManager;
-        this.typeMapper = typeMapper;
         this.pathGenerator = pathGenerator;
         this.merger = merger;
         this.storagePathCalculator = storagePathCalculator;

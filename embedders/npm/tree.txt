@@ -1,0 +1,322 @@
+org.commonjava.indy.embed:indy-npm-reader-embedder:jar:2.4.1-SNAPSHOT
++- org.commonjava.indy:indy-bindings-jaxrs:jar:2.4.1-SNAPSHOT:compile
+|  +- org.commonjava.indy:indy-subsys-jaxrs:jar:2.4.1-SNAPSHOT:compile
+|  |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.10.1:compile
+|  |  |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.10.1:compile
+|  |  |  \- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.10.1:compile
+|  |  |     +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.2:compile
+|  |  |     \- jakarta.activation:jakarta.activation-api:jar:1.2.1:compile
+|  |  +- org.jboss.resteasy:resteasy-multipart-provider:jar:3.0.12.Final:compile
+|  |  |  +- org.jboss.resteasy:resteasy-client:jar:3.0.12.Final:compile
+|  |  |  +- org.jboss.resteasy:resteasy-jaxb-provider:jar:3.0.12.Final:compile
+|  |  |  |  \- com.sun.xml.bind:jaxb-impl:jar:2.2.7:compile
+|  |  |  |     +- com.sun.xml.bind:jaxb-core:jar:2.2.7:compile
+|  |  |  |     |  +- javax.xml.bind:jaxb-api:jar:2.2.7:compile
+|  |  |  |     |  \- com.sun.istack:istack-commons-runtime:jar:2.16:compile
+|  |  |  |     \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.12:compile
+|  |  |  |        \- javax.xml.bind:jsr173_api:jar:1.0:compile
+|  |  |  +- javax.mail:mail:jar:1.5.0-b01:compile
+|  |  |  \- org.apache.james:apache-mime4j:jar:0.6:compile
+|  |  \- org.codehaus.plexus:plexus-interpolation:jar:1.19:compile
+|  +- org.jboss.weld.se:weld-se-core:jar:2.4.6.Final:test
+|  |  +- org.jboss.weld.environment:weld-environment-common:jar:2.4.6.Final:test
+|  |  |  \- org.jboss.weld:weld-core-impl:jar:2.4.6.Final:test
+|  |  |     +- org.jboss.weld:weld-api:jar:2.4.SP2:test
+|  |  |     +- org.jboss.weld:weld-spi:jar:2.4.SP2:test
+|  |  |     +- org.jboss.spec.javax.el:jboss-el-api_3.0_spec:jar:1.0.0.Alpha1:test
+|  |  |     \- org.jboss.spec.javax.interceptor:jboss-interceptors-api_1.2_spec:jar:1.0.0.Final:test
+|  |  +- org.jboss.weld.probe:weld-probe-core:jar:2.4.6.Final:test
+|  |  +- org.jboss.spec.javax.annotation:jboss-annotations-api_1.2_spec:jar:1.0.0.Final:test
+|  |  \- org.jboss.classfilewriter:jboss-classfilewriter:jar:1.1.2.Final:test
+|  \- org.jboss.resteasy:resteasy-jaxrs:jar:3.0.12.Final:compile
+|     +- org.jboss.spec.javax.annotation:jboss-annotations-api_1.1_spec:jar:1.0.1.Final:compile
+|     +- javax.activation:activation:jar:1.1.1:compile
+|     \- net.jcip:jcip-annotations:jar:1.0:compile
++- org.commonjava.indy:indy-api:jar:2.4.1-SNAPSHOT:compile
+|  +- org.commonjava.indy:indy-model-core-java:jar:2.4.1-SNAPSHOT:compile
+|  |  \- javax.annotation:javax.annotation-api:jar:1.3.2:compile
+|  +- org.commonjava.propulsor.config:propulsor-configuration-core:jar:1.4:compile
+|  +- commons-lang:commons-lang:jar:2.6:compile
+|  +- org.commonjava.maven.galley:galley-transport-httpclient:jar:1.4:compile
+|  |  +- org.commonjava.util:jhttpc:jar:1.11:compile
+|  |  +- org.apache.httpcomponents:httpcore:jar:4.4.9:compile
+|  |  \- org.jsoup:jsoup:jar:1.8.3:compile
+|  +- org.commonjava.maven.galley:galley-core:jar:1.4:compile
+|  +- org.commonjava.maven.galley:galley-cache-partyline:jar:1.4:compile
+|  |  \- org.commonjava.util:partyline:jar:1.16:compile
+|  +- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:compile
+|  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:compile
+|  \- javax.activation:javax.activation-api:jar:1.2.0:compile
++- org.commonjava.indy:indy-core:jar:2.4.1-SNAPSHOT:compile
+|  +- org.commonjava.indy:indy-subsys-cassandra:jar:2.4.1-SNAPSHOT:compile
+|  |  +- com.datastax.cassandra:cassandra-driver-core:jar:3.7.2:compile
+|  |  |  +- com.google.guava:guava:jar:18.0:compile
+|  |  |  +- com.github.jnr:jnr-ffi:jar:2.1.7:compile
+|  |  |  |  +- com.github.jnr:jffi:jar:1.2.16:compile
+|  |  |  |  +- com.github.jnr:jffi:jar:native:1.2.16:runtime
+|  |  |  |  +- org.ow2.asm:asm:jar:5.0.3:compile
+|  |  |  |  +- org.ow2.asm:asm-commons:jar:5.0.3:compile
+|  |  |  |  +- org.ow2.asm:asm-analysis:jar:5.0.3:compile
+|  |  |  |  +- org.ow2.asm:asm-tree:jar:5.0.3:compile
+|  |  |  |  +- org.ow2.asm:asm-util:jar:5.0.3:compile
+|  |  |  |  \- com.github.jnr:jnr-x86asm:jar:1.0.2:compile
+|  |  |  \- com.github.jnr:jnr-posix:jar:3.0.44:compile
+|  |  |     \- com.github.jnr:jnr-constants:jar:0.9.9:compile
+|  |  \- com.datastax.cassandra:cassandra-driver-mapping:jar:3.7.2:compile
+|  +- org.commonjava.indy:indy-subsys-flatfile:jar:2.4.1-SNAPSHOT:compile
+|  +- org.apache.maven.archetype:archetype-catalog:jar:2.2:compile
+|  +- org.slf4j:slf4j-api:jar:1.7.21:compile
+|  +- org.slf4j:slf4j-ext:jar:1.7.21:compile
+|  |  \- ch.qos.cal10n:cal10n-api:jar:0.8.1:compile
+|  +- org.slf4j:jcl-over-slf4j:jar:1.7.21:compile
+|  +- org.slf4j:jul-to-slf4j:jar:1.7.21:compile
+|  +- org.commonjava.propulsor.config:propulsor-configuration-dotconf:jar:1.4:compile
+|  +- org.apache.maven:maven-repository-metadata:jar:3.0.3:compile
+|  +- org.commonjava.indy:indy-subsys-http:jar:2.4.1-SNAPSHOT:compile
+|  +- org.commonjava.cdi.util:weft:jar:1.17-SNAPSHOT:compile
+|  \- org.jboss.spec.javax.servlet:jboss-servlet-api_3.0_spec:jar:1.0.1.Final:compile
++- org.commonjava.indy:indy-subsys-groovy:jar:2.4.1-SNAPSHOT:compile
+|  +- org.codehaus.groovy:groovy-all:jar:2.2.1:compile
+|  \- commons-io:commons-io:jar:2.4:compile
++- org.commonjava.indy:indy-subsys-infinispan:jar:2.4.1-SNAPSHOT:compile
+|  +- org.infinispan:infinispan-cachestore-jdbc:jar:9.4.15.Final:compile
+|  |  \- com.zaxxer:HikariCP:jar:2.4.6:compile
+|  +- org.infinispan:infinispan-client-hotrod:jar:9.4.15.Final:compile
+|  |  +- io.netty:netty-handler:jar:4.1.28.Final:compile
+|  |  |  +- io.netty:netty-buffer:jar:4.1.28.Final:compile
+|  |  |  +- io.netty:netty-transport:jar:4.1.28.Final:compile
+|  |  |  |  \- io.netty:netty-resolver:jar:4.1.28.Final:compile
+|  |  |  \- io.netty:netty-codec:jar:4.1.28.Final:compile
+|  |  \- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.1.28.Final:compile
+|  |     +- io.netty:netty-common:jar:4.1.28.Final:compile
+|  |     \- io.netty:netty-transport-native-unix-common:jar:4.1.28.Final:compile
+|  \- org.postgresql:postgresql:jar:42.2.5:compile
++- org.commonjava.indy:indy-subsys-keycloak:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-subsys-metrics-core:jar:2.4.1-SNAPSHOT:compile
+|  +- io.dropwizard.metrics:metrics-core:jar:4.0.2:compile
+|  +- io.dropwizard.metrics:metrics-jvm:jar:4.0.2:compile
+|  +- io.dropwizard.metrics:metrics-healthchecks:jar:4.0.2:compile
+|  \- org.apache.commons:commons-lang3:jar:3.7:compile
++- org.commonjava.indy:indy-subsys-metrics-reporter:jar:2.4.1-SNAPSHOT:compile
+|  +- io.dropwizard.metrics:metrics-graphite:jar:4.0.2:compile
+|  |  \- com.rabbitmq:amqp-client:jar:4.4.1:compile
+|  +- io.dropwizard.metrics:metrics-servlets:jar:4.0.2:compile
+|  |  +- io.dropwizard.metrics:metrics-json:jar:4.0.2:compile
+|  |  \- com.papertrail:profiler:jar:1.0.2:compile
+|  |     \- joda-time:joda-time:jar:2.9.1:compile
+|  +- io.github.hengyunabc:zabbix-sender:jar:0.0.4:compile
+|  |  \- com.alibaba:fastjson:jar:1.2.8:compile
+|  +- io.github.hengyunabc:zabbix-api:jar:0.0.2:compile
+|  \- org.elasticsearch:metrics-elasticsearch-reporter:jar:2.2.0:compile
+|     \- com.fasterxml.jackson.module:jackson-module-afterburner:jar:2.6.5:compile
++- org.commonjava.indy:indy-subsys-metrics-prometheus:jar:2.4.1-SNAPSHOT:compile
+|  +- io.prometheus:simpleclient_dropwizard:jar:0.7.0:compile
+|  |  \- io.prometheus:simpleclient:jar:0.7.0:compile
+|  \- io.prometheus:simpleclient_servlet:jar:0.7.0:compile
+|     \- io.prometheus:simpleclient_common:jar:0.7.0:compile
++- org.commonjava.indy:indy-subsys-cpool:jar:2.4.1-SNAPSHOT:compile
+|  +- io.agroal:agroal-api:jar:1.8:compile
+|  \- io.agroal:agroal-pool:jar:1.8:runtime
++- org.commonjava.indy:indy-subsys-prefetch:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.maven.galley:galley-api:jar:1.4:compile
++- org.commonjava.indy:indy-subsys-honeycomb:jar:2.4.1-SNAPSHOT:compile
+|  \- io.honeycomb.beeline:beeline-core:jar:1.1.0:compile
+|     \- io.honeycomb.libhoney:libhoney-java:jar:1.1.1:compile
++- org.commonjava.indy:indy-filer-default:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.maven.galley:galley-cache-path-mapped:jar:1.4:compile
+|     +- org.commonjava.util:path-mapped-storage:jar:1.7:compile
+|     |  \- org.commonjava.util:path-mapped-common:jar:1.7:compile
+|     \- org.commonjava.util:path-mapped-pathdb-datastax:jar:1.7:compile
++- org.commonjava.indy:indy-db-flat:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-db-memory:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-db-metrics:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-db-common:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-db-infinispan:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy.boot:indy-booter-jaxrs:jar:2.4.1-SNAPSHOT:compile
+|  +- io.undertow:undertow-core:jar:2.1.0.Final:compile
+|  |  +- org.jboss.xnio:xnio-api:jar:3.8.0.Final:compile
+|  |  |  +- org.wildfly.common:wildfly-common:jar:1.5.2.Final:compile
+|  |  |  \- org.wildfly.client:wildfly-client-config:jar:1.0.1.Final:compile
+|  |  +- org.jboss.xnio:xnio-nio:jar:3.8.0.Final:runtime
+|  |  \- org.jboss.threads:jboss-threads:jar:3.1.0.Final:compile
+|  +- io.undertow:undertow-servlet:jar:2.1.0.Final:compile
+|  |  +- org.jboss.spec.javax.servlet:jboss-servlet-api_4.0_spec:jar:2.0.0.Final:compile
+|  |  \- org.jboss.spec.javax.annotation:jboss-annotations-api_1.3_spec:jar:2.0.1.Final:compile
+|  +- org.jboss.resteasy:resteasy-cdi:jar:3.0.12.Final:compile
+|  |  \- javax.validation:validation-api:jar:1.1.0.Final:compile
+|  +- org.jboss.resteasy:jaxrs-api:jar:3.0.12.Final:compile
+|  +- org.jboss.resteasy:async-http-servlet-3.0:jar:3.0.12.Final:compile
+|  +- org.slf4j:log4j-over-slf4j:jar:1.7.21:compile
+|  +- org.commonjava.atservice:atservice-annotation:jar:0.1:compile
+|  +- org.commonjava.propulsor:propulsor-core:jar:1.4:compile
+|  +- org.commonjava.propulsor:propulsor-resteasy:jar:1.4:compile
+|  |  \- io.swagger:swagger-jaxrs:jar:1.5.9:compile
+|  |     +- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.4.5:compile
+|  |     |  \- org.yaml:snakeyaml:jar:1.12:compile
+|  |     +- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:jar:2.4.5:compile
+|  |     |  \- org.codehaus.woodstox:stax2-api:jar:3.1.4:compile
+|  |     +- io.swagger:swagger-core:jar:1.5.9:compile
+|  |     |  +- com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.4.5:compile
+|  |     |  \- io.swagger:swagger-models:jar:1.5.9:compile
+|  |     |     \- io.swagger:swagger-annotations:jar:1.5.9:provided
+|  |     \- org.reflections:reflections:jar:0.9.10:compile
+|  |        \- com.google.code.findbugs:annotations:jar:2.0.1:compile
+|  \- org.commonjava.propulsor:propulsor-undertow:jar:1.4:compile
++- org.commonjava.indy:indy-diagnostics-jaxrs:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-diagnostics-common:jar:2.4.1-SNAPSHOT:compile
+|  \- ch.qos.logback:logback-core:jar:1.2.3:compile
++- org.commonjava.indy:indy-pkg-npm-jaxrs:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-pkg-npm-common:jar:2.4.1-SNAPSHOT:compile
+|     \- org.commonjava.indy:indy-pkg-npm-model-java:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-sli:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-folo-jaxrs:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-folo-common:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-folo-model-java:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-content-browse-common:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-content-browse-model-java:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-content-browse-jaxrs:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-path-mapped-common:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-path-mapped-model-java:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-path-mapped-jaxrs:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-event-audit-common:jar:2.4.1-SNAPSHOT:compile
+|  +- org.commonjava.propulsor.content-audit:propulsor-content-audit-api:jar:1.4:compile
+|  +- org.commonjava.indy:indy-promote-common:jar:2.4.1-SNAPSHOT:compile
+|  |  +- org.commonjava.indy:indy-promote-model-java:jar:2.4.1-SNAPSHOT:compile
+|  |  \- org.commonjava.maven.galley:galley-maven:jar:1.4:compile
+|  |     \- commons-jxpath:commons-jxpath:jar:1.3:compile
+|  \- org.commonjava.auditquery:auditquery-api:jar:0.13.1:compile
+|     \- org.commonjava.auditquery:auditquery-model-java:jar:0.13.1:compile
++- org.commonjava.indy:indy-repo-proxy-common:jar:2.4.1-SNAPSHOT:compile
+|  +- org.commonjava.indy:indy-client-core-java:jar:2.4.1-SNAPSHOT:compile
+|  \- org.commonjava.indy:indy-content-browse-client-java:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.indy:indy-repo-proxy-jaxrs:jar:2.4.1-SNAPSHOT:compile
++- org.commonjava.atlas:atlas-identities:jar:1.1.0:compile
++- org.commonjava.atlas:atlas-relationships-api:jar:1.1.0:compile
+|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:compile
+|  +- org.commonjava.atlas:atlas-bindings-jackson-identities:jar:1.1.0:compile
+|  \- commons-codec:commons-codec:jar:1.10:compile
++- org.infinispan:infinispan-commons:jar:9.4.15.Final:compile
+|  +- com.github.ben-manes.caffeine:caffeine:jar:2.6.2:compile
+|  \- org.jboss.logging:jboss-logging:jar:3.3.0.Final:compile
++- org.infinispan:infinispan-core:jar:9.4.15.Final:compile
+|  +- org.jgroups:jgroups:jar:4.0.4.Final:compile
+|  +- org.jboss.spec.javax.transaction:jboss-transaction-api_1.2_spec:jar:1.1.1.Final:compile
+|  +- org.jboss.marshalling:jboss-marshalling-osgi:jar:2.0.6.Final:compile
+|  \- io.reactivex.rxjava2:rxjava:jar:2.2.4:compile
+|     \- org.reactivestreams:reactive-streams:jar:1.0.2:compile
++- org.infinispan:infinispan-cdi-embedded:jar:9.4.15.Final:compile
++- org.infinispan:infinispan-query:jar:9.4.15.Final:compile
+|  +- org.infinispan:infinispan-query-dsl:jar:9.4.15.Final:compile
+|  +- org.infinispan:infinispan-objectfilter:jar:9.4.15.Final:compile
+|  |  \- org.antlr:antlr-runtime:jar:3.5.2:compile
+|  +- org.hibernate:hibernate-search-engine:jar:5.10.3.Final:compile
+|  |  +- org.hibernate.common:hibernate-commons-annotations:jar:5.0.4.Final:compile
+|  |  +- org.apache.lucene:lucene-core:jar:5.5.5:compile
+|  |  +- org.apache.lucene:lucene-misc:jar:5.5.5:compile
+|  |  +- org.apache.lucene:lucene-analyzers-common:jar:5.5.5:compile
+|  |  +- org.apache.lucene:lucene-facet:jar:5.5.5:compile
+|  |  |  \- org.apache.lucene:lucene-queries:jar:5.5.5:compile
+|  |  \- org.apache.lucene:lucene-queryparser:jar:5.5.5:compile
+|  +- org.infinispan:infinispan-directory-provider:jar:9.4.15.Final:compile
+|  +- org.hibernate:hibernate-search-serialization-avro:jar:5.10.3.Final:compile
+|  |  \- org.apache.avro:avro:jar:1.7.6:compile
+|  |     +- org.codehaus.jackson:jackson-core-asl:jar:1.9.13:compile
+|  |     +- org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13:compile
+|  |     +- com.thoughtworks.paranamer:paranamer:jar:2.3:compile
+|  |     \- org.apache.commons:commons-compress:jar:1.19:compile
+|  \- org.infinispan:infinispan-lucene-directory:jar:9.4.15.Final:compile
++- org.hibernate:hibernate-search-orm:jar:5.8.1.Final:compile
+|  \- org.hibernate:hibernate-core:jar:5.2.11.Final:compile
+|     +- org.hibernate.javax.persistence:hibernate-jpa-2.1-api:jar:1.0.0.Final:compile
+|     +- org.javassist:javassist:jar:3.20.0-GA:compile
+|     +- antlr:antlr:jar:2.7.7:compile
+|     +- org.jboss:jandex:jar:2.0.3.Final:compile
+|     +- com.fasterxml:classmate:jar:1.3.0:compile
+|     \- dom4j:dom4j:jar:1.6.1:compile
++- javax.cache:cache-api:jar:1.0.0:compile
++- org.keycloak:keycloak-undertow-adapter:jar:7.0.1:compile
+|  +- org.keycloak:keycloak-adapter-spi:jar:7.0.1:compile
+|  +- org.keycloak:keycloak-undertow-adapter-spi:jar:7.0.1:compile
+|  +- org.apache.httpcomponents:httpclient:jar:4.5.9:compile
+|  |  \- commons-logging:commons-logging:jar:1.2:compile
+|  \- org.bouncycastle:bcprov-jdk15on:jar:1.64:compile
++- org.keycloak:keycloak-core:jar:7.0.1:compile
+|  +- org.keycloak:keycloak-common:jar:7.0.1:compile
+|  \- org.bouncycastle:bcpkix-jdk15on:jar:1.64:compile
++- org.keycloak:keycloak-adapter-core:jar:7.0.1:compile
++- args4j:args4j:jar:2.0.12:compile
++- org.jboss.weld.se:weld-se:jar:2.4.6.Final:compile
++- org.commonjava.indy:indy-ftests-core:jar:2.4.1-SNAPSHOT:test
+|  +- org.commonjava.indy:indy-ftests-common:jar:2.4.1-SNAPSHOT:test
+|  |  \- org.cassandraunit:cassandra-unit:jar:3.7.1.0:test
+|  |     +- org.apache.cassandra:cassandra-all:jar:3.11.4:test
+|  |     |  +- net.jpountz.lz4:lz4:jar:1.3.0:test
+|  |     |  +- com.ning:compress-lzf:jar:0.8.4:test
+|  |     |  +- commons-cli:commons-cli:jar:1.2:test
+|  |     |  +- org.apache.commons:commons-math3:jar:3.2:test
+|  |     |  +- com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:jar:1.4:test
+|  |     |  +- org.antlr:antlr:jar:3.5.2:test
+|  |     |  |  \- org.antlr:ST4:jar:4.0.8:test
+|  |     |  +- com.googlecode.json-simple:json-simple:jar:1.1:test
+|  |     |  +- com.boundary:high-scale-lib:jar:1.0.6:test
+|  |     |  +- org.mindrot:jbcrypt:jar:0.3m:test
+|  |     |  +- io.airlift:airline:jar:0.6:test
+|  |     |  +- com.addthis.metrics:reporter-config3:jar:3.0.3:test
+|  |     |  |  \- com.addthis.metrics:reporter-config-base:jar:3.0.3:test
+|  |     |  +- com.thinkaurelius.thrift:thrift-server:jar:0.3.7:test
+|  |     |  |  \- com.lmax:disruptor:jar:3.0.1:test
+|  |     |  +- com.clearspring.analytics:stream:jar:2.5.2:test
+|  |     |  |  \- it.unimi.dsi:fastutil:jar:6.5.7:test
+|  |     |  +- org.apache.cassandra:cassandra-thrift:jar:3.11.4:test
+|  |     |  |  +- com.carrotsearch:hppc:jar:0.5.4:test
+|  |     |  |  +- de.jflex:jflex:jar:1.6.0:test
+|  |     |  |  |  \- org.apache.ant:ant:jar:1.7.0:test
+|  |     |  |  |     \- org.apache.ant:ant-launcher:jar:1.7.0:test
+|  |     |  |  +- com.github.rholder:snowball-stemmer:jar:1.3.0.581.1:test
+|  |     |  |  \- com.googlecode.concurrent-trees:concurrent-trees:jar:2.4.0:test
+|  |     |  +- com.github.jbellis:jamm:jar:0.3.0:test
+|  |     |  +- org.fusesource:sigar:jar:1.6.4:test
+|  |     |  +- org.eclipse.jdt.core.compiler:ecj:jar:4.4.2:test
+|  |     |  +- org.caffinitas.ohc:ohc-core:jar:0.4.4:test
+|  |     |  +- org.caffinitas.ohc:ohc-core-j8:jar:0.4.4:test
+|  |     |  \- org.jctools:jctools-core:jar:1.2.1:test
+|  |     +- org.apache.thrift:libthrift:jar:0.9.2:test
+|  |     +- net.java.dev.jna:jna:jar:4.1.0:test
+|  |     \- org.hamcrest:hamcrest-library:jar:1.3:test
+|  +- org.commonjava.indy:indy-test-fixtures-core:jar:2.4.1-SNAPSHOT:test
+|  |  \- org.commonjava.util:http-testserver:jar:1.4:test
+|  +- xmlunit:xmlunit:jar:1.6:test
+|  \- org.jboss.byteman:byteman-bmunit:jar:3.0.6:test
+|     +- org.jboss.byteman:byteman:jar:3.0.6:test
+|     +- org.jboss.byteman:byteman-submit:jar:3.0.6:test
+|     +- org.jboss.byteman:byteman-install:jar:3.0.6:test
+|     \- com.sun:tools:jar:1.6:system
++- org.commonjava.indy:indy-ftests-diagnostics:jar:2.4.1-SNAPSHOT:test
+|  \- org.commonjava.indy:indy-diagnostics-client-java:jar:2.4.1-SNAPSHOT:test
++- org.commonjava.indy:indy-ftests-pkg-npm:jar:2.4.1-SNAPSHOT:test
++- org.commonjava.indy:indy-ftests-metrics:jar:2.4.1-SNAPSHOT:test
++- org.commonjava.indy:indy-ftests-folo:jar:2.4.1-SNAPSHOT:test
+|  +- org.commonjava.indy:indy-promote-jaxrs:jar:2.4.1-SNAPSHOT:test
+|  +- org.commonjava.indy:indy-promote-client-java:jar:2.4.1-SNAPSHOT:test
+|  +- org.commonjava.indy:indy-folo-client-java:jar:2.4.1-SNAPSHOT:test
+|  \- org.commonjava.indy:indy-content-index:jar:2.4.1-SNAPSHOT:test
++- org.commonjava.indy:indy-ftests-content-browse:jar:2.4.1-SNAPSHOT:test
++- org.commonjava.indy:indy-ftests-repo-proxy:jar:2.4.1-SNAPSHOT:test
++- ch.qos.logback:logback-classic:jar:1.2.3:compile
++- com.github.danielwegener:logback-kafka-appender:jar:0.2.0-RC2:compile
+|  \- org.apache.kafka:kafka-clients:jar:1.1.0:compile
+|     +- org.lz4:lz4-java:jar:1.4:compile
+|     \- org.xerial.snappy:snappy-java:jar:1.1.7.1:compile
++- ch.qos.logback.contrib:logback-json-classic:jar:0.1.5:compile
+|  \- ch.qos.logback.contrib:logback-json-core:jar:0.1.5:compile
++- ch.qos.logback.contrib:logback-jackson:jar:0.1.5:compile
++- javax.enterprise:cdi-api:jar:1.2:provided
+|  +- javax.el:javax.el-api:jar:3.0.0:provided
+|  +- javax.interceptor:javax.interceptor-api:jar:1.2:provided
+|  \- javax.inject:javax.inject:jar:1:compile
++- junit:junit:jar:4.12:test
++- org.hamcrest:hamcrest-core:jar:1.3:test
+\- org.codehaus.plexus:plexus-container-default:jar:1.6:compile
+   +- org.codehaus.plexus:plexus-utils:jar:2.0.6:compile
+   +- org.codehaus.plexus:plexus-classworlds:jar:2.4:compile
+   \- org.apache.xbean:xbean-reflect:jar:3.16:compile

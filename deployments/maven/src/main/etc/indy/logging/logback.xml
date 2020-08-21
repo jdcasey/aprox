@@ -1,0 +1,173 @@
+<!--
+
+    Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<configuration>
+
+  <!-- property file="${indy.home}/etc/indy/conf.d/elasticsearch.properties" / -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>%X{http-request-preferred-id} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+    </filter>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${indy.home}/var/log/indy/indy.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>${indy.home}/var/log/indy/indy.%i.log</fileNamePattern>
+
+      <maxIndex>20</maxIndex>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>100MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <pattern>%X{http-request-preferred-id} %d{HH:mm:ss.SSS} [%thread] %-5level %C{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- This appender is used for the operation tracking, like delete or http request path tracking -->
+  <appender name="CONTENT-DELETE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${indy.home}/var/log/indy/indy-content-delete.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>${indy.home}/var/log/indy/indy-content-delete.%i.log</fileNamePattern>
+
+      <maxIndex>20</maxIndex>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>100MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <pattern>%X{http-request-preferred-id} %d{HH:mm:ss.SSS} [%thread] %-5level %C{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- This appender is used for the operation tracking, like delete or http request path tracking -->
+  <appender name="INBOUND" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${indy.home}/var/log/indy/indy-inbound.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>${indy.home}/var/log/indy/indy-inbound.%i.log</fileNamePattern>
+
+      <maxIndex>20</maxIndex>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>100MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <pattern>%X{http-request-preferred-id} %d{HH:mm:ss.SSS} [%thread] %-5level %C{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- This example configuration is probably most unreliable under
+    failure conditions but wont block your application at all -->
+  <!-- The encoder part is using JsonLayout format encoder to generate structured logs using json format -->
+  <!-- use async delivery. the application threads are not blocked by logging -->
+  <!--
+    ProducerConfigs as below:
+     * acks=0: don't wait for a broker to ack the reception of a batch.
+     * linger.ms=1000: wait up to 1000ms and collect log messages before sending them as a batch
+     * max.block.ms=0: even if the producer buffer runs full, do not block the application but start to drop messages
+     * client.id=client.id=${HOSTNAME}-${CONTEXT_NAME}-logback-relaxed: define a client-id that you use to identify yourself against the kafka broker
+  -->
+  <!-- there is no fallback <appender-ref>. If this appender cannot deliver, it will drop its messages. -->
+  <!--
+  <appender name="KAFKA" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+      <layout class="org.commonjava.indy.CustomJsonLayout">
+        <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
+        <appendLineSeparator>true</appendLineSeparator>
+
+        <environmentMappings><![CDATA[
+          OPENSHIFT_BUILD_NAMESPACE=NAMESPACE,
+          OPENSHIFT_BUILD_NAME=BUILD_NAME,
+          OPENSHIFT_BUILD_COMMIT=BUILD_COMMIT,
+          HOSTNAME=HOSTNAME
+        ]]></environmentMappings>
+      </layout>
+    </encoder>
+
+    <topic>indy-logs</topic>
+    <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy" />
+    <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
+
+    <producerConfig>bootstrap.servers=localhost:9092</producerConfig>
+
+    <producerConfig>security.protocol=SSL</producerConfig>
+    <producerConfig>ssl.keystore.location=/path/to/secret/keystore.jks</producerConfig>
+    <producerConfig>ssl.keystore.password=changeit</producerConfig>
+    <producerConfig>ssl.truststore.location=/path/to/secret/truststore.jks</producerConfig>
+    <producerConfig>ssl.truststore.password=changeit</producerConfig>
+
+    <producerConfig>acks=0</producerConfig>
+    <producerConfig>linger.ms=1000</producerConfig>
+    <producerConfig>max.block.ms=0</producerConfig>
+    <producerConfig>client.id=${HOSTNAME}-${CONTEXT_NAME}-logback-relaxed</producerConfig>
+  </appender>
+  -->
+
+  <!-- Followed with kafka appender, to prevent a metadata blocking problem -->
+  <!--
+  <logger name="org.apache.kafka" additivity="false" level="INFO">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE" />
+  </logger>
+  -->
+
+  <logger name="org.jboss" level="ERROR"/>
+  <!-- <logger name="org.jboss.resteasy" level="DEBUG"/> -->
+
+  <!--
+  <logger name="org.commonjava" level="DEBUG" />
+  -->
+
+  <logger name="org.commonjava" level="WARN" />
+  <logger name="org.commonjava.indy.action.IndyLifecycleManager" level="INFO" />
+  <logger name="org.commonjava.indy.subsys.infinispan.CacheProducer" level="INFO" />
+
+  <logger name="org.commonjava.topic.content.delete" level="INFO">
+    <appender-ref ref="CONTENT-DELETE" />
+  </logger>
+
+  <logger name="org.commonjava.topic.rest.inbound" level="INFO">
+    <appender-ref ref="INBOUND" />
+  </logger>
+
+  <logger name="org.commonjava.topic.httprox.inbound" level="INFO">
+    <appender-ref ref="INBOUND" />
+  </logger>
+
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+    <!-- if kafka function is on, include KAFKA appender -->
+    <!--
+    <appender-ref ref="KAFKA" />
+    -->
+  </root>
+
+</configuration>
