@@ -1,7 +1,9 @@
 package org.commonjava.indy.pkg.pypi.content;
 
+import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.galley.KeyedLocation;
+import org.commonjava.indy.pkg.pypi.content.cdn.CDNRedirectionDatabase;
 import org.commonjava.maven.galley.event.EventMetadata;
 import org.commonjava.maven.galley.io.AbstractTransferDecorator;
 import org.commonjava.maven.galley.model.Location;
@@ -18,6 +20,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.commonjava.indy.model.core.StoreType.remote;
 import static org.commonjava.indy.pkg.pypi.model.PyPIPackageTypeDescriptor.PYPI_PKG_KEY;
@@ -53,12 +57,19 @@ public class PyPIListingTransferDecorator
 
         logger.debug( "PyPI HTML parser for decorateWrite, transfer: {}", transfer );
 
-        UrlGeneratorFunction urlGenerator = (UrlGeneratorFunction) metadata.get( UrlGeneratorFunction.KEY );
+        ThreadContext threadContext = ThreadContext.getContext( false );
+        UrlGeneratorFunction urlGenerator = threadContext == null ? null : (UrlGeneratorFunction) threadContext.get( UrlGeneratorFunction.KEY );
 
-        if ( urlGenerator == null || remote != keyedLocation.getKey().getType()
-                        || (transfer.getFullPath().indexOf( '.' ) > 0 && !transfer.getPath().endsWith( "/" ) ) )
+        String path = transfer.getPath();
+        String[] pathParts = transfer.getPath().split( "/" );
+
+        logger.debug( "\n\nDiagnosing PyPI decoration for path: '{}' (length: {})\n    URL-Generator: {}\n    Repo type: {}\n    Path-parts: {} (length: {})\n\n",
+                      path, path.length(), urlGenerator, keyedLocation.getKey().getType(), pathParts,
+                      pathParts.length );
+
+        if ( urlGenerator == null || remote != keyedLocation.getKey().getType() || pathParts.length > 1 || path.contains(".") )
         {
-            logger.debug( "Not a PyPI directory location; no decoration needed." );
+            logger.debug( "Not a PyPI directory location: {}:{}; no decoration needed.", keyedLocation.getKey(), path );
             return stream;
         }
 
@@ -79,7 +90,7 @@ public class PyPIListingTransferDecorator
 
         private StoreKey storeKey;
 
-        private String basePath;
+        private String basepath;
 
         private CDNRedirectionDatabase cdn;
 
@@ -87,13 +98,13 @@ public class PyPIListingTransferDecorator
 
         private boolean lastFlush = false;
 
-        private ListingParserStream( final OutputStream stream, StoreKey storeKey, String basePath, CDNRedirectionDatabase cdn,
+        private ListingParserStream( final OutputStream stream, StoreKey storeKey, String basepath, CDNRedirectionDatabase cdn,
                                      UrlGeneratorFunction urlGenerator )
         {
             super( stream );
             this.stream = stream;
             this.storeKey = storeKey;
-            this.basePath = basePath;
+            this.basepath = basepath.endsWith( "/" ) ? basepath.substring( 0, basepath.length()-1) : basepath;
             this.cdn = cdn;
             this.urlGenerator = urlGenerator;
         }
@@ -151,26 +162,34 @@ public class PyPIListingTransferDecorator
 
         private String parseAndReplace()
         {
-            logger.debug( "Parsing HTML from buffer of length: {}", buffer.length() );
+            logger.trace( "Parsing HTML from buffer of length: {}", buffer.length() );
             Document doc = Jsoup.parse( buffer.toString() );
+
+            Map<String, String> cdnMap = new HashMap<>();
             doc.select( "a" ).forEach( elt->{
                 String href = elt.attr( "href" );
                 String fname = elt.text();
-                String localPath = normalize( basePath, fname );
+
+                String localPath = normalize( basepath, fname );
                 String localHref = urlGenerator.generate( localPath );
 
-                logger.debug( "Found link:\n    File: {}\n    CDN href: {}\n    Local href: {}", fname, href, localHref );
+//                logger.debug( "Found link:\n    File: {}\n    CDN href: {}\n    Local href: {}", fname, href, localHref );
                 if ( !href.startsWith( "/" ) )
                 {
-                    cdn.register( storeKey, localPath, href );
+                    cdnMap.put( fname, href );
                 }
 
                 elt.attr( "href", localHref );
             } );
 
+            if ( !cdnMap.isEmpty() )
+            {
+                cdn.register( storeKey, basepath, cdnMap );
+            }
+
             String html = doc.outerHtml();
 
-            logger.info( "Replacement HTML for PyPI listing:\n\n{}", html );
+            logger.trace( "Replacement HTML for PyPI listing:\n\n{}", html );
 
             return html;
         }

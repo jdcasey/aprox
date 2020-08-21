@@ -464,6 +464,7 @@ public class ContentAccessHandler
         PackageTypeDescriptor ptd = getPackageTypeDescriptor( packageType );
         if ( (ptd == null || !ptd.isBrowsingIntegrated() ) && isDirectoryPath( path, request ) )
         {
+            logger.debug( "This is a content browsing request. Sending redirect." );
             response = RequestUtils.redirectContentListing( packageType, type, name, path, request, builderModifier );
         }
         else

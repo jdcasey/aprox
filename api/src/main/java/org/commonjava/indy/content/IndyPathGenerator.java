@@ -81,7 +81,9 @@ public class IndyPathGenerator
         final String name = key.getPackageType() + "/" + key.getType()
                                .name() + "-" + key.getName();
 
-        return PathUtils.join( name, getPath( resource ) );
+        String fullPath = PathUtils.join( name, getPath( resource ) );
+        logger.debug( "Resource {} is stored in: {}", resource, fullPath );
+        return fullPath;
     }
 
     @Override

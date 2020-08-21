@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.indy.bind.jaxrs.util.REST;
 import org.commonjava.indy.core.bind.jaxrs.ContentAccessHandler;
 import org.commonjava.indy.core.bind.jaxrs.PackageContentAccessResource;
@@ -65,10 +66,10 @@ public class PyPIContentAccessResource
     {
         final String baseUri = uriInfo.getBaseUriBuilder().path( PYPI_CONTENT_REST_BASE_PATH ).build().toString();
 
-        EventMetadata evt = new EventMetadata();
-        evt.set( UrlGeneratorFunction.KEY, createUrlGeneratorFunction( baseUri, type, name ) );
+        ThreadContext threadContext = ThreadContext.getContext( true );
+        threadContext.put( UrlGeneratorFunction.KEY, createUrlGeneratorFunction( baseUri, type, name ) );
 
-        return handler.doGet( PYPI_PKG_KEY, type, name, pkg, baseUri, request, evt );
+        return handler.doGet( PYPI_PKG_KEY, type, name, pkg, baseUri, request, new EventMetadata() );
     }
 
     @GET
@@ -81,28 +82,11 @@ public class PyPIContentAccessResource
     {
         final String baseUri = uriInfo.getBaseUriBuilder().path( PYPI_CONTENT_REST_BASE_PATH ).build().toString();
 
-        EventMetadata evt = new EventMetadata();
-        evt.set( UrlGeneratorFunction.KEY, createUrlGeneratorFunction( baseUri, type, name ) );
+        ThreadContext threadContext = ThreadContext.getContext( true );
+        threadContext.put( UrlGeneratorFunction.KEY, createUrlGeneratorFunction( baseUri, type, name ) );
 
-        return handler.doGet( PYPI_PKG_KEY, type, name, normalize( pkg, fname ), baseUri, request, evt );
-    }
-
-    private UrlGeneratorFunction createUrlGeneratorFunction( String baseUri, String type, String name )
-    {
-        return ( path ) -> {
-            try
-            {
-                return buildUrl( baseUri, type, name, path );
-            }
-            catch ( MalformedURLException e )
-            {
-                Logger logger = LoggerFactory.getLogger( PyPIContentAccessResource.class );
-                logger.error( "Invalid base URL: " + baseUri, e );
-            }
-
-            return normalize( baseUri, type, name, path );
-        };
-
+        return handler.doGet( PYPI_PKG_KEY, type, name, normalize( pkg, fname ), baseUri, request,
+                              new EventMetadata() );
     }
 
     @Override
@@ -118,10 +102,10 @@ public class PyPIContentAccessResource
     {
         final String baseUri = uriInfo.getBaseUriBuilder().path( PYPI_CONTENT_REST_BASE_PATH ).build().toString();
 
-        EventMetadata evt = new EventMetadata();
-        evt.set( UrlGeneratorFunction.KEY, createUrlGeneratorFunction( baseUri, type, name ) );
+        ThreadContext threadContext = ThreadContext.getContext( true );
+        threadContext.put( UrlGeneratorFunction.KEY, createUrlGeneratorFunction( baseUri, type, name ) );
 
-        return handler.doGet( PYPI_PKG_KEY, type, name, "/", baseUri, request, evt );
+        return handler.doGet( PYPI_PKG_KEY, type, name, "/", baseUri, request, new EventMetadata() );
     }
 
     @Override
@@ -141,6 +125,24 @@ public class PyPIContentAccessResource
                             HttpServletRequest request )
     {
         return null;
+    }
+
+    private UrlGeneratorFunction createUrlGeneratorFunction( String baseUri, String type, String name )
+    {
+        return ( path ) -> {
+            try
+            {
+                return buildUrl( baseUri, type, name, path );
+            }
+            catch ( MalformedURLException e )
+            {
+                Logger logger = LoggerFactory.getLogger( PyPIContentAccessResource.class );
+                logger.error( "Invalid base URL: " + baseUri, e );
+            }
+
+            return normalize( baseUri, type, name, path );
+        };
+
     }
 
 }

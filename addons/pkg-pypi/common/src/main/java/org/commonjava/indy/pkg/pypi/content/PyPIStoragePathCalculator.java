@@ -45,7 +45,7 @@ import static org.commonjava.maven.galley.util.PathUtils.normalize;
 public class PyPIStoragePathCalculator
         implements StoragePathCalculator
 {
-    public static final String INDEX_HTML_FILE = "index.html";
+    public static final String INDEX_HTML_FILE = ".html";
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -64,13 +64,14 @@ public class PyPIStoragePathCalculator
     @Override
     public String calculateStoragePath( final StoreKey key, final String path )
     {
-
         if ( PYPI_PKG_KEY.equals( key.getPackageType() ) )
         {
             logger.info( "Got PyPI path: {}", path );
-            if ( path == null || "/".equals( path ) || path.length() < 1 )
+
+            String[] parts = path.split( "/" );
+            if ( path == null || path.length() < 1 || ( parts.length == 1 && !path.contains( "." ) ) )
             {
-                return normalize( path, INDEX_HTML_FILE );
+                return normalize( path + INDEX_HTML_FILE );
             }
         }
 

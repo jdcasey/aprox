@@ -38,7 +38,7 @@
 
   <!-- NOTE: In the decorators below, the FIRST listed will be invoked FIRST (outer-most in the stack) -->
   <decorators>
-    <class>org.commonjava.indy.pkg.pypi.content.CDNTransportRedirector</class>
+    <class>org.commonjava.indy.pkg.pypi.content.cdn.CDNTransportRedirector</class>
 
     <!-- ContentManager decorators -->
     <class>org.commonjava.indy.koji.content.KojiContentManagerDecorator</class>

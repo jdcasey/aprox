@@ -1,4 +1,4 @@
-package org.commonjava.indy.pkg.pypi.content;
+package org.commonjava.indy.pkg.pypi.content.cdn;
 
 import org.commonjava.maven.galley.TransferException;
 import org.commonjava.maven.galley.model.ConcreteResource;
