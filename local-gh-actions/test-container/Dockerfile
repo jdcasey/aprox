@@ -11,7 +11,7 @@ RUN mkdir -p /etc/indy && mkdir -p /var/log/indy && mkdir -p /usr/share/indy /op
 RUN chmod -R 777 /etc/indy && chmod -R 777 /var/log/indy && chmod -R 777 /usr/share/indy
 
 RUN apt-get update
-RUN apt-get upgrade
+RUN apt-get upgrade -y
 RUN apt-get install -y openjdk-11-jdk-headless unzip tar gzip
 
 ADD start-indy.py /usr/local/bin/start-indy.py
