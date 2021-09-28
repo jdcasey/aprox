@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora-minimal:34
+FROM debian:latest
 
 ENV INDY_ETC_DIR /usr/share/indy/etc
 ENV LOGNAME=indy
@@ -6,12 +6,11 @@ ENV HOME=/home/indy
 
 EXPOSE 8080 8081 8000
 
-
 RUN mkdir -p /etc/indy && mkdir -p /var/log/indy && mkdir -p /usr/share/indy /opt/indy/var/log/indy
 
 RUN chmod -R 777 /etc/indy && chmod -R 777 /var/log/indy && chmod -R 777 /usr/share/indy
 
-RUN microdnf install java-11-openjdk-devel.x86_64 gettext unzip tar gzip
+RUN apt-get install -y openjdk-11-jdk-headless unzip tar gzip
 
 ADD start-indy.py /usr/local/bin/start-indy.py
 
@@ -26,8 +25,6 @@ RUN	mkdir -p /usr/share/indy /home/indy && \
 RUN chmod +x /usr/local/bin/*
 
 RUN cp -rf /opt/indy/var/lib/indy/ui /usr/share/indy/ui
-
-RUN microdnf clean
 
 # Run as non-root user
 RUN chgrp -R 0 /opt && \
