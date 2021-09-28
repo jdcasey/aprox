@@ -3,7 +3,12 @@
 
 name: Merge / Push Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - maint
+      - 2.6.x
 
 jobs:
   build-on-push:

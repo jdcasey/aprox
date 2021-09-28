@@ -46,4 +46,4 @@ jobs:
         path: local-gh-actions/test-container/indy
 
     - name: Start Indy container
-      uses: local-gh-actions/test-container
+      uses: ./local-gh-actions/test-container
