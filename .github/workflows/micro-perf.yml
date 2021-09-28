@@ -73,7 +73,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: false
-        tags: "commonjava/indy-test:${{ env.INDY_VERSION }}"
+        tags: "commonjava/indy-test:${{ GITHUB_RUN_ID }}"
 
   test:
     name: Run perf tests
@@ -82,7 +82,7 @@ jobs:
 
     services:
       indy:
-        image: "commonjava/indy-test:${{ env.INDY_VERSION }}"
+        image: "commonjava/indy-test:${{ GITHUB_RUN_ID }}"
         ports:
           - 8080:8080
 
