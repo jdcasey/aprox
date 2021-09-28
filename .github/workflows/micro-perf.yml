@@ -76,7 +76,7 @@ jobs:
         INDY_VERSION: ${{ env.INDY_VERSION }}
       with:
         push: false
-        tags: "commonjava/indy-test:$tag"
+        tags: "commonjava/indy-test:${{ env.tag }}"
 
   test:
     name: Run perf tests
@@ -88,7 +88,7 @@ jobs:
 
     services:
       indy:
-        image: "commonjava/indy-test:$tag"
+        image: "commonjava/indy-test:${{ env.tag }}"
         ports:
           - 8080:8080
 
