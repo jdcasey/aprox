@@ -6,10 +6,10 @@ EXPOSE 8080 8081 8000
 
 ADD start-indy.py /usr/local/bin/start-indy.py
 
-ADD launcher/target/indy-launcher-*-skinny.tar.gz /tmp/indy-launcher.tar.gz
+ADD indy/indy-launcher-*-skinny.tar.gz /tmp/indy-launcher.tar.gz
 RUN	tar -xf /tmp/indy-launcher.tar.gz -C /opt
 
-ADD launcher/target/indy-launcher-*-data.tar.gz /tmp/indy-launcher-data.tar.gz
+ADD indy/indy-launcher-*-data.tar.gz /tmp/indy-launcher-data.tar.gz
 
 RUN	mkdir -p /usr/share/indy /home/indy && \
 	tar -xf /tmp/indy-launcher-data.tar.gz -C /usr/share/indy

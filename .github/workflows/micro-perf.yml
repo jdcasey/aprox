@@ -21,78 +21,12 @@ jobs:
         restore-keys: |
           maven-
 
-    - name: Install Toolchain JDK 1.8
-      if: ${{ !contains(github.base_ref, 'maint') }}
-      uses: battila7/jdk-via-jabba@v1
-      with:
-        jdk: 'adopt@1.8.0-292'
-        addBinDirectoryToPath: false
-        javaHomeEnvironmentVariable: J8_TOOLCHAIN_JDK
-
-    - name: Install Toolchain JDK 11
-      if: ${{ !contains(github.base_ref, 'maint') }}
-      uses: battila7/jdk-via-jabba@v1
-      with:
-        jdk: 'adopt@1.11.0-11'
-        addBinDirectoryToPath: false
-        javaHomeEnvironmentVariable: J11_TOOLCHAIN_JDK
-
-    - name: Set up Toolchain
-      if: ${{ !contains(github.base_ref, 'maint') }}
-      shell: bash
-      run: |
-        mkdir -p $HOME/.m2 \
-        && cat << EOF > $HOME/.m2/toolchains.xml
-        <?xml version="1.0" encoding="UTF8"?>
-        <toolchains>
-          <toolchain>
-            <type>jdk</type>
-              <provides>
-                <version>1.8</version>
-                <vendor>OpenJDK</vendor>
-              </provides>
-              <configuration>
-                <jdkHome>${{ env.J8_TOOLCHAIN_JDK }}</jdkHome>
-              </configuration>
-          </toolchain>
-          <toolchain>
-            <type>jdk</type>
-              <provides>
-                <version>11</version>
-                <vendor>OpenJDK</vendor>
-              </provides>
-              <configuration>
-                <jdkHome>${{ env.J11_TOOLCHAIN_JDK }}</jdkHome>
-              </configuration>
-          </toolchain>
-        </toolchains>
-        EOF
-
-    - name: Set up JDK
-      if: ${{ contains(github.base_ref, 'maint') }}
-      uses: actions/setup-java@v2
-      with:
-        java-version: '8'
-        distribution: 'adopt'
-
     - name: Set up JDK
       if: ${{ !contains(github.base_ref, 'maint') }}
       uses: actions/setup-java@v2
       with:
         java-version: '11'
         distribution: 'adopt'
-
-    - name: maven-settings-xml-action
-      uses: whelk-io/maven-settings-xml-action@v14
-      with:
-        repositories: '[{ "id": "sonatype", "url": "https://oss.sonatype.org/content/repositories/snapshots/", "releases": {"enabled": "false"}, "snapshots": {"enabled": "true" }}]'
-
-    - name: Upload Indy settings.xml
-      uses: actions/upload-artifact@v2
-      with:
-        name: indy-settings
-        path: .m2/settings.xml
-        retention-days: 1
 
     - name: Build with Maven
       run: mvn -DskipTests=true -B -e verify
@@ -109,7 +43,7 @@ jobs:
       id: download
       with:
         name: indy-artifacts
-        path: binaries/indy-launcher-*.tar.gz
+        path: local-gh-actions/test-container/indy
 
-    - name: Show files
-      run: ls -R
+    - name: Start Indy container
+      uses: local-gh-actions/test-container
