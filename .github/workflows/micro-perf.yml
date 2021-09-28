@@ -73,6 +73,7 @@ jobs:
       uses: docker/build-push-action@v2
       env:
         tag: ${{GITHUB_RUN_ID}}
+        INDY_VERSION: ${{ env.INDY_VERSION }}
       with:
         push: false
         tags: "commonjava/indy-test:$tag"
