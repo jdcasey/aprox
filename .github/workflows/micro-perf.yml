@@ -71,7 +71,6 @@ jobs:
         tag: ${{ github.run_id }}
         INDY_VERSION: ${{ env.INDY_VERSION }}
       with:
-        context: ./local-gh-actions/test-container
         file: ./local-gh-actions/test-container/Dockerfile
         tags: "commonjava/indy-test:${{ env.tag }}"
 
