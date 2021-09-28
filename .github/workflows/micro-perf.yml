@@ -71,18 +71,23 @@ jobs:
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
+      env:
+        tag: ${{GITHUB_RUN_ID}}
       with:
         push: false
-        tags: "commonjava/indy-test:${{ GITHUB_RUN_ID }}"
+        tags: "commonjava/indy-test:$tag"
 
   test:
     name: Run perf tests
     runs-on: ubuntu-latest
     needs: container_build
 
+    env:
+      tag: ${{GITHUB_RUN_ID}}
+
     services:
       indy:
-        image: "commonjava/indy-test:${{ GITHUB_RUN_ID }}"
+        image: "commonjava/indy-test:$tag"
         ports:
           - 8080:8080
 
