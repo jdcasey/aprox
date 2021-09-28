@@ -66,7 +66,7 @@ jobs:
       uses: docker/setup-buildx-action@v1
     
     - name: Build image
-      uses: docker/docker-build-push@v2
+      uses: docker/build-push-action@v2
       env:
         tag: ${{ github.run_id }}
         INDY_VERSION: ${{ env.INDY_VERSION }}
