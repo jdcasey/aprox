@@ -72,7 +72,7 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       env:
-        tag: ${{GITHUB_RUN_ID}}
+        tag: ${{ github.run_id }}
         INDY_VERSION: ${{ env.INDY_VERSION }}
       with:
         push: false
@@ -84,7 +84,7 @@ jobs:
     needs: container_build
 
     env:
-      tag: ${{GITHUB_RUN_ID}}
+      tag: ${{ github.run_id }}
 
     services:
       indy:
