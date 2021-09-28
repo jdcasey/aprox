@@ -83,12 +83,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: container_build
 
-    env:
-      tag: ${{ github.run_id }}
-
     services:
       indy:
-        image: "commonjava/indy-test:${{ env.tag }}"
+        image: "commonjava/indy-test:${{ github.run_id }}"
         ports:
           - 8080:8080
 
