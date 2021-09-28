@@ -31,6 +31,9 @@ jobs:
     - name: Build with Maven
       run: mvn -DskipTests=true -B -e verify
 
+    - name: Set INDY_VERSION envar
+      run: "cat models/core-java/target/classes/indy-version.properties | grep '^version' | awk -F '=' '{print $2}' >> $INDY_VERSION"
+
     - name: Upload Indy tarballs
       uses: actions/upload-artifact@v2
       with:
