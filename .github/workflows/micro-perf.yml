@@ -90,8 +90,7 @@ jobs:
         push: false
         context: ./
         tags: "commonjava/indy-test:${{ env.tag }}"
-        build-args:
-          - "INDY_VERSION=$INDY_VERSION"
+        build-args: "INDY_VERSION=$INDY_VERSION"
 
   test:
     name: Run perf tests
