@@ -30,18 +30,10 @@ RUN chmod +x /usr/local/bin/*
 RUN cp -rf /opt/indy/var/lib/indy/ui /usr/share/indy/ui
 
 # Run as non-root user
-RUN chgrp -R 0 /opt && \
-    chmod -R g=u /opt && \
-    chgrp -R 0 /etc/indy && \
-    chmod -R g=u /etc/indy && \
-    chgrp -R 0 /var/log/indy && \
-    chmod -R g=u /var/log/indy && \
-    chgrp -R 0 /usr/share/indy && \
-    chmod -R g=u /usr/share/indy && \
-    chgrp -R 0 /home/indy && \
-    chmod -R g=u /home/indy && \
-    chown -R 1001:0 /home/indy && \
-    chmod 644 /etc/profile.d/setup-user.sh
+#RUN chgrp -R 0 /opt
+#RUN chmod -R g=u /opt
+#RUN chgrp -R 0 /usr/share/indy
+#RUN chmod -R g=u /usr/share/indy
 
 
 ENTRYPOINT ["/bin/bash", "/usr/local/bin/start-indy.py"]
