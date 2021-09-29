@@ -72,8 +72,8 @@ jobs:
       env:
         tag: ${{ github.run_id }}
         INDY_VERSION: ${{ env.INDY_VERSION }}
-      run:
-        - "docker build -t indy-test:$tag"
+      run: |
+        docker build -t indy-test:$tag
 
   test:
     name: Run perf tests
