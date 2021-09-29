@@ -17,13 +17,13 @@ RUN apt-get install -y openjdk-11-jdk-headless unzip tar gzip
 
 ADD local-gh-actions/test-container/start-indy.py /usr/local/bin/start-indy.py
 
-ADD dist/indy-launcher-$INDY_VERSION-skinny.tar.gz /tmp/indy-launcher.tar.gz
-RUN	tar -xf /tmp/indy-launcher.tar.gz -C /opt
+ADD dist/indy-launcher-$INDY_VERSION-skinny.tar.gz /opt
+#RUN	tar -xf /tmp/indy-launcher.tar.gz -C /opt
 
-ADD dist/indy-launcher-$INDY_VERSION-data.tar.gz /tmp/indy-launcher-data.tar.gz
+RUN	mkdir -p /usr/share/indy /home/indy
+ADD dist/indy-launcher-$INDY_VERSION-data.tar.gz /usr/share/indy
 
-RUN	mkdir -p /usr/share/indy /home/indy && \
-	tar -xf /tmp/indy-launcher-data.tar.gz -C /usr/share/indy
+#RUN tar -xf /tmp/indy-launcher-data.tar.gz -C /usr/share/indy
 
 RUN chmod +x /usr/local/bin/*
 
