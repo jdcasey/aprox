@@ -1,5 +1,6 @@
 FROM debian:latest
 
+ARG INDY_VERSION
 ENV INDY_ETC_DIR /usr/share/indy/etc
 ENV LOGNAME=indy
 ENV HOME=/home/indy
