@@ -72,6 +72,7 @@ jobs:
         INDY_VERSION: ${{ env.INDY_VERSION }}
       with:
         push: false
+        context: ./
         tags: "commonjava/indy-test:${{ env.tag }}"
 
   test:
