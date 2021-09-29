@@ -51,6 +51,8 @@ jobs:
     needs: base_build
 
     steps:
+    - uses: actions/checkout@v2
+
     - name: Download Indy tarballs
       uses: actions/download-artifact@v2
       id: download
@@ -65,19 +67,29 @@ jobs:
       run: |
         echo "INDY_VERSION=$(cat dist/indy-version.properties | grep '^version' | awk -F '=' '{print $2}')" >> $GITHUB_ENV
 
-    # - name: Set up Docker Buildx
-    #   uses: docker/setup-buildx-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
     
     - name: Show image build context dir
       run: |
         ls -alh .
 
+    # - name: Build image
+    #   env:
+    #     tag: ${{ github.run_id }}
+    #     INDY_VERSION: ${{ env.INDY_VERSION }}
+    #   run: |
+    #     docker build --build-arg=INDY_VERSION=$INDY_VERSION -t indy-test:$tag -f ./Dockerfile .
+
     - name: Build image
+      uses: docker/build-push-action@v2
       env:
         tag: ${{ github.run_id }}
         INDY_VERSION: ${{ env.INDY_VERSION }}
-      run: |
-        docker build --build-arg=INDY_VERSION=$INDY_VERSION -t indy-test:$tag -f ./Dockerfile .
+      with:
+        push: false
+        context: ./
+        tags: "commonjava/indy-test:${{ env.tag }}"
 
   test:
     name: Run perf tests
