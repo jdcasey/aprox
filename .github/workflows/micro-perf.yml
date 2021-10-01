@@ -97,11 +97,17 @@ jobs:
 
     services:
       indy:
-        image: "quay.io/commonjava/indy-test:${{ github.run_id }}"
+        image: "quay.io/commonjava/indy-test:${{ github.sha }}"
         ports:
           - 8080:8080
 
     steps:
-      - name: Curl Indy
+      - name: Find Indy version
         run: |
           curl -i http://indy:8080/api/stats/version-info
+        
+      - name: Reset Indy metrics
+        run: |
+          curl -i -X POST http://indy:8080/api/admin/test/metrics/reset
+
+
