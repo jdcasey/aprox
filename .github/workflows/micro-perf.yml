@@ -104,10 +104,10 @@ jobs:
     steps:
       - name: Find Indy version
         run: |
-          curl -i http://indy:8080/api/stats/version-info
-        
+          curl -i http://localhost:8080/api/stats/version-info
+
       - name: Reset Indy metrics
         run: |
-          curl -i -X POST http://indy:8080/api/admin/test/metrics/reset
+          curl -i -X POST http://localhost:8080/api/admin/test/metrics/reset
 
 

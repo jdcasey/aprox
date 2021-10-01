@@ -1,3 +1,10 @@
+#FROM maven:3.8-adoptopenjdk-11 AS MAVEN_BUILD
+#COPY . /tmp/indy
+#WORKDIR /tmp/indy
+#RUN sysctl -w fs.file-max=1000000
+#RUN mvn package
+
+
 FROM debian:latest
 
 ARG INDY_VERSION
@@ -15,18 +22,17 @@ RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y openjdk-11-jdk-headless unzip tar gzip
 
+RUN	mkdir -p /usr/share/indy /home/indy
+
 ADD local-gh-actions/test-container/start-indy.py /usr/local/bin/start-indy.py
 
 ADD dist/indy-launcher-$INDY_VERSION-skinny.tar.gz /opt
-#RUN	tar -xf /tmp/indy-launcher.tar.gz -C /opt
-
-RUN	mkdir -p /usr/share/indy /home/indy
 ADD dist/indy-launcher-$INDY_VERSION-data.tar.gz /usr/share/indy
 
-#RUN tar -xf /tmp/indy-launcher-data.tar.gz -C /usr/share/indy
+#ADD --from=MAVEN-BUILD /tmp/indy/deployment/launcher/indy-launcher-$INDY_VERSION-skinny.tar.gz /opt
+#ADD --from=MAVEN_BUILD /tmp/indy/deployment/launcher/indy-launcher-$INDY_VERSION-data.tar.gz /usr/share/indy
 
 RUN chmod +x /usr/local/bin/*
-
 RUN cp -rf /opt/indy/var/lib/indy/ui /usr/share/indy/ui
 
 # Run as non-root user
