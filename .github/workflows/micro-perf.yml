@@ -40,7 +40,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: indy-test
-        tags: ${{ github.sha }}
+        tags: ${{ github.sha }} latest-${{ github.repository_owner }}
         build-args: "INDY_VERSION=${{ env.INDY_VERSION }}"
         context: .
         dockerfiles: |
