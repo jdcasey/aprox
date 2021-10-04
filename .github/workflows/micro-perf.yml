@@ -42,8 +42,9 @@ jobs:
         image: indy-test
         tags: ${{ github.sha }}
         build-args: "INDY_VERSION=${{ env.INDY_VERSION }}"
+        context: .
         dockerfiles: |
-          ./Dockerfile
+          ./local-gh-actions/test-container/Dockerfile
 
     - name: Push To quay.io
       id: push-to-quay
