@@ -63,10 +63,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
-    service:
-      image: "quay.io/commonjava/indy-test:${{ github.sha }}"
-      ports:
-        - 8080:8080
+    services:
+      indy:
+        image: "quay.io/commonjava/indy-test:${{ github.sha }}"
+        ports:
+          - 8080:8080
 
     steps:
       - name: Find Indy version
