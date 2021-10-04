@@ -71,6 +71,10 @@ jobs:
           - 8080:8080
 
     steps:
+      - name: Wait for Indy to come online
+        run: |
+          for i in $(seq 30); do echo "Try #${i}" && curl -i http://localhost:${{ job.services.indy.ports['8080'] }}/api/stats/version-info || sleep 1; done
+
       - name: Find Indy version
         run: |
           curl -i http://localhost:${{ job.services.indy.ports['8080'] }}/api/stats/version-info
