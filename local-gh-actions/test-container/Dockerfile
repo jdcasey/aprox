@@ -41,5 +41,7 @@ RUN chmod 0775 /usr/local/bin/*
 
 RUN ls -alh /usr/local/bin
 
+HEALTHCHECK --retries=3 --timeout=2s CMD curl -f https://localhost:8080/api/stats/version-info || exit 1
+
 ENTRYPOINT ["/usr/local/bin/dumb-init", "/opt/indy/bin/indy.sh"]
 #ENTRYPOINT ["/bin/bash"]
