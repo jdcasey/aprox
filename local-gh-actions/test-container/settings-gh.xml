@@ -1,0 +1,9 @@
+<settings>
+	<mirrors>
+		<mirror>
+			<mirrorOf>*</mirrorOf>
+			<id>indy</id>
+			<url>http://localhost:8080/api/folo/track/indy-build/maven/group/public</url>
+		</mirror>
+	</mirrors>
+</settings>

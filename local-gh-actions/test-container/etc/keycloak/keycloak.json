@@ -1,0 +1,11 @@
+{
+  "realm": "${keycloak.realm}",
+  "resource": "${keycloak.serverResource}",
+  "realm-public-key": "${keycloak.realmPublicKey}",
+  "auth-server-url": "${keycloak.url}",
+  "ssl-required": "external",
+  "bearer-only": true,
+  "credentials": {
+    "secret": "${keycloak.serverCredentialSecret}"
+  }
+}

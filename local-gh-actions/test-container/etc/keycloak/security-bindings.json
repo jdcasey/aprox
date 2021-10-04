@@ -1,0 +1,29 @@
+{
+  "constraints" : [
+    {
+      "role" : "admin",
+      "urlPattern" : "/api/admin/*",
+      "methods" : [ "POST", "GET", "PUT", "DELETE", "OPTIONS", "HEAD" ]
+    },
+    {
+      "role" : "user",
+      "urlPattern" : "/api/*",
+      "methods" : [ "POST", "PUT", "DELETE" ]
+    },
+    {
+      "role" : "power-user",
+      "urlPattern" : "/api/promotion/*",
+      "methods" : [ "POST", "GET", "PUT", "DELETE", "OPTIONS", "HEAD" ]
+    },
+    {
+      "role" : "power-user",
+      "urlPattern" : "/api/admin/stores/*",
+      "methods" : [ "POST", "PUT", "DELETE" ]
+    },
+    {
+      "role" : "power-user",
+      "urlPattern" : "/api/content/*",
+      "methods" : [ "DELETE" ]
+    }
+  ]
+}
