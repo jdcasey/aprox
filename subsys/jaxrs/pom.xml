@@ -106,6 +106,10 @@
       <artifactId>o11yphant-trace-helper-servlet</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.commonjava.util</groupId>
+      <artifactId>o11yphant-metrics-helper-servlet</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-sli</artifactId>
     </dependency>

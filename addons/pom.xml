@@ -31,8 +31,8 @@
   <name>Indy :: Add-Ons :: Parent</name>
   
   <modules>
-    <module>content-index</module>
-    <module>dot-maven</module>
+    <!-- <module>content-index</module> -->
+    <!-- <module>dot-maven</module> -->
     <module>folo</module>
     <module>httprox</module>
     <module>implied-repos</module>

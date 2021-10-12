@@ -30,7 +30,7 @@ import org.commonjava.indy.bind.jaxrs.util.RequestScopeListener;
 import org.commonjava.indy.conf.UIConfiguration;
 import org.commonjava.indy.stats.IndyVersioning;
 import org.commonjava.indy.subsys.honeycomb.TraceManagerProducer;
-import org.commonjava.o11yphant.metrics.GoldenSignalsFilter;
+import org.commonjava.o11yphant.metrics.servlet.GoldenSignalsFilter;
 import org.commonjava.o11yphant.trace.servlet.TraceFilter;
 import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 import org.jboss.resteasy.spi.ResteasyDeployment;
