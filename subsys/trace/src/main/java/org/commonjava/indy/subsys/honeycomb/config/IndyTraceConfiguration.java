@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @SectionName( "trace" )
 @ApplicationScoped
@@ -199,6 +200,12 @@ public class IndyTraceConfiguration
     public String getDataset()
     {
         return dataset;
+    }
+
+    @Override
+    public boolean isHoneycombConfigValid()
+    {
+        return isNotEmpty( getWriteKey() ) && isNotEmpty( getDataset() );
     }
 
     @Override

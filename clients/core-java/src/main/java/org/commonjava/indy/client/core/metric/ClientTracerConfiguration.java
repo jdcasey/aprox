@@ -20,6 +20,8 @@ import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
 import org.commonjava.o11yphant.otel.OtelConfiguration;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 @ClientMetricConfig
 public class ClientTracerConfiguration
         implements TracerConfiguration, OtelConfiguration, HoneycombConfiguration
@@ -56,6 +58,12 @@ public class ClientTracerConfiguration
     public String getDataset()
     {
         return dataset;
+    }
+
+    @Override
+    public boolean isHoneycombConfigValid()
+    {
+        return isNotEmpty( getWriteKey() ) && isNotEmpty( getDataset() );
     }
 
     public void setDataset( String dataset )
